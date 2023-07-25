@@ -47,32 +47,39 @@ add_subdirectory(JUCE)
 
 # Check the readme at `docs/CMake API.md` in the JUCE repo for full config
 juce_add_plugin("${PROJECT_NAME}"
-    # VERSION ...                               # Set this if the plugin version is different to the project version
-    # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
-    # ICON_SMALL ...
-    COMPANY_NAME ZL
-    IS_SYNTH FALSE                       # Is this a synth or an effect?
-    NEEDS_MIDI_INPUT FALSE               # Does the plugin need midi input?
-    NEEDS_MIDI_OUTPUT FALSE              # Does the plugin need midi output?
-    IS_MIDI_EFFECT FALSE                 # Is this plugin a MIDI effect?
-    EDITOR_WANTS_KEYBOARD_FOCUS TRUE    # Does the editor need keyboard focus?
-    COPY_PLUGIN_AFTER_BUILD TRUE                # On MacOS, plugin will be copied to /Users/you/Library/Audio/Plug-Ins/
-    PLUGIN_MANUFACTURER_CODE Zliu               # This has to be one uppercase, rest lower for AU formats
-    PLUGIN_CODE Ecom                            # A unique four-character plugin id with at least one upper-case character
-    VST3_CATEGORIES Dynamics
-    AU_MAIN_TYPE kAudioUnitType_Effect
-    FORMATS "${FORMATS}"
-    PRODUCT_NAME "ZL E Compressor")             # The name of the final executable, which can differ from the target name
+        # VERSION ...                               # Set this if the plugin version is different to the project version
+        # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
+        # ICON_SMALL ...
+        COMPANY_NAME ZL
+        IS_SYNTH FALSE                       # Is this a synth or an effect?
+        NEEDS_MIDI_INPUT FALSE               # Does the plugin need midi input?
+        NEEDS_MIDI_OUTPUT FALSE              # Does the plugin need midi output?
+        IS_MIDI_EFFECT FALSE                 # Is this plugin a MIDI effect?
+        EDITOR_WANTS_KEYBOARD_FOCUS TRUE    # Does the editor need keyboard focus?
+        COPY_PLUGIN_AFTER_BUILD TRUE                # On MacOS, plugin will be copied to /Users/you/Library/Audio/Plug-Ins/
+        PLUGIN_MANUFACTURER_CODE Zliu               # This has to be one uppercase, rest lower for AU formats
+        PLUGIN_CODE Ecom                            # A unique four-character plugin id with at least one upper-case character
+        VST3_CATEGORIES Dynamics
+        AU_MAIN_TYPE kAudioUnitType_Effect
+        FORMATS "${FORMATS}"
+        PRODUCT_NAME "ZL E Compressor")             # The name of the final executable, which can differ from the target name
 
 # C++20, please
 target_compile_features("${PROJECT_NAME}" PRIVATE cxx_std_20)
 
 # Manually list all .h and .cpp files for the plugin
 set(SourceFiles
-    Source/PluginEditor.h
-    Source/PluginProcessor.h
-    Source/PluginEditor.cpp
-    Source/PluginProcessor.cpp)
+        Source/PluginEditor.h
+        Source/PluginProcessor.h
+        Source/PluginEditor.cpp
+        Source/PluginProcessor.cpp
+
+        Source/DSP/dsp_defines.h
+
+        Source/DSP/Computer/spline.h
+        Source/DSP/Computer/computer.h
+        Source/DSP/Computer/computer.cpp
+        )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 
 # No, we don't want our source buried in extra nested folders
@@ -100,36 +107,36 @@ set_target_properties(Assets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 foreach (target ${FORMATS} "All")
     if (TARGET ${PROJECT_NAME}_${target})
         set_target_properties(${PROJECT_NAME}_${target} PROPERTIES
-            # Tuck the actual plugin targets into a folder where they won't bother us
-            FOLDER "Targets"
+                # Tuck the actual plugin targets into a folder where they won't bother us
+                FOLDER "Targets"
 
-            # MacOS only: Sets the default executable that Xcode will open on build
-            # For this exact path to to work, manually build the AudioPluginHost.xcodeproj in the JUCE subdir
-            XCODE_SCHEME_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/extras/AudioPluginHost/Builds/MacOSX/build/Debug/AudioPluginHost.app"
+                # MacOS only: Sets the default executable that Xcode will open on build
+                # For this exact path to to work, manually build the AudioPluginHost.xcodeproj in the JUCE subdir
+                XCODE_SCHEME_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/extras/AudioPluginHost/Builds/MacOSX/build/Debug/AudioPluginHost.app"
 
-            # Let us build the target in Xcode
-            XCODE_GENERATE_SCHEME ON)
+                # Let us build the target in Xcode
+                XCODE_GENERATE_SCHEME ON)
     endif ()
 endforeach ()
 set_target_properties(Assets PROPERTIES FOLDER "Targets")
 
 
 target_compile_definitions("${PROJECT_NAME}"
-    PUBLIC
-    # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-    JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
-    JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
-    JUCE_VST3_CAN_REPLACE_VST2=0)
+        PUBLIC
+        # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
+        JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
+        JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
+        JUCE_VST3_CAN_REPLACE_VST2=0)
 
 target_link_libraries("${PROJECT_NAME}"
-    PRIVATE
-    Assets
-    juce::juce_audio_utils
-    juce::juce_audio_processors
-    PUBLIC
-    juce::juce_recommended_config_flags
-    juce::juce_recommended_lto_flags
-    juce::juce_recommended_warning_flags)
+        PRIVATE
+        Assets
+        juce::juce_audio_utils
+        juce::juce_audio_processors
+        PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags)
 
 # When present, use Intel IPP for performance on Windows
 if (WIN32) # Can't use MSVC here, as it won't catch Clang on Windows
