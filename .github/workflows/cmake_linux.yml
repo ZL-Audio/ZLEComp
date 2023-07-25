@@ -100,20 +100,7 @@ jobs:
         name: ${{ env.INSTALLER_NAME }}.zip
         path: '${{ env.ARTIFACTS_PATH }}/${{ env.INSTALLER_NAME }}.zip'
 
-  release:
-    if: contains(github.ref, 'tags/v')
-    runs-on: ubuntu-latest
-    needs: build_and_test
-
-    steps:
-    - name: Get Artifacts
-      uses: actions/download-artifact@v3
-
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
+    - name: Delete Artifacts
+      uses: geekyeggo/delete-artifact@v2
       with:
-        prerelease: true
-        # download-artifact puts these files in their own dirs...
-        # Using globs sidesteps having to pass the version around
-        files: |
-          */*.zip
+        name: ${{ env.INSTALLER_NAME }}.zip
