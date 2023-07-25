@@ -79,6 +79,10 @@ set(SourceFiles
         Source/DSP/Computer/spline.h
         Source/DSP/Computer/computer.h
         Source/DSP/Computer/computer.cpp
+
+        Source/DSP/Detector/iter_funcs.h
+        Source/DSP/Detector/detector.h
+        Source/DSP/Detector/detector.cpp
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 

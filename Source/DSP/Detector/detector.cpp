@@ -8,25 +8,26 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#pragma once
+#include "detector.h"
 
-#include "PluginProcessor.h"
+namespace detector {
 
-//==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor
-{
-public:
-    explicit PluginEditor (PluginProcessor&);
-    ~PluginEditor() override;
+    template<typename FloatType>
+    FloatType Detector<FloatType>::process(FloatType target) {
+        FloatType para = xC < target ? rPara.load() : aPara.load();
+        size_t style = xC < target ? rStyle.load() : aStyle.load();
+        xS += para * std::abs(funcs<FloatType>[style](std::abs(xS - target))) * sgn(xS - target);
+        FloatType distance = xS * smooth.load() + target * (1 - smooth.load());
+        xC += para * std::abs(funcs<FloatType>[style](distance)) * sgn(distance);
+        return xC;
+    }
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
+    template<typename FloatType>
+    void Detector<FloatType>::reset() {
+        xC = 0;
+        xS = 0;
+    }
 
-private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    PluginProcessor& processorRef;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
-};
+    template class Detector<float>;
+    template class Detector<double>;
+} // detector
