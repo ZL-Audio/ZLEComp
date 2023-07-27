@@ -13,6 +13,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include <BinaryData.h>
 
 namespace ZLDsp {
     // float
@@ -255,6 +256,10 @@ namespace ZLDsp {
                    overSample::get());
         return layout;
     }
+
+    inline static std::array presets{BinaryData::half_rms_m_xml};
+    inline static std::array presetNames {"Half RMS"};
+
 } // namespace ZLDsp
 
 #endif //ZLECOMP_DSP_DEFINES_H

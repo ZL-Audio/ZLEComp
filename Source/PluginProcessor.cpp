@@ -53,7 +53,7 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
+    return static_cast<int>(ZLDsp::presets.size());   // NB: some hosts don't cope very well if you tell them there are 0 programs,
     // so this should be at least 1, even if you're not really implementing programs.
 }
 
@@ -63,8 +63,8 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     juce::ignoreUnused(index);
-    if (index == 0) {
-        juce::XmlDocument xmlDocument{ BinaryData::half_rms_m_xml};
+    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
+        juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
         parameters.replaceState(valueTreeToLoad);
     }
@@ -72,10 +72,10 @@ void PluginProcessor::setCurrentProgram(int index) {
 
 const juce::String PluginProcessor::getProgramName(int index) {
     juce::ignoreUnused(index);
-    if (index == 0) {
-        return "Half RMS";
+    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
+        return ZLDsp::presetNames[static_cast<size_t>(index)];
     }
-    return "Default";
+    return {};
 }
 
 void PluginProcessor::changeProgramName(int index, const juce::String &newName) {
