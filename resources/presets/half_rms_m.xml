@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ZLECompParameters>
+  <PARAM id="a_style" value="0.0"/>
+  <PARAM id="attack" value="0.0"/>
+  <PARAM id="audit" value="0.0"/>
+  <PARAM id="bound" value="60.0"/>
+  <PARAM id="external" value="0.0"/>
+  <PARAM id="knee_depth" value="0.5"/>
+  <PARAM id="knee_slope" value="0.5"/>
+  <PARAM id="knee_width" value="0.0"/>
+  <PARAM id="link" value="1.0"/>
+  <PARAM id="lookahead" value="125.0"/>
+  <PARAM id="mix" value="100.0"/>
+  <PARAM id="out_gain" value="0.0"/>
+  <PARAM id="over_sample" value="0.0"/>
+  <PARAM id="r_style" value="0.0"/>
+  <PARAM id="ratio" value="4.0"/>
+  <PARAM id="release" value="0.0"/>
+  <PARAM id="rms" value="250.0"/>
+  <PARAM id="segment" value="0.0"/>
+  <PARAM id="side_gain" value="0.0"/>
+  <PARAM id="smooth" value="0.0"/>
+  <PARAM id="threshold" value="-18.0"/>
+</ZLECompParameters>

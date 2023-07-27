@@ -8,10 +8,11 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLLMAKEUP_DSP_DEFINES_H
-#define ZLLMAKEUP_DSP_DEFINES_H
+#ifndef ZLECOMP_DSP_DEFINES_H
+#define ZLECOMP_DSP_DEFINES_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_dsp/juce_dsp.h>
 
 namespace ZLDsp {
     // float
@@ -38,21 +39,8 @@ namespace ZLDsp {
         auto static constexpr ID = "ratio";
         auto static constexpr name = "Ratio";
         auto static constexpr defaultV = 4.f;
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction from01 = [](float start, float end, float x) {
-            return std::pow(2, x * 10) / 8;
-        };
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction to01 = [](float start, float end, float x) {
-            return std::log2(x * 8) / 10;
-        };
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction snap = [](float start, float end, float x) {
-            if (x < 100) {
-                return std::floor(x * 100) / 100;
-            } else {
-                return std::floor(x * 10) / 10;
-            }
-        };
         inline auto static const range =
-                juce::NormalisableRange<float>(1.f, 100.f, from01, to01, snap);
+                juce::NormalisableRange<float>(1.f, 100.f, 0.01f, 0.19824f);
     };
 
     class kneeW : public FloatParameters<kneeW> {
@@ -106,21 +94,8 @@ namespace ZLDsp {
     public:
         auto static constexpr ID = "attack";
         auto static constexpr name = "Attack (ms)";
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction from01 = [](float start, float end, float x) {
-            return (std::pow(2, 8 * x) - 1) * 2;
-        };
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction to01 = [](float start, float end, float x) {
-            return std::log2(x / 2 + 1) / 8;
-        };
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction snap = [](float start, float end, float x) {
-            if (x < 100) {
-                return std::floor(x * 100) / 100;
-            } else {
-                return std::floor(x * 10) / 10;
-            }
-        };
         inline auto static const range =
-                juce::NormalisableRange<float>(0.f, 510.f, from01, to01, snap);
+                juce::NormalisableRange<float>(0.f, 500.f, 0.01f, 0.30103f);
         auto static constexpr defaultV = 10.f;
     };
 
@@ -128,23 +103,8 @@ namespace ZLDsp {
     public:
         auto static constexpr ID = "release";
         auto static constexpr name = "Release (ms)";
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction from01 = [](float start, float end, float x) {
-            return (std::pow(2, 8 * x) - 1) * 20;
-        };
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction to01 = [](float start, float end, float x) {
-            return std::log2(x / 20 + 1) / 8;
-        };
-        inline static const juce::NormalisableRange<float>::ValueRemapFunction snap = [](float start, float end, float x) {
-            if (x < 100) {
-                return std::floor(x * 100) / 100;
-            } else if (x < 1000) {
-                return std::floor(x * 10) / 10;
-            } else {
-                return std::floor(x);
-            }
-        };
         inline auto static const range =
-                juce::NormalisableRange<float>(0.f, 5100.f, from01, to01, snap);
+                juce::NormalisableRange<float>(0.f, 5000.f, 0.01f, 0.30103f);
         auto static constexpr defaultV = 100.f;
     };
 
@@ -154,7 +114,7 @@ namespace ZLDsp {
         auto static constexpr name = "Smooth";
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1.f, .01f);
-        auto static constexpr defaultV = 0.0f;
+        auto static constexpr defaultV = 0.f;
     };
 
     class link : public FloatParameters<link> {
@@ -163,7 +123,54 @@ namespace ZLDsp {
         auto static constexpr name = "Stereo Link";
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1.f, .01f);
-        auto static constexpr defaultV = 1.0f;
+        auto static constexpr defaultV = 1.f;
+    };
+
+    class segment : public FloatParameters<segment> {
+    public:
+        auto static constexpr ID = "segment";
+        auto static constexpr name = "Segment (ms)";
+        inline auto static const range =
+                juce::NormalisableRange<float>(0.f, 10.f, .1f);
+        auto static constexpr defaultV = 0.f;
+    };
+
+    class outGain : public FloatParameters<outGain> {
+    public:
+        auto static constexpr ID = "out_gain";
+        auto static constexpr name = "Out Gain (dB)";
+        inline auto static const range =
+                juce::NormalisableRange<float>(-6.f, 12.f, .1f);
+        auto static constexpr defaultV = 0.f;
+    };
+
+    class mix : public FloatParameters<mix> {
+    public:
+        auto static constexpr ID = "mix";
+        auto static constexpr name = "Mix (%)";
+        inline auto static const range =
+                juce::NormalisableRange<float>(0.f, 100.f, .1f);
+        auto static constexpr defaultV = 100.f;
+        inline static float formatV(float x) {return x * .01f;}
+        inline static double formatV(double x) {return x * .01;}
+    };
+
+    class rms : public FloatParameters<rms> {
+    public:
+        auto static constexpr ID = "rms";
+        auto static constexpr name = "RMS (ms)";
+        inline auto static const range =
+                juce::NormalisableRange<float>(0.f, 1000.f, 1.f);
+        auto static constexpr defaultV = 0.f;
+    };
+
+    class lookahead : public FloatParameters<lookahead> {
+    public:
+        auto static constexpr ID = "lookahead";
+        auto static constexpr name = "Lookahead (ms)";
+        inline auto static const range =
+                juce::NormalisableRange<float>(0.f, 250.f, 1.f);
+        auto static constexpr defaultV = 0.f;
     };
 
     // bool
@@ -222,12 +229,32 @@ namespace ZLDsp {
         };
     };
 
+    class overSample : public ChoiceParameters<overSample> {
+    public:
+        auto static constexpr ID = "over_sample";
+        auto static constexpr name = "Over Sampling";
+        inline auto static const choices = juce::StringArray{"OFF", "x2", "x4", "x8"};
+        int static constexpr defaultI = 0;
+        enum {
+            off, x2, x4, x8, overSampleNUM
+        };
+    };
+
     inline juce::AudioProcessorValueTreeState::ParameterLayout getParameterLayout() {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
-        layout.add(threshold::get(), ratio::get(),
-                   external::get());
+        layout.add(threshold::get(), ratio::get(), kneeW::get(),
+                   kneeD::get(), kneeS::get(), bound::get(),
+
+                   sideGain::get(), attack::get(), release::get(),
+                   smooth::get(), link::get(),
+                   external::get(), audit::get(),
+                   aStyle::get(), rStyle::get(),
+
+                   outGain::get(), mix::get(), segment::get(),
+                   rms::get(), lookahead::get(),
+                   overSample::get());
         return layout;
     }
 } // namespace ZLDsp
 
-#endif //ZLLMAKEUP_DSP_DEFINES_H
+#endif //ZLECOMP_DSP_DEFINES_H

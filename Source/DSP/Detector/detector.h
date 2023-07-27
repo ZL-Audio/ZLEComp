@@ -12,6 +12,7 @@
 #define ZLECOMP_DETECTOR_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_dsp/juce_dsp.h>
 #include "../dsp_defines.h"
 #include "iter_funcs.h"
 
@@ -22,9 +23,31 @@ namespace detector {
     public:
         Detector() = default;
 
-        void reset();
+        inline void reset();
+
+        inline void prepareToPlay(const juce::dsp::ProcessSpec &spec);
 
         FloatType process(FloatType target);
+
+        inline void setAStyle(size_t idx) {
+            aStyle.store(idx);
+        }
+
+        inline void setRStyle(size_t idx) {
+            rStyle.store(idx);
+        }
+
+        inline void setAttack(FloatType v) {
+            aPara.store(1000 / juce::jmin(v, FloatType(0.001)) * deltaT.load());
+        }
+
+        inline void setRelease(FloatType v) {
+            rPara.store(1000 / juce::jmin(v, FloatType(0.001)) * deltaT.load());
+        }
+
+        inline void setSmooth(FloatType v) {
+            smooth.store(v);
+        }
 
     private:
         std::atomic<size_t> aStyle = ZLDsp::aStyle::defaultI, rStyle = ZLDsp::rStyle::defaultI;

@@ -75,6 +75,13 @@ set(SourceFiles
         Source/PluginProcessor.cpp
 
         Source/DSP/dsp_defines.h
+        Source/DSP/controller.h
+        Source/DSP/controller.cpp
+
+        Source/DSP/FixedBuffer/fifo_audio_buffer.h
+        Source/DSP/FixedBuffer/fifo_audio_buffer.cpp
+        Source/DSP/FixedBuffer/fixed_audio_buffer.h
+        Source/DSP/FixedBuffer/fixed_audio_buffer.cpp
 
         Source/DSP/Computer/spline.h
         Source/DSP/Computer/computer.h
@@ -83,6 +90,9 @@ set(SourceFiles
         Source/DSP/Detector/iter_funcs.h
         Source/DSP/Detector/detector.h
         Source/DSP/Detector/detector.cpp
+        Source/DSP/Detector/tracker.h
+        Source/DSP/Detector/rms_tracker.h
+        Source/DSP/Detector/rms_tracker.cpp
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 
@@ -96,7 +106,9 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Source PREFIX "" FILES ${SourceFil
 juce_add_binary_data(Assets SOURCES
         resources/zlaudio.svg
         resources/logo.svg
-        resources/font/OpenSans-SemiBold.ttf)
+        resources/font/OpenSans-SemiBold.ttf
+
+        resources/presets/half_rms_m.xml)
 
 # Required for Linux happiness:
 # See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2

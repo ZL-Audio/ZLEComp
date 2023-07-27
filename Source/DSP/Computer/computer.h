@@ -25,33 +25,33 @@ namespace computer {
 
         FloatType eval(FloatType x);
 
-        void setThreshold(FloatType v) {
-            threshold = v;
+        inline void setThreshold(FloatType v) {
+            threshold.store(v);
             interpolate();
         }
 
-        void setRatio(FloatType v) {
-            ratio = v;
+        inline void setRatio(FloatType v) {
+            ratio.store(v);
             interpolate();
         }
 
-        void setKneeW(FloatType v) {
-            kneeW = v;
+        inline void setKneeW(FloatType v) {
+            kneeW.store(v);
             interpolate();
         }
 
-        void setKneeD(FloatType v) {
-            kneeD = v;
+        inline void setKneeD(FloatType v) {
+            kneeD.store(v);
             interpolate();
         }
 
-        void setKneeS(FloatType v) {
-            kneeS = v;
+        inline void setKneeS(FloatType v) {
+            kneeS.store(v);
             interpolate();
         }
 
-        void setBound(FloatType v) {
-            bound = v;
+        inline void setBound(FloatType v) {
+            bound.store(v);
         }
 
     private:
