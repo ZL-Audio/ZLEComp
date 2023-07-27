@@ -1,3 +1,13 @@
+// ==============================================================================
+// Copyright (C) 2023 - zsliu98
+// This file is part of ZLEComp
+//
+// ZLEComp is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+// ZLEComp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
+// ==============================================================================
+
 /*
  * spline.h
  *
@@ -167,26 +177,26 @@ namespace {
                 std::vector<std::vector<double> > m_upper;  // upper band
                 std::vector<std::vector<double> > m_lower;  // lower band
             public:
-                band_matrix() {};                             // constructor
-                band_matrix(int dim, int n_u, int n_l);       // constructor
-                ~band_matrix() {};                            // destructor
-                void resize(int dim, int n_u, int n_l);      // init with dim,n_u,n_l
-                int dim() const;                             // matrix dimension
-                int num_upper() const {
-                    return (int) m_upper.size() - 1;
+                band_matrix() {}                             // constructor
+                band_matrix(size_t dim, size_t n_u, size_t n_l);       // constructor
+                ~band_matrix() {}                            // destructor
+                void resize(size_t dim, size_t n_u, size_t n_l);      // init with dim,n_u,n_l
+                size_t dim() const;                             // matrix dimension
+                size_t num_upper() const {
+                    return m_upper.size() - 1;
                 }
 
-                int num_lower() const {
-                    return (int) m_lower.size() - 1;
+                size_t num_lower() const {
+                    return m_lower.size() - 1;
                 }
 
                 // access operator
-                double &operator()(int i, int j);            // write
-                double operator()(int i, int j) const;      // read
+                double &operator()(size_t i, size_t j);            // write
+                double operator()(size_t i, size_t j) const;      // read
                 // we can store an additional diagonal (in m_lower)
-                double &saved_diag(int i);
+                double &saved_diag(size_t i);
 
-                double saved_diag(int i) const;
+                double saved_diag(size_t i) const;
 
                 void lu_decompose();
 
@@ -202,7 +212,7 @@ namespace {
             double get_eps();
 
             std::vector<double> solve_cubic(double a, double b, double c, double d,
-                                            int newton_iter = 0);
+                                            size_t newton_iter = 0);
 
         } // namespace internal
 
@@ -260,9 +270,9 @@ namespace {
             m_made_monotonic = false;
             m_x = x;
             m_y = y;
-            int n = (int) x.size();
+            size_t n = x.size();
             // check strict monotonicity of input vector x
-            for (int i = 0; i < n - 1; i++) {
+            for (size_t i = 0; i < n - 1; i++) {
                 assert(m_x[i] < m_x[i + 1]);
             }
 
@@ -272,7 +282,7 @@ namespace {
                 m_d.resize(n);
                 m_c.resize(n);
                 m_b.resize(n);
-                for (int i = 0; i < n - 1; i++) {
+                for (size_t i = 0; i < n - 1; i++) {
                     m_d[i] = 0.0;
                     m_c[i] = 0.0;
                     m_b[i] = (m_y[i + 1] - m_y[i]) / (m_x[i + 1] - m_x[i]);
@@ -287,11 +297,11 @@ namespace {
 
                 // setting up the matrix and right hand side of the equation system
                 // for the parameters b[]
-                int n_upper = (m_left == spline::not_a_knot) ? 2 : 1;
-                int n_lower = (m_right == spline::not_a_knot) ? 2 : 1;
+                size_t n_upper = (m_left == spline::not_a_knot) ? 2 : 1;
+                size_t n_lower = (m_right == spline::not_a_knot) ? 2 : 1;
                 internal::band_matrix A(n, n_upper, n_lower);
                 std::vector<double> rhs(n);
-                for (int i = 1; i < n - 1; i++) {
+                for (size_t i = 1; i < n - 1; i++) {
                     A(i, i - 1) = 1.0 / 3.0 * (x[i] - x[i - 1]);
                     A(i, i) = 2.0 / 3.0 * (x[i + 1] - x[i - 1]);
                     A(i, i + 1) = 1.0 / 3.0 * (x[i + 1] - x[i]);
@@ -348,7 +358,7 @@ namespace {
                 // calculate parameters b[] and d[] based on c[]
                 m_d.resize(n);
                 m_b.resize(n);
-                for (int i = 0; i < n - 1; i++) {
+                for (size_t i = 0; i < n - 1; i++) {
                     m_d[i] = 1.0 / 3.0 * (m_c[i + 1] - m_c[i]) / (x[i + 1] - x[i]);
                     m_b[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i])
                              - 1.0 / 3.0 * (2.0 * m_c[i] + m_c[i + 1]) * (x[i + 1] - x[i]);
@@ -370,7 +380,7 @@ namespace {
                 m_c.resize(n);
                 m_d.resize(n);
                 // set b to match 1st order derivative finite difference
-                for (int i = 1; i < n - 1; i++) {
+                for (size_t i = 1; i < n - 1; i++) {
                     const double h = m_x[i + 1] - m_x[i];
                     const double hl = m_x[i] - m_x[i - 1];
                     m_b[i] = -h / (hl * (hl + h)) * m_y[i - 1] + (h - hl) / (hl * h) * m_y[i]
@@ -432,12 +442,12 @@ namespace {
             assert(m_x.size() == m_b.size());
             assert(m_x.size() > 2);
             bool modified = false;
-            const int n = (int) m_x.size();
+            const size_t n = m_x.size();
             // make sure: input data monotonic increasing --> b_i>=0
             //            input data monotonic decreasing --> b_i<=0
-            for (int i = 0; i < n; i++) {
-                int im1 = std::max(i - 1, 0);
-                int ip1 = std::min(i + 1, n - 1);
+            for (size_t i = 0; i < n; i++) {
+                size_t im1 = std::max(i - 1, size_t(0));
+                size_t ip1 = std::min(i + 1, n - 1);
                 if (((m_y[im1] <= m_y[i]) && (m_y[i] <= m_y[ip1]) && m_b[i] < 0.0) ||
                     ((m_y[im1] >= m_y[i]) && (m_y[i] >= m_y[ip1]) && m_b[i] > 0.0)) {
                     modified = true;
@@ -447,7 +457,7 @@ namespace {
             // if input data is monotonic (b[i], b[i+1], avg have all the same sign)
             // ensure a sufficient criteria for monotonicity is satisfied:
             //     sqrt(b[i]^2+b[i+1]^2) <= 3 |avg|, with avg=(y[i+1]-y[i])/h,
-            for (int i = 0; i < n - 1; i++) {
+            for (size_t i = 0; i < n - 1; i++) {
                 double h = m_x[i + 1] - m_x[i];
                 double avg = (m_y[i + 1] - m_y[i]) / h;
                 if (avg == 0.0 && (m_b[i] != 0.0 || m_b[i + 1] != 0.0)) {
@@ -468,7 +478,7 @@ namespace {
                 }
             }
 
-            if (modified == true) {
+            if (modified) {
                 set_coeffs_from_b();
                 m_made_monotonic = true;
             }
@@ -480,7 +490,7 @@ namespace {
         size_t spline::find_closest(double x) const {
             std::vector<double>::const_iterator it;
             it = std::upper_bound(m_x.begin(), m_x.end(), x);       // *it > x
-            size_t idx = std::max(int(it - m_x.begin()) - 1, 0);   // m_x[idx] <= x
+            size_t idx = std::max(static_cast<size_t>(it - m_x.begin()) - 1, size_t(0));   // m_x[idx] <= x
             return idx;
         }
 
@@ -567,7 +577,7 @@ namespace {
             const size_t n = m_x.size();
 
             // left extrapolation
-            if (ignore_extrapolation == false) {
+            if (!ignore_extrapolation) {
                 root = internal::solve_cubic(m_y[0] - y, m_b[0], m_c0, 0.0, 1);
                 for (size_t j = 0; j < root.size(); j++) {
                     if (root[j] < 0.0) {
@@ -585,7 +595,7 @@ namespace {
                     double eps = internal::get_eps() * 512.0 * std::min(h, 1.0);
                     if ((-eps <= root[j]) && (root[j] < m_x[i + 1] - m_x[i])) {
                         double new_root = m_x[i] + root[j];
-                        if (x.size() > 0 && x.back() + eps > new_root) {
+                        if (!x.empty() && x.back() + eps > new_root) {
                             x.back() = new_root;      // avoid spurious duplicate roots
                         } else {
                             x.push_back(new_root);
@@ -595,7 +605,7 @@ namespace {
             }
 
             // right extrapolation
-            if (ignore_extrapolation == false) {
+            if (!ignore_extrapolation) {
                 root = internal::solve_cubic(m_y[n - 1] - y, m_b[n - 1], m_c[n - 1], 0.0, 1);
                 for (size_t j = 0; j < root.size(); j++) {
                     if (0.0 <= root[j]) {
@@ -605,7 +615,7 @@ namespace {
             }
 
             return x;
-        };
+        }
 
 
 #ifdef HAVE_SSTREAM
@@ -628,11 +638,11 @@ namespace {
 // band_matrix implementation
 // -------------------------
 
-            band_matrix::band_matrix(int dim, int n_u, int n_l) {
+            band_matrix::band_matrix(size_t dim, size_t n_u, size_t n_l) {
                 resize(dim, n_u, n_l);
             }
 
-            void band_matrix::resize(int dim, int n_u, int n_l) {
+            void band_matrix::resize(size_t dim, size_t n_u, size_t n_l) {
                 assert(dim > 0);
                 assert(n_u >= 0);
                 assert(n_l >= 0);
@@ -646,19 +656,19 @@ namespace {
                 }
             }
 
-            int band_matrix::dim() const {
-                if (m_upper.size() > 0) {
+            size_t band_matrix::dim() const {
+                if (!m_upper.empty()) {
                     return m_upper[0].size();
                 } else {
-                    return 0;
+                    return size_t(0);
                 }
             }
 
 
 // defines the new operator (), so that we can access the elements
 // by A(i,j), index going from i=0,...,dim()-1
-            double &band_matrix::operator()(int i, int j) {
-                int k = j - i;       // what band is the entry
+            double &band_matrix::operator()(size_t i, size_t j) {
+                size_t k = j - i;       // what band is the entry
                 assert((i >= 0) && (i < dim()) && (j >= 0) && (j < dim()));
                 assert((-num_lower() <= k) && (k <= num_upper()));
                 // k=0 -> diagonal, k<0 lower left part, k>0 upper right part
@@ -666,8 +676,8 @@ namespace {
                 else return m_lower[-k][i];
             }
 
-            double band_matrix::operator()(int i, int j) const {
-                int k = j - i;       // what band is the entry
+            double band_matrix::operator()(size_t i, size_t j) const {
+                size_t k = j - i;       // what band is the entry
                 assert((i >= 0) && (i < dim()) && (j >= 0) && (j < dim()));
                 assert((-num_lower() <= k) && (k <= num_upper()));
                 // k=0 -> diagonal, k<0 lower left part, k>0 upper right part
@@ -676,44 +686,44 @@ namespace {
             }
 
 // second diag (used in LU decomposition), saved in m_lower
-            double band_matrix::saved_diag(int i) const {
+            double band_matrix::saved_diag(size_t i) const {
                 assert((i >= 0) && (i < dim()));
                 return m_lower[0][i];
             }
 
-            double &band_matrix::saved_diag(int i) {
+            double &band_matrix::saved_diag(size_t i) {
                 assert((i >= 0) && (i < dim()));
                 return m_lower[0][i];
             }
 
 // LR-Decomposition of a band matrix
             void band_matrix::lu_decompose() {
-                int i_max, j_max;
-                int j_min;
+                size_t i_max, j_max;
+                size_t j_min;
                 double x;
 
                 // preconditioning
                 // normalize column i so that a_ii=1
-                for (int i = 0; i < this->dim(); i++) {
+                for (size_t i = 0; i < this->dim(); i++) {
                     assert(this->operator()(i, i) != 0.0);
                     this->saved_diag(i) = 1.0 / this->operator()(i, i);
-                    j_min = std::max(0, i - this->num_lower());
+                    j_min = std::max(size_t(0), i - this->num_lower());
                     j_max = std::min(this->dim() - 1, i + this->num_upper());
-                    for (int j = j_min; j <= j_max; j++) {
+                    for (size_t j = j_min; j <= j_max; j++) {
                         this->operator()(i, j) *= this->saved_diag(i);
                     }
                     this->operator()(i, i) = 1.0;          // prevents rounding errors
                 }
 
                 // Gauss LR-Decomposition
-                for (int k = 0; k < this->dim(); k++) {
+                for (size_t k = 0; k < this->dim(); k++) {
                     i_max = std::min(this->dim() - 1, k + this->num_lower());  // num_lower not a mistake!
-                    for (int i = k + 1; i <= i_max; i++) {
+                    for (size_t i = k + 1; i <= i_max; i++) {
                         assert(this->operator()(k, k) != 0.0);
                         x = -this->operator()(i, k) / this->operator()(k, k);
                         this->operator()(i, k) = -x;                         // assembly part of L
                         j_max = std::min(this->dim() - 1, k + this->num_upper());
-                        for (int j = k + 1; j <= j_max; j++) {
+                        for (size_t j = k + 1; j <= j_max; j++) {
                             // assembly part of R
                             this->operator()(i, j) = this->operator()(i, j) + x * this->operator()(k, j);
                         }
@@ -723,14 +733,14 @@ namespace {
 
 // solves Ly=b
             std::vector<double> band_matrix::l_solve(const std::vector<double> &b) const {
-                assert(this->dim() == (int) b.size());
+                assert(this->dim() == b.size());
                 std::vector<double> x(this->dim());
-                int j_start;
+                size_t j_start;
                 double sum;
-                for (int i = 0; i < this->dim(); i++) {
+                for (size_t i = 0; i < this->dim(); i++) {
                     sum = 0;
-                    j_start = std::max(0, i - this->num_lower());
-                    for (int j = j_start; j < i; j++) sum += this->operator()(i, j) * x[j];
+                    j_start = std::max(size_t(0), i - this->num_lower());
+                    for (size_t j = j_start; j < i; j++) sum += this->operator()(i, j) * x[j];
                     x[i] = (b[i] * this->saved_diag(i)) - sum;
                 }
                 return x;
@@ -738,14 +748,14 @@ namespace {
 
 // solves Rx=y
             std::vector<double> band_matrix::r_solve(const std::vector<double> &b) const {
-                assert(this->dim() == (int) b.size());
+                assert(this->dim() == b.size());
                 std::vector<double> x(this->dim());
-                int j_stop;
+                size_t j_stop;
                 double sum;
-                for (int i = this->dim() - 1; i >= 0; i--) {
+                for (size_t i = this->dim() - 1; i >= 0; i--) {
                     sum = 0;
                     j_stop = std::min(this->dim() - 1, i + this->num_upper());
-                    for (int j = i + 1; j <= j_stop; j++) sum += this->operator()(i, j) * x[j];
+                    for (size_t j = i + 1; j <= j_stop; j++) sum += this->operator()(i, j) * x[j];
                     x[i] = (b[i] - sum) / this->operator()(i, i);
                 }
                 return x;
@@ -753,9 +763,9 @@ namespace {
 
             std::vector<double> band_matrix::lu_solve(const std::vector<double> &b,
                                                       bool is_lu_decomposed) {
-                assert(this->dim() == (int) b.size());
+                assert(this->dim() == b.size());
                 std::vector<double> x, y;
-                if (is_lu_decomposed == false) {
+                if (!is_lu_decomposed) {
                     this->lu_decompose();
                 }
                 y = this->l_solve(b);
@@ -791,7 +801,7 @@ namespace {
 
 // solutions for a + b*x + c*x^2 = 0
             std::vector<double> solve_quadratic(double a, double b, double c,
-                                                int newton_iter = 0) {
+                                                size_t newton_iter = 0) {
                 if (c == 0.0) {
                     return solve_linear(a, b);
                 }
@@ -818,7 +828,7 @@ namespace {
 
                 // improve solution via newton steps
                 for (size_t i = 0; i < x.size(); i++) {
-                    for (int k = 0; k < newton_iter; k++) {
+                    for (size_t k = 0; k < newton_iter; k++) {
                         double f = (c * x[i] + b) * x[i] + a;
                         double f1 = 2.0 * c * x[i] + b;
                         // only adjust if slope is large enough
@@ -839,7 +849,7 @@ namespace {
 //   gsl: gsl_poly_solve_cubic() in solve_cubic.c
 //   octave: roots.m - via eigenvalues of the Frobenius companion matrix
             std::vector<double> solve_cubic(double a, double b, double c, double d,
-                                            int newton_iter) {
+                                            size_t newton_iter) {
                 if (d == 0.0) {
                     return solve_quadratic(a, b, c, newton_iter);
                 }
@@ -905,7 +915,7 @@ namespace {
                     // convert depressed cubic roots to original cubic: x = z - c/3
                     z[i] -= (1.0 / 3.0) * c;
                     // improve solution via newton steps
-                    for (int k = 0; k < newton_iter; k++) {
+                    for (size_t k = 0; k < newton_iter; k++) {
                         double f = ((z[i] + c) * z[i] + b) * z[i] + a;
                         double f1 = (3.0 * z[i] + 2.0 * c) * z[i] + b;
                         // only adjust if slope is large enough
