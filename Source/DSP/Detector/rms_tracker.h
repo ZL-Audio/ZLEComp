@@ -22,7 +22,7 @@ namespace detector {
 
         ~RMSTracker() override;
 
-        void prepareToPlay(const juce::dsp::ProcessSpec &spec) override;
+        void prepare(const juce::dsp::ProcessSpec &spec) override;
 
         void reset() override;
 
@@ -62,7 +62,6 @@ namespace detector {
         FloatType peak = 0, mLoudness = 0, iLoudness = 0;
         FloatType secondPerBuffer = 0.01;
         std::deque<FloatType> loudness;
-        juce::AudioBuffer<FloatType> bufferCopy;
     };
 
 } // detector

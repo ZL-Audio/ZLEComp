@@ -16,9 +16,12 @@ namespace detector {
     FloatType Detector<FloatType>::process(FloatType target) {
         FloatType para = xC < target ? rPara.load() : aPara.load();
         size_t style = xC < target ? rStyle.load() : aStyle.load();
-        xS += para * std::abs(funcs<FloatType>[style](std::abs(xS - target))) * sgn(xS - target);
-        FloatType distance = xS * smooth.load() + target * (1 - smooth.load());
-        xC += para * std::abs(funcs<FloatType>[style](distance)) * sgn(distance);
+        FloatType distanceS = target - xS;
+        FloatType distanceC = (xS - xC) * smooth.load() + (target - xC) * (1 - smooth.load());
+        FloatType slopeS = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceS))), distanceS);
+        FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), distanceC);
+        xS += slopeS * sgn(distanceS);
+        xC += slopeC * sgn(distanceC);
         return xC;
     }
 
@@ -29,7 +32,7 @@ namespace detector {
     }
 
     template<typename FloatType>
-    inline void Detector<FloatType>::prepareToPlay(const juce::dsp::ProcessSpec &spec) {
+    inline void Detector<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
         deltaT.store(static_cast<FloatType>(1 / spec.sampleRate));
         reset();
     }

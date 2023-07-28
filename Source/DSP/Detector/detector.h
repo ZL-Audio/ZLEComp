@@ -25,7 +25,7 @@ namespace detector {
 
         inline void reset();
 
-        inline void prepareToPlay(const juce::dsp::ProcessSpec &spec);
+        inline void prepare(const juce::dsp::ProcessSpec &spec);
 
         FloatType process(FloatType target);
 
@@ -38,11 +38,13 @@ namespace detector {
         }
 
         inline void setAttack(FloatType v) {
-            aPara.store(1000 / juce::jmin(v, FloatType(0.001)) * deltaT.load());
+            v = juce::jmin(v, FloatType(0.001));
+            aPara.store(juce::jmin(FloatType(1000) / v * deltaT.load(), FloatType(1)));
         }
 
         inline void setRelease(FloatType v) {
-            rPara.store(1000 / juce::jmin(v, FloatType(0.001)) * deltaT.load());
+            v = juce::jmin(v, FloatType(0.001));
+            rPara.store(juce::jmin(FloatType(1000) / v * deltaT.load(), FloatType(1)));
         }
 
         inline void setSmooth(FloatType v) {

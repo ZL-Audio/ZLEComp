@@ -25,6 +25,11 @@ namespace computer {
     }
 
     template<typename FloatType>
+    FloatType Computer<FloatType>::process(FloatType x) {
+        return juce::Decibels::decibelsToGain(eval(x) - x);
+    }
+
+    template<typename FloatType>
     void Computer<FloatType>::interpolate() {
         std::vector<double> X1 = {threshold - kneeW, threshold};
         std::vector<double> Y1 = {threshold - kneeW, threshold - kneeD * 0.75 * kneeW * (1 - 0.5 / ratio - 0.5)};

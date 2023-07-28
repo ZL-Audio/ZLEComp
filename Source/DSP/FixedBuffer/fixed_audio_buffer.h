@@ -29,7 +29,7 @@ namespace fixedBuffer {
 
         void setSubBufferSize(int subBufferSize);
 
-        void prepareToPlay(juce::dsp::ProcessSpec spec);
+        void prepare(juce::dsp::ProcessSpec spec);
 
         void pushBuffer(juce::AudioBuffer<FloatType> &buffer);
 

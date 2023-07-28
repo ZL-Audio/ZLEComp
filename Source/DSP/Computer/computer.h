@@ -25,6 +25,8 @@ namespace computer {
 
         FloatType eval(FloatType x);
 
+        FloatType process(FloatType x);
+
         inline void setThreshold(FloatType v) {
             threshold.store(v);
             interpolate();

@@ -125,6 +125,8 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1.f, .01f);
         auto static constexpr defaultV = 1.f;
+        inline static float formatV(float x) {return x * .5f;}
+        inline static double formatV(double x) {return x * .5;}
     };
 
     class segment : public FloatParameters<segment> {
@@ -132,7 +134,7 @@ namespace ZLDsp {
         auto static constexpr ID = "segment";
         auto static constexpr name = "Segment (ms)";
         inline auto static const range =
-                juce::NormalisableRange<float>(0.f, 10.f, .1f);
+                juce::NormalisableRange<float>(0.f, 100.f, 1.f);
         auto static constexpr defaultV = 0.f;
     };
 

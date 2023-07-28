@@ -23,7 +23,7 @@ namespace detector {
 
         virtual ~Tracker() = default;
 
-        virtual void prepareToPlay(const juce::dsp::ProcessSpec &spec) = 0;
+        virtual void prepare(const juce::dsp::ProcessSpec &spec) = 0;
 
         virtual void reset() = 0;
 

@@ -91,7 +91,7 @@ namespace {
             bool m_made_monotonic;
 
             void set_coeffs_from_b();               // calculate c_i, d_i from b_i
-            size_t find_closest(double x) const;    // closest idx so that m_x[idx]<=x
+            [[nodiscard]] size_t find_closest(double x) const;    // closest idx so that m_x[idx]<=x
 
         public:
             // default constructor: set boundary condition to be zero curvature
@@ -141,22 +141,22 @@ namespace {
             // evaluates the spline at point x
             double operator()(double x) const;
 
-            double deriv(int order, double x) const;
+            [[nodiscard]] double deriv(int order, double x) const;
 
             // solves for all x so that: spline(x) = y
-            std::vector<double> solve(double y, bool ignore_extrapolation = true) const;
+            [[nodiscard]] std::vector<double> solve(double y, bool ignore_extrapolation = true) const;
 
             // returns the input data points
-            std::vector<double> get_x() const { return m_x; }
+            [[nodiscard]] std::vector<double> get_x() const { return m_x; }
 
-            std::vector<double> get_y() const { return m_y; }
+            [[nodiscard]] std::vector<double> get_y() const { return m_y; }
 
-            double get_x_min() const {
+            [[nodiscard]] double get_x_min() const {
                 assert(!m_x.empty());
                 return m_x.front();
             }
 
-            double get_x_max() const {
+            [[nodiscard]] double get_x_max() const {
                 assert(!m_x.empty());
                 return m_x.back();
             }
@@ -177,16 +177,16 @@ namespace {
                 std::vector<std::vector<double> > m_upper;  // upper band
                 std::vector<std::vector<double> > m_lower;  // lower band
             public:
-                band_matrix() {}                             // constructor
+                band_matrix() = default;                             // constructor
                 band_matrix(size_t dim, size_t n_u, size_t n_l);       // constructor
-                ~band_matrix() {}                            // destructor
+                ~band_matrix() = default;                            // destructor
                 void resize(size_t dim, size_t n_u, size_t n_l);      // init with dim,n_u,n_l
-                size_t dim() const;                             // matrix dimension
-                size_t num_upper() const {
+                [[nodiscard]] size_t dim() const;                             // matrix dimension
+                [[nodiscard]] size_t num_upper() const {
                     return m_upper.size() - 1;
                 }
 
-                size_t num_lower() const {
+                [[nodiscard]] size_t num_lower() const {
                     return m_lower.size() - 1;
                 }
 
@@ -196,15 +196,15 @@ namespace {
                 // we can store an additional diagonal (in m_lower)
                 double &saved_diag(size_t i);
 
-                double saved_diag(size_t i) const;
+                [[nodiscard]] double saved_diag(size_t i) const;
 
                 void lu_decompose();
 
-                std::vector<double> r_solve(const std::vector<double> &b) const;
+                [[nodiscard]] std::vector<double> r_solve(const std::vector<double> &b) const;
 
-                std::vector<double> l_solve(const std::vector<double> &b) const;
+                [[nodiscard]] std::vector<double> l_solve(const std::vector<double> &b) const;
 
-                std::vector<double> lu_solve(const std::vector<double> &b,
+                [[nodiscard]] std::vector<double> lu_solve(const std::vector<double> &b,
                                              bool is_lu_decomposed = false);
 
             };

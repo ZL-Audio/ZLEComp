@@ -17,32 +17,45 @@
 #include "Computer/computer.h"
 #include "Detector/detector.h"
 #include "Detector/rms_tracker.h"
+#include "FixedBuffer/fixed_audio_buffer.h"
 
 namespace controller {
 
     template<typename FloatType>
     class Controller {
     public:
-        explicit Controller();
+        explicit Controller(juce::AudioProcessor &processor,
+                            juce::AudioProcessorValueTreeState &parameters);
 
         ~Controller();
 
-        void prepareToPlay(const juce::dsp::ProcessSpec &spec);
+        void prepare(juce::dsp::ProcessSpec spec);
 
         void reset();
 
         void process(const juce::AudioBuffer<FloatType> &buffer);
 
     private:
-        detector::Detector<FloatType> sideDetector;
-        detector::RMSTracker<FloatType> sideTracker;
-        computer::Computer<FloatType> sideComputer;
+        detector::Detector<FloatType> lDetector, rDetector;
+        detector::RMSTracker<FloatType> lTracker, rTracker;
+        computer::Computer<FloatType> lrComputer;
 
         std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, ZLDsp::overSample::overSampleNUM>
                 overSamplers{};
         std::atomic<size_t> idxSampler = ZLDsp::overSample::defaultI;
-        juce::dsp::Gain<FloatType> sideGain, outGain;
+        std::atomic<bool> audit = ZLDsp::audit::defaultV, external = ZLDsp::external::defaultV;
+        std::atomic<FloatType> link = ZLDsp::link::formatV(ZLDsp::link::defaultV);
+        juce::dsp::Gain<FloatType> sideGainDSP, outGainDSP, lGainDSP, rGainDSP;
         juce::dsp::DelayLine<FloatType> mainDelay;
+        juce::dsp::DryWetMixer<FloatType> mixer;
+
+        fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
+        juce::dsp::ProcessSpec mainSpec = {44100, 512, 2};
+
+        juce::AudioProcessor *m_processor;
+        juce::AudioProcessorValueTreeState *apvts;
+
+        juce::AudioBuffer<FloatType> allBuffer;
     };
 
 } // controller

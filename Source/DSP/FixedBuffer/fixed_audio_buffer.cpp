@@ -51,7 +51,7 @@ namespace fixedBuffer {
     }
 
     template<typename FloatType>
-    void FixedAudioBuffer<FloatType>::prepareToPlay(juce::dsp::ProcessSpec spec) {
+    void FixedAudioBuffer<FloatType>::prepare(juce::dsp::ProcessSpec spec) {
         mainSpec = spec;
     }
 

@@ -18,11 +18,9 @@ namespace detector {
     }
 
     template<typename FloatType>
-    void RMSTracker<FloatType>::prepareToPlay(const juce::dsp::ProcessSpec &spec) {
+    void RMSTracker<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
         reset();
         secondPerBuffer = static_cast<FloatType>(spec.maximumBlockSize) / static_cast<FloatType>(spec.sampleRate);
-        bufferCopy.setSize(static_cast<int>(spec.numChannels),
-                           static_cast<int>(spec.maximumBlockSize));
     }
 
     template<typename FloatType>
@@ -35,7 +33,7 @@ namespace detector {
 
     template<typename FloatType>
     void RMSTracker<FloatType>::setMomentarySize(size_t mSize) {
-        size = mSize;
+        size = juce::jmax(mSize, size_t(1));
         while (loudness.size() > size) {
             mLoudness -= loudness.front();
             loudness.pop_front();
@@ -44,19 +42,15 @@ namespace detector {
 
     template<typename FloatType>
     void RMSTracker<FloatType>::process(const juce::AudioBuffer<FloatType> &buffer) {
-        for (int channel = 0; channel < bufferCopy.getNumChannels(); ++channel) {
-            bufferCopy.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
-        }
-
         FloatType _ms = 0;
-        for (auto channel = 0; channel < bufferCopy.getNumChannels(); channel++) {
-            auto data = bufferCopy.getReadPointer(channel);
-            for (auto i = 0; i < bufferCopy.getNumSamples(); i++) {
+        for (auto channel = 0; channel < buffer.getNumChannels(); channel++) {
+            auto data = buffer.getReadPointer(channel);
+            for (auto i = 0; i < buffer.getNumSamples(); i++) {
                 _ms += data[i] * data[i];
             }
         }
 
-        _ms = _ms / static_cast<FloatType> (bufferCopy.getNumSamples());
+        _ms = _ms / static_cast<FloatType> (buffer.getNumSamples());
         loudness.push_back(_ms);
         mLoudness += _ms;
         while (loudness.size() > size) {
