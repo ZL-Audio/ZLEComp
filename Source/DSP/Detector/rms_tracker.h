@@ -13,13 +13,14 @@
 
 #include "tracker.h"
 #include "../FixedBuffer/fifo_audio_buffer.h"
+#include <boost/circular_buffer.hpp>
 
 namespace detector {
 
     template<typename FloatType>
     class RMSTracker : Tracker<FloatType> {
     public:
-        explicit RMSTracker() : loudnessBuffer(1, 1) {}
+        explicit RMSTracker() : loudnessBuffer(1) {}
 
         ~RMSTracker() override;
 
@@ -35,8 +36,8 @@ namespace detector {
 
         inline FloatType getMomentaryLoudness() override {
             FloatType meanSquare = 0;
-            if (loudness.size() > 0) {
-                meanSquare = mLoudness / static_cast<FloatType>(loudness.size());
+            if (loudnessBuffer.size() > 0) {
+                meanSquare = mLoudness / static_cast<FloatType>(loudnessBuffer.size());
             }
             return juce::Decibels::gainToDecibels(meanSquare) * static_cast<FloatType>(0.5);
         }
@@ -61,9 +62,8 @@ namespace detector {
         bool kWeight = false;
         size_t size = 0, numBuffer = 0;
         FloatType peak = 0, mLoudness = 0, iLoudness = 0;
-        FloatType secondPerBuffer = 0.01;
-        std::deque<FloatType> loudness;
-        fixedBuffer::FIFOAudioBuffer<FloatType> loudnessBuffer;
+        FloatType secondPerBuffer = FloatType(0.01);
+        boost::circular_buffer<FloatType> loudnessBuffer;
     };
 
 } // detector

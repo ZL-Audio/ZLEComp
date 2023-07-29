@@ -24,7 +24,7 @@ project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 # By default we don't want Xcode schemes to be made for modules, etc
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
 
-find_package(Boost 1.80 REQUIRED)
+find_package(Boost 1.80.0 REQUIRED)
 
 # Building universal binaries on macOS increases build time
 # This is set on CI but not during local dev
