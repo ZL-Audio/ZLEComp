@@ -48,6 +48,10 @@
 #include <string>
 #endif // HAVE_SSTREAM
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // not ideal but disable unused-function warnings
 // (we get them because we have implementations in the header file,
 // and this is because we want to be able to quickly separate them
@@ -904,7 +908,7 @@ namespace {
                     z[1] = sq * cos(ac - 2.0 * M_PI / 3.0);
                     z[2] = sq * cos(ac - 4.0 * M_PI / 3.0);
                 } else if (discr < 0.0) {
-                    // single real root: via Cardano's fromula
+                    // single real root: via Cardano's formula
                     z.resize(1);
                     double sgnq = (q >= 0 ? 1 : -1);
                     double basis = fabs(q) + sqrt(-discr);
