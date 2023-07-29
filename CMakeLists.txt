@@ -24,6 +24,8 @@ project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
 # By default we don't want Xcode schemes to be made for modules, etc
 set(CMAKE_XCODE_GENERATE_SCHEME OFF)
 
+find_package(Boost 1.80 REQUIRED)
+
 # Building universal binaries on macOS increases build time
 # This is set on CI but not during local dev
 if ((DEFINED ENV{CI}) AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
@@ -149,6 +151,7 @@ target_link_libraries("${PROJECT_NAME}"
         Assets
         juce::juce_audio_utils
         juce::juce_audio_processors
+        Boost::boost
         PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

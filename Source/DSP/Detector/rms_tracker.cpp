@@ -25,7 +25,7 @@ namespace detector {
 
     template<typename FloatType>
     void RMSTracker<FloatType>::reset() {
-        loudness.clear();
+        loudnessBuffer.clear();
         mLoudness = 0;
         iLoudness = 0;
         numBuffer = 0;
@@ -34,10 +34,8 @@ namespace detector {
     template<typename FloatType>
     void RMSTracker<FloatType>::setMomentarySize(size_t mSize) {
         size = juce::jmax(mSize, size_t(1));
-        while (loudness.size() > size) {
-            mLoudness -= loudness.front();
-            loudness.pop_front();
-        }
+        reset();
+        loudnessBuffer.setSize(1, static_cast<int>(mSize));
     }
 
     template<typename FloatType>
@@ -51,7 +49,12 @@ namespace detector {
         }
 
         _ms = _ms / static_cast<FloatType> (buffer.getNumSamples());
+        FloatType temp[1][1] = {{_ms}};
+        const FloatType *ttemp[] = { temp[0] };
+        loudnessBuffer.push(ttemp, 1);
+
         loudness.push_back(_ms);
+
         mLoudness += _ms;
         while (loudness.size() > size) {
             mLoudness -= loudness.front();

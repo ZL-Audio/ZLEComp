@@ -12,13 +12,14 @@
 #define ZLECOMP_RMS_TRACKER_H
 
 #include "tracker.h"
+#include "../FixedBuffer/fifo_audio_buffer.h"
 
 namespace detector {
 
     template<typename FloatType>
     class RMSTracker : Tracker<FloatType> {
     public:
-        explicit RMSTracker() = default;
+        explicit RMSTracker() : loudnessBuffer(1, 1) {}
 
         ~RMSTracker() override;
 
@@ -62,6 +63,7 @@ namespace detector {
         FloatType peak = 0, mLoudness = 0, iLoudness = 0;
         FloatType secondPerBuffer = 0.01;
         std::deque<FloatType> loudness;
+        fixedBuffer::FIFOAudioBuffer<FloatType> loudnessBuffer;
     };
 
 } // detector
