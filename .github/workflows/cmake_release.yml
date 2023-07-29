@@ -222,3 +222,15 @@ jobs:
           */*.exe
           */*.zip
           */*.dmg
+
+  finish:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    steps:
+    - name: Delete Artifacts
+      uses: geekyeggo/delete-artifact@v2
+      with:
+        name: |
+          ${{ env.INSTALLER_NAME }}.zip
+          ${{ env.INSTALLER_NAME }}.exe
+          ${{ env.INSTALLER_NAME }}.dmg
