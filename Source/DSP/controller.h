@@ -33,7 +33,7 @@ namespace controller {
 
         void reset();
 
-        void process(const juce::AudioBuffer<FloatType> &buffer);
+        void process(juce::AudioBuffer<FloatType> &buffer);
 
     private:
         detector::Detector<FloatType> lDetector, rDetector;
@@ -56,6 +56,27 @@ namespace controller {
         juce::AudioProcessorValueTreeState *apvts;
 
         juce::AudioBuffer<FloatType> allBuffer;
+    };
+}
+
+namespace controller {
+    template<typename FloatType>
+    class ControllerAttach : public juce::AudioProcessorValueTreeState::Listener {
+    public:
+        explicit ControllerAttach(Controller<FloatType> &c,
+                                  juce::AudioProcessorValueTreeState &parameters);
+
+        ~ControllerAttach() override;
+
+        void addListeners();
+
+        void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+    private:
+        Controller<FloatType> *controller;
+        juce::AudioProcessorValueTreeState *apvts;
+        constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID, ZLDsp::overSample::ID,
+                                              ZLDsp::rms::ID, ZLDsp::lookahead::ID, ZLDsp::segment::ID};
     };
 
 } // controller

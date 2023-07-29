@@ -23,9 +23,9 @@ namespace detector {
     public:
         Detector() = default;
 
-        inline void reset();
+        void reset();
 
-        inline void prepare(const juce::dsp::ProcessSpec &spec);
+        void prepare(const juce::dsp::ProcessSpec &spec);
 
         FloatType process(FloatType target);
 

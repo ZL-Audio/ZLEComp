@@ -11,7 +11,6 @@
 #include "controller.h"
 
 namespace controller {
-
     template<typename FloatType>
     Controller<FloatType>::Controller(juce::AudioProcessor &processor,
                                       juce::AudioProcessorValueTreeState &parameters) {
@@ -20,6 +19,11 @@ namespace controller {
         apvts = &parameters;
 
         mixer.setWetMixProportion(ZLDsp::mix::formatV(ZLDsp::mix::defaultV));
+    }
+
+    template<typename FloatType>
+    Controller<FloatType>::~Controller() {
+        reset();
     }
 
     template<typename FloatType>
@@ -36,7 +40,7 @@ namespace controller {
         sideGainDSP.prepare(spec);
         outGainDSP.prepare(spec);
 
-        allBuffer.setSize(spec.numChannels * 2, spec.maximumBlockSize);
+        allBuffer.setSize(static_cast<int>(spec.numChannels * 2), static_cast<int>(spec.maximumBlockSize));
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
         lTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
         rTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
@@ -45,7 +49,15 @@ namespace controller {
     }
 
     template<typename FloatType>
-    void Controller<FloatType>::process(const juce::AudioBuffer<FloatType> &buffer) {
+    void Controller<FloatType>::reset() {
+        lDetector.reset();
+        rDetector.reset();
+        lTracker.reset();
+        rTracker.reset();
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::process(juce::AudioBuffer<FloatType> &buffer) {
         // copy data into sideBuffer
         juce::AudioBuffer<FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, false, 1));
         if (external.load()) {
@@ -54,16 +66,18 @@ namespace controller {
             sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, false, 0), true);
         }
         // apply side gain
-        sideGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(sideBuffer));
+        auto sideBlock = juce::dsp::AudioBlock<FloatType>(sideBuffer);
+        sideGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(sideBlock));
         // check audit mode
         if (audit.load()) {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(sideBuffer, true);
             return;
         }
         // apply over-sampling(up)
-        auto overSampledBuffer = overSamplers[idxSampler]->processSamplesUp(juce::dsp::AudioBlock<FloatType>(allBuffer));
+        auto allBlock = juce::dsp::AudioBlock<FloatType>(allBuffer);
+        auto overSampledBuffer = overSamplers[idxSampler]->processSamplesUp(allBlock);
         // ---------------- start sub buffer
-        subBuffer.pushBuffer(overSampledBuffer);
+        subBuffer.pushBlock(overSampledBuffer);
         while (subBuffer.isSubReady()) {
             subBuffer.popSubBuffer();
             // calculate rms value
@@ -84,16 +98,59 @@ namespace controller {
             // apply gain separately
             lGainDSP.setGainLinear(lGain);
             rGainDSP.setGainLinear(rGain);
-            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(subBuffer.getSubBufferChannels(0, 1)));
-            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(subBuffer.getSubBufferChannels(1, 1)));
+            auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
+            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
+            auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
+            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
             subBuffer.pushSubBuffer();
         }
-        subBuffer.popBuffer(overSampledBuffer);
+        subBuffer.popBlock(overSampledBuffer);
         // ---------------- end sub buffer
         // apply over-sampling(down)
-        overSamplers[idxSampler]->processSamplesDown(juce::dsp::AudioBlock<FloatType>(allBuffer));
+        overSamplers[idxSampler]->processSamplesDown(allBlock);
         // apply out gain
         juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
-        outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBuffer));
+        auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
+        outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
     }
+
+    template
+    class Controller<float>;
+
+    template
+    class Controller<double>;
+}
+
+namespace controller {
+    template<typename FloatType>
+    ControllerAttach<FloatType>::ControllerAttach(Controller<FloatType> &c,
+                                                  juce::AudioProcessorValueTreeState &parameters) {
+        controller = &c;
+        apvts = &parameters;
+    }
+
+    template<typename FloatType>
+    ControllerAttach<FloatType>::~ControllerAttach() {
+        for (auto &ID: IDs) {
+            apvts->removeParameterListener(ID, this);
+        }
+    }
+
+    template<typename FloatType>
+    void ControllerAttach<FloatType>::addListeners() {
+        for (auto &ID: IDs) {
+            apvts->addParameterListener(ID, this);
+        }
+    }
+
+    template<typename FloatType>
+    void ControllerAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
+
+    }
+
+    template
+    class ControllerAttach<float>;
+
+    template
+    class ControllerAttach<double>;
 } // controller

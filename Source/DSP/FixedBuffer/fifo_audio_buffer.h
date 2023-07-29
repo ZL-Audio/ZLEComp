@@ -28,9 +28,13 @@ namespace fixedBuffer {
 
         void push(const juce::AudioBuffer<FloatType> &samples, int numSamples = -1);
 
+        void push(juce::dsp::AudioBlock<FloatType> block, int numSamples = -1);
+
         void pop(FloatType **samples, int numSamples);
 
         void pop(juce::AudioBuffer<FloatType> &samples, int numSamples = -1);
+
+        void pop(juce::dsp::AudioBlock<FloatType> block, int numSamples = -1);
 
         inline auto getNumChannels() const { return buffer.getNumChannels(); }
 

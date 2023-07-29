@@ -26,13 +26,13 @@ namespace detector {
     }
 
     template<typename FloatType>
-    inline void Detector<FloatType>::reset() {
+    void Detector<FloatType>::reset() {
         xC = 0;
         xS = 0;
     }
 
     template<typename FloatType>
-    inline void Detector<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
+    void Detector<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
         deltaT.store(static_cast<FloatType>(1 / spec.sampleRate));
         reset();
     }

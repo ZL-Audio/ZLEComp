@@ -61,6 +61,11 @@ namespace fixedBuffer {
     }
 
     template<typename FloatType>
+    void FixedAudioBuffer<FloatType>::pushBlock(juce::dsp::AudioBlock<FloatType> block) {
+        inputBuffer.push(block);
+    }
+
+    template<typename FloatType>
     void FixedAudioBuffer<FloatType>::popSubBuffer() {
         inputBuffer.pop(subBuffer);
     }
@@ -76,11 +81,23 @@ namespace fixedBuffer {
     }
 
     template<typename FloatType>
+    void FixedAudioBuffer<FloatType>::popBlock(juce::dsp::AudioBlock<FloatType> block) {
+        outputBuffer.pop(block);
+    }
+
+    template<typename FloatType>
     juce::AudioBuffer<FloatType> FixedAudioBuffer<FloatType>::getSubBufferChannels(
             int channelOffset, int numChannels) {
         return juce::AudioBuffer<FloatType>(
                 subBuffer.getArrayOfWritePointers() + channelOffset,
                 numChannels, subBuffer.getNumSamples());
+    }
+
+    template<typename FloatType>
+    juce::dsp::AudioBlock<FloatType> FixedAudioBuffer<FloatType>::getSubBlockChannels(int channelOffset,
+                                                                                      int numChannels) {
+        return juce::dsp::AudioBlock<FloatType>(subBuffer).getSubsetChannelBlock(static_cast<size_t>(channelOffset),
+                                                                                 static_cast<size_t>(numChannels));
     }
 
     template

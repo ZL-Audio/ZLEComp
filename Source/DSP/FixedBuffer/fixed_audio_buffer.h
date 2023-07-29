@@ -33,13 +33,19 @@ namespace fixedBuffer {
 
         void pushBuffer(juce::AudioBuffer<FloatType> &buffer);
 
+        void pushBlock(juce::dsp::AudioBlock<FloatType> block);
+
         void popSubBuffer();
 
         void pushSubBuffer();
 
         void popBuffer(juce::AudioBuffer<FloatType> &buffer);
 
+        void popBlock(juce::dsp::AudioBlock<FloatType> block);
+
         juce::AudioBuffer<FloatType> getSubBufferChannels(int channelOffset, int numChannels);
+
+        juce::dsp::AudioBlock<FloatType> getSubBlockChannels(int channelOffset, int numChannels);
 
         inline auto isSubReady() {
             return inputBuffer.getNumReady() >= subBuffer.getNumSamples();
