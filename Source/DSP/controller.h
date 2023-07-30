@@ -35,6 +35,28 @@ namespace controller {
 
         void process(juce::AudioBuffer<FloatType> &buffer);
 
+        void setOutGain(FloatType v);
+
+        void setMixProportion(FloatType v);
+
+        void setOversampleID(size_t idx);
+
+        void toSetOversampleID(size_t idx);
+
+        void setRMSSize(FloatType v);
+
+        void setLookAhead(FloatType v);
+
+        void setSegment(FloatType v);
+
+        void toSetSegment(FloatType v);
+
+        void setLink(FloatType v);
+
+        void setAudit(bool f);
+
+        void setExternal(bool f);
+
     private:
         detector::Detector<FloatType> lDetector, rDetector;
         detector::RMSTracker<FloatType> lTracker, rTracker;
@@ -42,14 +64,19 @@ namespace controller {
 
         std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, ZLDsp::overSample::overSampleNUM>
                 overSamplers{};
-        std::atomic<size_t> idxSampler = ZLDsp::overSample::defaultI;
-        std::atomic<bool> audit = ZLDsp::audit::defaultV, external = ZLDsp::external::defaultV;
-        std::atomic<FloatType> link = ZLDsp::link::formatV(ZLDsp::link::defaultV);
+        std::atomic<size_t> idxSampler, tempIdxSampler;
+        std::atomic<bool> idxSamplerToReset = false;
+
+        std::atomic<bool> audit, external;
+        std::atomic<FloatType> link;
         juce::dsp::Gain<FloatType> sideGainDSP, outGainDSP, lGainDSP, rGainDSP;
         juce::dsp::DelayLine<FloatType> mainDelay;
         juce::dsp::DryWetMixer<FloatType> mixer;
 
         fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
+        std::atomic<FloatType> subBufferSize;
+        std::atomic<bool> subBufferSizeToReset = false;
+
         juce::dsp::ProcessSpec mainSpec = {44100, 512, 2};
 
         juce::AudioProcessor *m_processor;
@@ -68,6 +95,8 @@ namespace controller {
 
         ~ControllerAttach() override;
 
+        void initDefaultVs();
+
         void addListeners();
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
@@ -76,7 +105,14 @@ namespace controller {
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
         constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID, ZLDsp::overSample::ID,
-                                              ZLDsp::rms::ID, ZLDsp::lookahead::ID, ZLDsp::segment::ID};
+                                              ZLDsp::rms::ID, ZLDsp::lookahead::ID, ZLDsp::segment::ID,
+                                              ZLDsp::link::ID, ZLDsp::audit::ID, ZLDsp::external::ID};
+        constexpr const static std::array defaultVs{ZLDsp::outGain::defaultV, ZLDsp::mix::defaultV,
+                                                    float(ZLDsp::overSample::defaultI),
+                                                    ZLDsp::rms::defaultV, ZLDsp::lookahead::defaultV,
+                                                    ZLDsp::segment::defaultV,
+                                                    float(ZLDsp::link::defaultV), float(ZLDsp::audit::defaultV),
+                                                    float(ZLDsp::external::defaultV)};
     };
 
 } // controller

@@ -30,6 +30,10 @@ namespace detector {
 
         void setMomentarySize(size_t mSize) override;
 
+        inline size_t getMomentarySize() {
+            return loudnessBuffer.capacity();
+        }
+
         inline FloatType getBufferPeak() override {
             return juce::Decibels::gainToDecibels(peak);
         }
@@ -58,12 +62,14 @@ namespace detector {
         void process(const juce::AudioBuffer<FloatType> &buffer) override;
 
     private:
-
-        bool kWeight = false;
-        size_t size = 0, numBuffer = 0;
+        std::atomic<bool> isSizeReset = false;
+        std::atomic<size_t> sizeToReset = 1;
+        size_t numBuffer = 0;
         FloatType peak = 0, mLoudness = 0, iLoudness = 0;
         FloatType secondPerBuffer = FloatType(0.01);
         boost::circular_buffer<FloatType> loudnessBuffer;
+
+        void toSetMomentarySize();
     };
 
 } // detector

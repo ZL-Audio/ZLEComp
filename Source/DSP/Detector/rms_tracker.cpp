@@ -33,12 +33,25 @@ namespace detector {
 
     template<typename FloatType>
     void RMSTracker<FloatType>::setMomentarySize(size_t mSize) {
-        size = juce::jmax(mSize, size_t(1));
-        loudnessBuffer.set_capacity(mSize);
+        sizeToReset.store(juce::jmax(mSize, size_t(1)));
+        isSizeReset.store(true);
+    }
+
+    template<typename FloatType>
+    void RMSTracker<FloatType>::toSetMomentarySize() {
+        while (loudnessBuffer.size() > sizeToReset.load()) {
+            mLoudness -= loudnessBuffer.front();
+            loudnessBuffer.pop_front();
+        }
+        loudnessBuffer.set_capacity(sizeToReset.load());
     }
 
     template<typename FloatType>
     void RMSTracker<FloatType>::process(const juce::AudioBuffer<FloatType> &buffer) {
+        if (isSizeReset.load()) {
+            isSizeReset.store(false);
+            toSetMomentarySize();
+        }
         FloatType _ms = 0;
         for (auto channel = 0; channel < buffer.getNumChannels(); channel++) {
             auto data = buffer.getReadPointer(channel);
@@ -49,12 +62,13 @@ namespace detector {
 
         _ms = _ms / static_cast<FloatType> (buffer.getNumSamples());
 
-        loudnessBuffer.push_back(_ms);
-        mLoudness += _ms;
-        while (loudnessBuffer.size() > size) {
+        if (loudnessBuffer.size() >= loudnessBuffer.capacity()) {
             mLoudness -= loudnessBuffer.front();
             loudnessBuffer.pop_front();
         }
+
+        loudnessBuffer.push_back(_ms);
+        mLoudness += _ms;
 
         iLoudness += _ms;
         numBuffer += 1;

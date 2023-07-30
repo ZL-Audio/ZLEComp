@@ -36,9 +36,12 @@ namespace controller {
                     true, true);
             overSamplers[i]->initProcessing(spec.maximumBlockSize);
         }
+
         mainDelay.prepare(spec);
         sideGainDSP.prepare(spec);
+        sideGainDSP.setRampDurationSeconds(0.1);
         outGainDSP.prepare(spec);
+        outGainDSP.setRampDurationSeconds(0.1);
 
         allBuffer.setSize(static_cast<int>(spec.numChannels * 2), static_cast<int>(spec.maximumBlockSize));
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
@@ -50,6 +53,7 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::reset() {
+        subBuffer.clear();
         lDetector.reset();
         rDetector.reset();
         lTracker.reset();
@@ -58,7 +62,18 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::process(juce::AudioBuffer<FloatType> &buffer) {
-        // copy data into sideBuffer
+        // prepare
+        if (idxSamplerToReset.load()) {
+            setOversampleID(tempIdxSampler.load());
+            idxSamplerToReset.store(false);
+        }
+        if (subBufferSizeToReset.load()) {
+            setSegment(subBufferSize.load());
+            subBufferSizeToReset.store(false);
+        }
+        // copy buffer into allBuffer
+        allBuffer.makeCopyOf(buffer, true);
+        // copy side-chain into sideBuffer
         juce::AudioBuffer<FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, false, 1));
         if (external.load()) {
             sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, false, 1), true);
@@ -73,6 +88,12 @@ namespace controller {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(sideBuffer, true);
             return;
         }
+        // apply lookahead
+        juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(buffer, false, 0));
+        auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
+        mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
+        // add dry samples
+        mixer.pushDrySamples(mainBlock);
         // apply over-sampling(up)
         auto allBlock = juce::dsp::AudioBlock<FloatType>(allBuffer);
         auto overSampledBuffer = overSamplers[idxSampler]->processSamplesUp(allBlock);
@@ -108,10 +129,71 @@ namespace controller {
         // ---------------- end sub buffer
         // apply over-sampling(down)
         overSamplers[idxSampler]->processSamplesDown(allBlock);
+        // mix wet samples
+        mixer.mixWetSamples(allBlock.getSubsetChannelBlock(0, 2));
         // apply out gain
         juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setOutGain(FloatType v) {
+        outGainDSP.setGainDecibels(v);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setMixProportion(FloatType v) {
+        mixer.setWetMixProportion(v);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setOversampleID(size_t idx) {
+        idxSampler.store(idx);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::toSetOversampleID(size_t idx) {
+        tempIdxSampler.store(idx);
+        idxSamplerToReset.store(true);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setRMSSize(FloatType v) {
+        auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v / subBuffer.getSubSpec().maximumBlockSize);
+        lTracker.setMomentarySize(mSize);
+        rTracker.setMomentarySize(mSize);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setLookAhead(FloatType v) {
+        mainDelay.setDelay(static_cast<FloatType>(v * mainSpec.sampleRate));
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setSegment(FloatType v) {
+        subBuffer.setSubBufferSize(static_cast<int>(v * mainSpec.sampleRate));
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::toSetSegment(FloatType v) {
+        subBufferSize.store(v);
+        subBufferSizeToReset.store(true);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setLink(FloatType v) {
+        link.store(v);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setAudit(bool f) {
+        audit.store(f);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setExternal(bool f) {
+        external.store(f);
     }
 
     template
@@ -137,6 +219,13 @@ namespace controller {
     }
 
     template<typename FloatType>
+    void ControllerAttach<FloatType>::initDefaultVs() {
+        for (size_t i = 0; i < IDs.size(); ++i) {
+            parameterChanged(IDs[i], defaultVs[i]);
+        }
+    }
+
+    template<typename FloatType>
     void ControllerAttach<FloatType>::addListeners() {
         for (auto &ID: IDs) {
             apvts->addParameterListener(ID, this);
@@ -145,7 +234,26 @@ namespace controller {
 
     template<typename FloatType>
     void ControllerAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
-
+        auto v = static_cast<FloatType>(newValue);
+        if (parameterID == ZLDsp::outGain::ID) {
+            controller->setOutGain(v);
+        } else if (parameterID == ZLDsp::mix::ID) {
+            controller->setMixProportion(ZLDsp::mix::formatV(v));
+        } else if (parameterID == ZLDsp::overSample::ID) {
+            controller->toSetOversampleID(static_cast<size_t>(v));
+        } else if (parameterID == ZLDsp::rms::ID) {
+            controller->setRMSSize(ZLDsp::rms::formatV(v));
+        } else if (parameterID == ZLDsp::lookahead::ID) {
+            controller->setLookAhead(ZLDsp::segment::formatV(v));
+        } else if (parameterID == ZLDsp::segment::ID) {
+            controller->toSetSegment(ZLDsp::segment::formatV(v));
+        } else if (parameterID == ZLDsp::link::ID) {
+            controller->setLink(ZLDsp::link::formatV(v));
+        } else if (parameterID == ZLDsp::audit::ID) {
+            controller->setAudit(static_cast<bool>(v));
+        } else if (parameterID == ZLDsp::external::ID) {
+            controller->setExternal(static_cast<bool>(v));
+        }
     }
 
     template

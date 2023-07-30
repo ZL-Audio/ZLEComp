@@ -136,6 +136,8 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 100.f, 1.f);
         auto static constexpr defaultV = 0.f;
+        inline static float formatV(float x) {return x * .001f;}
+        inline static double formatV(double x) {return x * .001;}
     };
 
     class outGain : public FloatParameters<outGain> {
@@ -165,6 +167,8 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1000.f, 1.f);
         auto static constexpr defaultV = 0.f;
+        inline static float formatV(float x) {return x * .001f;}
+        inline static double formatV(double x) {return x * .001;}
     };
 
     class lookahead : public FloatParameters<lookahead> {
@@ -174,6 +178,8 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 250.f, 1.f);
         auto static constexpr defaultV = 0.f;
+        inline static float formatV(float x) {return x * .001f;}
+        inline static double formatV(double x) {return x * .001;}
     };
 
     // bool
