@@ -20,10 +20,13 @@
 #include "FixedBuffer/fixed_audio_buffer.h"
 
 namespace controller {
-
     template<typename FloatType>
     class Controller {
     public:
+        detector::Detector<FloatType> lDetector, rDetector;
+        detector::RMSTracker<FloatType> lTracker, rTracker;
+        computer::Computer<FloatType> lrComputer;
+
         explicit Controller(juce::AudioProcessor &processor,
                             juce::AudioProcessorValueTreeState &parameters);
 
@@ -36,6 +39,8 @@ namespace controller {
         void process(juce::AudioBuffer<FloatType> &buffer);
 
         void setOutGain(FloatType v);
+
+        void setSideGain(FloatType v);
 
         void setMixProportion(FloatType v);
 
@@ -58,10 +63,6 @@ namespace controller {
         void setExternal(bool f);
 
     private:
-        detector::Detector<FloatType> lDetector, rDetector;
-        detector::RMSTracker<FloatType> lTracker, rTracker;
-        computer::Computer<FloatType> lrComputer;
-
         std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, ZLDsp::overSample::overSampleNUM>
                 overSamplers{};
         std::atomic<size_t> idxSampler, tempIdxSampler;
@@ -106,15 +107,70 @@ namespace controller {
         juce::AudioProcessorValueTreeState *apvts;
         constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID, ZLDsp::overSample::ID,
                                               ZLDsp::rms::ID, ZLDsp::lookahead::ID, ZLDsp::segment::ID,
-                                              ZLDsp::link::ID, ZLDsp::audit::ID, ZLDsp::external::ID};
+                                              ZLDsp::audit::ID, ZLDsp::external::ID};
+
         constexpr const static std::array defaultVs{ZLDsp::outGain::defaultV, ZLDsp::mix::defaultV,
                                                     float(ZLDsp::overSample::defaultI),
                                                     ZLDsp::rms::defaultV, ZLDsp::lookahead::defaultV,
                                                     ZLDsp::segment::defaultV,
-                                                    float(ZLDsp::link::defaultV), float(ZLDsp::audit::defaultV),
-                                                    float(ZLDsp::external::defaultV)};
+                                                    float(ZLDsp::audit::defaultV), float(ZLDsp::external::defaultV)};
     };
+}
 
-} // controller
+namespace controller {
+    template<typename FloatType>
+    class DetectorAttach : public juce::AudioProcessorValueTreeState::Listener {
+    public:
+        explicit DetectorAttach(Controller<FloatType> &c,
+                                juce::AudioProcessorValueTreeState &parameters);
+
+        ~DetectorAttach() override;
+
+        void initDefaultVs();
+
+        void addListeners();
+
+        void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+    private:
+        Controller<FloatType> *controller;
+        juce::AudioProcessorValueTreeState *apvts;
+        constexpr const static std::array IDs{ZLDsp::sideGain::ID, ZLDsp::attack::ID, ZLDsp::release::ID,
+                                              ZLDsp::aStyle::ID, ZLDsp::rStyle::ID,
+                                              ZLDsp::smooth::ID, ZLDsp::link::ID};
+
+        constexpr const static std::array defaultVs{ZLDsp::sideGain::defaultV,
+                                                    ZLDsp::attack::defaultV, ZLDsp::release::defaultV,
+                                                    float(ZLDsp::aStyle::defaultI), float(ZLDsp::rStyle::defaultI),
+                                                    ZLDsp::smooth::defaultV, ZLDsp::link::defaultV};
+    };
+}
+
+namespace controller {
+    template<typename FloatType>
+    class ComputerAttach : public juce::AudioProcessorValueTreeState::Listener {
+    public:
+        explicit ComputerAttach(Controller<FloatType> &c,
+                                juce::AudioProcessorValueTreeState &parameters);
+
+        ~ComputerAttach() override;
+
+        void initDefaultVs();
+
+        void addListeners();
+
+        void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+    private:
+        Controller<FloatType> *controller;
+        juce::AudioProcessorValueTreeState *apvts;
+        constexpr const static std::array IDs{ZLDsp::threshold::ID, ZLDsp::ratio::ID, ZLDsp::kneeW::ID,
+                                              ZLDsp::kneeD::ID, ZLDsp::kneeS::ID, ZLDsp::bound::ID};
+
+        constexpr const static std::array defaultVs{ZLDsp::threshold::defaultV, ZLDsp::ratio::defaultV,
+                                                    ZLDsp::kneeW::defaultV, ZLDsp::kneeD::defaultV,
+                                                    ZLDsp::kneeS::defaultV, ZLDsp::bound::defaultV};
+    };
+}
 
 #endif //ZLECOMP_CONTROLLER_H

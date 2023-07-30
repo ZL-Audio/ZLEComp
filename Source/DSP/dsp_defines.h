@@ -98,6 +98,8 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 500.f, 0.01f, 0.30103f);
         auto static constexpr defaultV = 10.f;
+        inline static float formatV(float x) {return x * .001f;}
+        inline static double formatV(double x) {return x * .001;}
     };
 
     class release : public FloatParameters<release> {
@@ -107,6 +109,8 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 5000.f, 0.01f, 0.30103f);
         auto static constexpr defaultV = 100.f;
+        inline static float formatV(float x) {return x * .001f;}
+        inline static double formatV(double x) {return x * .001;}
     };
 
     class smooth : public FloatParameters<smooth> {

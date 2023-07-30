@@ -143,6 +143,11 @@ namespace controller {
     }
 
     template<typename FloatType>
+    void Controller<FloatType>::setSideGain(FloatType v) {
+        sideGainDSP.setGainDecibels(v);
+    }
+
+    template<typename FloatType>
     void Controller<FloatType>::setMixProportion(FloatType v) {
         mixer.setWetMixProportion(v);
     }
@@ -247,8 +252,6 @@ namespace controller {
             controller->setLookAhead(ZLDsp::segment::formatV(v));
         } else if (parameterID == ZLDsp::segment::ID) {
             controller->toSetSegment(ZLDsp::segment::formatV(v));
-        } else if (parameterID == ZLDsp::link::ID) {
-            controller->setLink(ZLDsp::link::formatV(v));
         } else if (parameterID == ZLDsp::audit::ID) {
             controller->setAudit(static_cast<bool>(v));
         } else if (parameterID == ZLDsp::external::ID) {
@@ -261,4 +264,121 @@ namespace controller {
 
     template
     class ControllerAttach<double>;
-} // controller
+}
+
+namespace controller {
+    template<typename FloatType>
+    DetectorAttach<FloatType>::DetectorAttach(Controller<FloatType> &c,
+                                                  juce::AudioProcessorValueTreeState &parameters) {
+        controller = &c;
+        apvts = &parameters;
+    }
+
+    template<typename FloatType>
+    DetectorAttach<FloatType>::~DetectorAttach() {
+        for (auto &ID: IDs) {
+            apvts->removeParameterListener(ID, this);
+        }
+    }
+
+    template<typename FloatType>
+    void DetectorAttach<FloatType>::initDefaultVs() {
+        for (size_t i = 0; i < IDs.size(); ++i) {
+            parameterChanged(IDs[i], defaultVs[i]);
+        }
+    }
+
+    template<typename FloatType>
+    void DetectorAttach<FloatType>::addListeners() {
+        for (auto &ID: IDs) {
+            apvts->addParameterListener(ID, this);
+        }
+    }
+
+    template<typename FloatType>
+    void DetectorAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
+        auto v = static_cast<FloatType>(newValue);
+        if (parameterID == ZLDsp::sideGain::ID) {
+            controller->setSideGain(v);
+        } else if (parameterID == ZLDsp::attack::ID) {
+            controller->lDetector.setAttack(ZLDsp::attack::formatV(v));
+            controller->rDetector.setAttack(ZLDsp::attack::formatV(v));
+        } else if (parameterID == ZLDsp::release::ID) {
+            controller->lDetector.setRelease(ZLDsp::release::formatV(v));
+            controller->rDetector.setRelease(ZLDsp::release::formatV(v));
+        } else if (parameterID == ZLDsp::aStyle::ID) {
+            auto idx = static_cast<size_t>(v);
+            controller->lDetector.setAStyle(idx);
+            controller->rDetector.setAStyle(idx);
+        } else if (parameterID == ZLDsp::rStyle::ID) {
+            auto idx = static_cast<size_t>(v);
+            controller->lDetector.setRStyle(idx);
+            controller->rDetector.setRStyle(idx);
+        } else if (parameterID == ZLDsp::smooth::ID) {
+            controller->lDetector.setSmooth(v);
+            controller->rDetector.setSmooth(v);
+        } else if (parameterID == ZLDsp::link::ID) {
+            controller->setLink(v);
+        }
+    }
+
+    template
+    class DetectorAttach<float>;
+
+    template
+    class DetectorAttach<double>;
+}
+
+namespace controller {
+    template<typename FloatType>
+    ComputerAttach<FloatType>::ComputerAttach(Controller<FloatType> &c,
+                                              juce::AudioProcessorValueTreeState &parameters) {
+        controller = &c;
+        apvts = &parameters;
+    }
+
+    template<typename FloatType>
+    ComputerAttach<FloatType>::~ComputerAttach() {
+        for (auto &ID: IDs) {
+            apvts->removeParameterListener(ID, this);
+        }
+    }
+
+    template<typename FloatType>
+    void ComputerAttach<FloatType>::initDefaultVs() {
+        for (size_t i = 0; i < IDs.size(); ++i) {
+            parameterChanged(IDs[i], defaultVs[i]);
+        }
+    }
+
+    template<typename FloatType>
+    void ComputerAttach<FloatType>::addListeners() {
+        for (auto &ID: IDs) {
+            apvts->addParameterListener(ID, this);
+        }
+    }
+
+    template<typename FloatType>
+    void ComputerAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
+        auto v = static_cast<FloatType>(newValue);
+        if (parameterID == ZLDsp::threshold::ID) {
+            controller->lrComputer.setThreshold(v);
+        } else if (parameterID == ZLDsp::ratio::ID) {
+            controller->lrComputer.setRatio(v);
+        } else if (parameterID == ZLDsp::kneeW::ID) {
+            controller->lrComputer.setKneeW(ZLDsp::kneeW::formatV(v));
+        } else if (parameterID == ZLDsp::kneeS::ID) {
+            controller->lrComputer.setKneeS(v);
+        } else if (parameterID == ZLDsp::kneeD::ID) {
+            controller->lrComputer.setKneeD(v);
+        } else if (parameterID == ZLDsp::bound::ID) {
+            controller->lrComputer.setBound(v);
+        }
+    }
+
+    template
+    class ComputerAttach<float>;
+
+    template
+    class ComputerAttach<double>;
+}

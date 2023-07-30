@@ -16,11 +16,11 @@ namespace computer {
         if (x <= threshold - kneeW) {
             return x;
         } else if (x >= threshold + kneeW) {
-            return x / ratio + (1 - 1 / ratio) * threshold;
+            return juce::jlimit(x - bound.load(), x + bound.load(), x / ratio + (1 - 1 / ratio) * threshold);
         } else if (x < threshold) {
-            return static_cast<FloatType>(c1->operator()(x));
+            return juce::jlimit(x - bound.load(), x + bound.load(), static_cast<FloatType>(c1->operator()(x)));
         } else {
-            return static_cast<FloatType>(c2->operator()(x));
+            return juce::jlimit(x - bound.load(), x + bound.load(), static_cast<FloatType>(c2->operator()(x)));
         }
     }
 

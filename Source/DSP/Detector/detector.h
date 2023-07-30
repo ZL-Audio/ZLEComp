@@ -39,12 +39,12 @@ namespace detector {
 
         inline void setAttack(FloatType v) {
             v = juce::jmin(v, FloatType(0.001));
-            aPara.store(juce::jmin(FloatType(1000) / v * deltaT.load(), FloatType(1)));
+            aPara.store(juce::jmin(scales<FloatType>[ZLDsp::aStyle::defaultI] / v * deltaT.load(), FloatType(1)));
         }
 
         inline void setRelease(FloatType v) {
             v = juce::jmin(v, FloatType(0.001));
-            rPara.store(juce::jmin(FloatType(1000) / v * deltaT.load(), FloatType(1)));
+            rPara.store(juce::jmin(scales<FloatType>[ZLDsp::rStyle::defaultI] / v * deltaT.load(), FloatType(1)));
         }
 
         inline void setSmooth(FloatType v) {
@@ -52,11 +52,9 @@ namespace detector {
         }
 
     private:
-        std::atomic<size_t> aStyle = ZLDsp::aStyle::defaultI, rStyle = ZLDsp::rStyle::defaultI;
-        std::atomic<FloatType> aPara = 1000 / ZLDsp::attack::defaultV * scales<FloatType>[ZLDsp::aStyle::defaultI] / 44100;
-        std::atomic<FloatType> rPara = 1000 / ZLDsp::release::defaultV * scales<FloatType>[ZLDsp::rStyle::defaultI] / 44100;
+        std::atomic<size_t> aStyle, rStyle;
+        std::atomic<FloatType> aPara, rPara, smooth;
         std::atomic<FloatType> deltaT = FloatType(1 / 44100);
-        std::atomic<FloatType> smooth = ZLDsp::smooth::defaultV;
         FloatType xC = 0, xS = 0;
 
         inline static FloatType sgn(FloatType val) {
