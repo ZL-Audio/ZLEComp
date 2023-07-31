@@ -85,7 +85,6 @@ set(SourceFiles
         Source/DSP/FixedBuffer/fixed_audio_buffer.h
         Source/DSP/FixedBuffer/fixed_audio_buffer.cpp
 
-        Source/DSP/Computer/spline.h
         Source/DSP/Computer/computer.h
         Source/DSP/Computer/computer.cpp
 
@@ -150,6 +149,7 @@ target_link_libraries("${PROJECT_NAME}"
         PRIVATE
         Assets
         juce::juce_audio_utils
+        juce::juce_dsp
         juce::juce_audio_processors
         Boost::boost
         PUBLIC

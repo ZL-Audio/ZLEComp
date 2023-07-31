@@ -44,7 +44,7 @@ namespace fixedBuffer {
 
         inline auto getFreeSpace() const { return fifo.getFreeSpace(); }
 
-        inline auto isFull() const { return fifo.getNumReady() == fifo.getTotalSize(); }
+        inline auto isFull() const { return fifo.getNumReady() >= fifo.getTotalSize() - 1; }
 
     private:
         juce::AbstractFifo fifo;

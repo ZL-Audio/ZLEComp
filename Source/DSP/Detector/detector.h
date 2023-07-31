@@ -38,13 +38,15 @@ namespace detector {
         }
 
         inline void setAttack(FloatType v) {
-            v = juce::jmin(v, FloatType(0.001));
+            v = juce::jmax(v, FloatType(0.001));
             aPara.store(juce::jmin(scales<FloatType>[ZLDsp::aStyle::defaultI] / v * deltaT.load(), FloatType(1)));
+//            printf("v %f\taPara %f\n", v, aPara.load());
         }
 
         inline void setRelease(FloatType v) {
-            v = juce::jmin(v, FloatType(0.001));
+            v = juce::jmax(v, FloatType(0.001));
             rPara.store(juce::jmin(scales<FloatType>[ZLDsp::rStyle::defaultI] / v * deltaT.load(), FloatType(1)));
+//            printf("v %f\trPara %f\n", v, rPara.load());
         }
 
         inline void setSmooth(FloatType v) {
@@ -54,8 +56,8 @@ namespace detector {
     private:
         std::atomic<size_t> aStyle, rStyle;
         std::atomic<FloatType> aPara, rPara, smooth;
-        std::atomic<FloatType> deltaT = FloatType(1 / 44100);
-        FloatType xC = 0, xS = 0;
+        std::atomic<FloatType> deltaT = FloatType(1) / FloatType(44100);
+        FloatType xC = 1.0, xS = 1.0;
 
         inline static FloatType sgn(FloatType val) {
             return (FloatType(0) < val) - (val < FloatType(0));

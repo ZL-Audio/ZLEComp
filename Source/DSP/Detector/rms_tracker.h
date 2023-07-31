@@ -68,7 +68,7 @@ namespace detector {
         FloatType peak = 0, mLoudness = 0, iLoudness = 0;
         FloatType secondPerBuffer = FloatType(0.01);
         boost::circular_buffer<FloatType> loudnessBuffer;
-
+        std::mutex mtx;
         void toSetMomentarySize();
     };
 

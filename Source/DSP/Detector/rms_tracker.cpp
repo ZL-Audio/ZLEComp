@@ -62,9 +62,8 @@ namespace detector {
 
         _ms = _ms / static_cast<FloatType> (buffer.getNumSamples());
 
-        if (loudnessBuffer.size() >= loudnessBuffer.capacity()) {
+        if (loudnessBuffer.size() == loudnessBuffer.capacity()) {
             mLoudness -= loudnessBuffer.front();
-            loudnessBuffer.pop_front();
         }
 
         loudnessBuffer.push_back(_ms);

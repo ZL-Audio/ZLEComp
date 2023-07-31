@@ -11,8 +11,9 @@
 #ifndef ZLECOMP_COMPUTER_H
 #define ZLECOMP_COMPUTER_H
 
+#include <boost/circular_buffer.hpp>
+#include <boost/math/interpolators/cubic_hermite.hpp>
 #include "../dsp_defines.h"
-#include "spline.h"
 
 namespace computer {
 
@@ -58,9 +59,13 @@ namespace computer {
 
     private:
         std::atomic<FloatType> threshold = ZLDsp::threshold::defaultV, ratio = ZLDsp::ratio::defaultV;
-        std::atomic<FloatType> kneeW = ZLDsp::kneeW::formatV(ZLDsp::kneeW::defaultV), kneeD = ZLDsp::kneeD::defaultV, kneeS = ZLDsp::kneeS::defaultV;
+        std::atomic<FloatType> kneeW = ZLDsp::kneeW::formatV(
+                ZLDsp::kneeW::defaultV), kneeD = ZLDsp::kneeD::defaultV, kneeS = ZLDsp::kneeS::defaultV;
         std::atomic<FloatType> bound = ZLDsp::bound::defaultV;
-        std::unique_ptr<tk::spline> c1, c2;
+        std::array<FloatType, 3> initialX{-60, -30, 0};
+        std::array<FloatType, 3> initialY{-60, -30, 0};
+        std::array<FloatType, 3> initialXY{1, 1, 1};
+        boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>> cubic = boost::math::interpolators::cubic_hermite(std::move(initialX), std::move(initialY), std::move(initialXY));
 
         void interpolate();
     };

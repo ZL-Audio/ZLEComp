@@ -47,7 +47,7 @@ namespace fixedBuffer {
                 channelData[index] = 0;
             }
         }
-        inputBuffer.push(zeroBuffer);
+        inputBuffer.push(zeroBuffer, subBufferSize);
     }
 
     template<typename FloatType>

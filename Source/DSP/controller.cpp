@@ -14,6 +14,7 @@ namespace controller {
     template<typename FloatType>
     Controller<FloatType>::Controller(juce::AudioProcessor &processor,
                                       juce::AudioProcessorValueTreeState &parameters) {
+        mainDelay.setMaximumDelayInSamples(48000);
         mainDelay.setDelay(0);
         m_processor = &processor;
         apvts = &parameters;
@@ -36,6 +37,7 @@ namespace controller {
                     true, true);
             overSamplers[i]->initProcessing(spec.maximumBlockSize);
         }
+        mixer.prepare(spec);
 
         mainDelay.prepare(spec);
         sideGainDSP.prepare(spec);
@@ -45,10 +47,6 @@ namespace controller {
 
         allBuffer.setSize(static_cast<int>(spec.numChannels * 2), static_cast<int>(spec.maximumBlockSize));
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
-        lTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        rTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        lDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        rDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
     }
 
     template<typename FloatType>
@@ -65,20 +63,19 @@ namespace controller {
         // prepare
         if (idxSamplerToReset.load()) {
             setOversampleID(tempIdxSampler.load());
-            idxSamplerToReset.store(false);
         }
         if (subBufferSizeToReset.load()) {
             setSegment(subBufferSize.load());
-            subBufferSizeToReset.store(false);
+        }
+        if (rmsSizeToReset.load()) {
+            setRMSSize(rmsSize.load());
         }
         // copy buffer into allBuffer
         allBuffer.makeCopyOf(buffer, true);
         // copy side-chain into sideBuffer
-        juce::AudioBuffer<FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, false, 1));
-        if (external.load()) {
-            sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, false, 1), true);
-        } else {
-            sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, false, 0), true);
+        juce::AudioBuffer <FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
+        if (!external.load()) {
+            sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, true, 0), true);
         }
         // apply side gain
         auto sideBlock = juce::dsp::AudioBlock<FloatType>(sideBuffer);
@@ -89,7 +86,7 @@ namespace controller {
             return;
         }
         // apply lookahead
-        juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(buffer, false, 0));
+        juce::AudioBuffer <FloatType> mainBuffer(m_processor->getBusBuffer(buffer, false, 0));
         auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
         mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
         // add dry samples
@@ -107,9 +104,10 @@ namespace controller {
             // compute current level
             FloatType lGain = lTracker.getMomentaryLoudness();
             FloatType rGain = rTracker.getMomentaryLoudness();
+            FloatType lrGain = lGain + rGain;
             // perform stereo link
             lGain = link.load() * rGain + (1 - link.load()) * lGain;
-            rGain = link.load() * lGain + (1 - link.load()) * rGain;
+            rGain = lrGain - lGain;
             // compute current gain
             lGain = lrComputer.process(lGain);
             rGain = lrComputer.process(rGain);
@@ -119,10 +117,13 @@ namespace controller {
             // apply gain separately
             lGainDSP.setGainLinear(lGain);
             rGainDSP.setGainLinear(rGain);
+//            printf("lG %f\trG %f", lGain, rGain);
             auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
-            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
+            lSubBlock.multiplyBy(lGain);
+//            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
             auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
-            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+            rSubBlock.multiplyBy(rGain);
+//            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
             subBuffer.pushSubBuffer();
         }
         subBuffer.popBlock(overSampledBuffer);
@@ -132,9 +133,10 @@ namespace controller {
         // mix wet samples
         mixer.mixWetSamples(allBlock.getSubsetChannelBlock(0, 2));
         // apply out gain
-        juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
+        juce::AudioBuffer <FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(m_processor->getBusBuffer(allBuffer, false, 0), true);
     }
 
     template<typename FloatType>
@@ -155,19 +157,41 @@ namespace controller {
     template<typename FloatType>
     void Controller<FloatType>::setOversampleID(size_t idx) {
         idxSampler.store(idx);
+        auto rate = std::pow(2, tempIdxSampler.load());
+        juce::dsp::ProcessSpec spec{mainSpec.sampleRate * rate,
+                                    mainSpec.maximumBlockSize * static_cast<juce::uint32>(rate),
+                                    mainSpec.numChannels};
+        subBuffer.prepare(spec);
+        subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
+        lTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
+        rTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
+        lDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
+        rDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
+        lGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
+        rGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
+        idxSamplerToReset.store(false);
     }
 
     template<typename FloatType>
     void Controller<FloatType>::toSetOversampleID(size_t idx) {
         tempIdxSampler.store(idx);
         idxSamplerToReset.store(true);
+        subBufferSizeToReset.store(true);
     }
 
     template<typename FloatType>
     void Controller<FloatType>::setRMSSize(FloatType v) {
-        auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v / subBuffer.getSubSpec().maximumBlockSize);
+        auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v /
+                                         subBuffer.getSubSpec().maximumBlockSize);
         lTracker.setMomentarySize(mSize);
         rTracker.setMomentarySize(mSize);
+        rmsSizeToReset.store(false);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::toSetRMSSize(FloatType v) {
+        rmsSize.store(v);
+        rmsSizeToReset.store(true);
     }
 
     template<typename FloatType>
@@ -177,13 +201,15 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::setSegment(FloatType v) {
-        subBuffer.setSubBufferSize(static_cast<int>(v * mainSpec.sampleRate));
+        subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * mainSpec.sampleRate)));
+        subBufferSizeToReset.store(false);
     }
 
     template<typename FloatType>
     void Controller<FloatType>::toSetSegment(FloatType v) {
         subBufferSize.store(v);
         subBufferSizeToReset.store(true);
+        rmsSizeToReset.store(true);
     }
 
     template<typename FloatType>
@@ -269,7 +295,7 @@ namespace controller {
 namespace controller {
     template<typename FloatType>
     DetectorAttach<FloatType>::DetectorAttach(Controller<FloatType> &c,
-                                                  juce::AudioProcessorValueTreeState &parameters) {
+                                              juce::AudioProcessorValueTreeState &parameters) {
         controller = &c;
         apvts = &parameters;
     }

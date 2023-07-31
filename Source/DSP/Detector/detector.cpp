@@ -18,17 +18,20 @@ namespace detector {
         size_t style = xC < target ? rStyle.load() : aStyle.load();
         FloatType distanceS = target - xS;
         FloatType distanceC = (xS - xC) * smooth.load() + (target - xC) * (1 - smooth.load());
-        FloatType slopeS = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceS))), distanceS);
-        FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), distanceC);
+        FloatType slopeS = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceS))), std::abs(distanceS));
+        FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), std::abs(distanceC));
+//        printf("target %f\txC %f\tdist %f\tslope %f\n", target, xC, distanceC, slopeC);
         xS += slopeS * sgn(distanceS);
         xC += slopeC * sgn(distanceC);
+        xS = juce::jmax(xS, FloatType(0.0001));
+        xC = juce::jmax(xC, FloatType(0.0001));
         return xC;
     }
 
     template<typename FloatType>
     void Detector<FloatType>::reset() {
-        xC = 0;
-        xS = 0;
+        xC = 1.0;
+        xS = 1.0;
     }
 
     template<typename FloatType>

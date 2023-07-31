@@ -17,11 +17,13 @@
 
 namespace ZLDsp {
     // float
+    inline auto static const versionHint = 1;
+
     template<class T>
     class FloatParameters {
     public:
         static std::unique_ptr<juce::AudioParameterFloat> get() {
-            return std::make_unique<juce::AudioParameterFloat>(T::ID, T::name, T::range,
+            return std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(T::ID, versionHint), T::name, T::range,
                                                                T::defaultV);
         }
     };
@@ -51,8 +53,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1.f, .01f);
         auto static constexpr defaultV = 0.f;
-        inline static float formatV(float x) {return std::max(x * 60, 0.0625f);}
-        inline static double formatV(double x) {return std::max(x * 60, 0.0625);}
+
+        inline static float formatV(float x) { return std::max(x * 60, 0.0625f); }
+
+        inline static double formatV(double x) { return std::max(x * 60, 0.0625); }
     };
 
     class kneeD : public FloatParameters<kneeD> {
@@ -98,8 +102,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 500.f, 0.01f, 0.30103f);
         auto static constexpr defaultV = 10.f;
-        inline static float formatV(float x) {return x * .001f;}
-        inline static double formatV(double x) {return x * .001;}
+
+        inline static float formatV(float x) { return x * .001f; }
+
+        inline static double formatV(double x) { return x * .001; }
     };
 
     class release : public FloatParameters<release> {
@@ -109,8 +115,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 5000.f, 0.01f, 0.30103f);
         auto static constexpr defaultV = 100.f;
-        inline static float formatV(float x) {return x * .001f;}
-        inline static double formatV(double x) {return x * .001;}
+
+        inline static float formatV(float x) { return x * .001f; }
+
+        inline static double formatV(double x) { return x * .001; }
     };
 
     class smooth : public FloatParameters<smooth> {
@@ -129,8 +137,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1.f, .01f);
         auto static constexpr defaultV = 1.f;
-        inline static float formatV(float x) {return x * .5f;}
-        inline static double formatV(double x) {return x * .5;}
+
+        inline static float formatV(float x) { return x * .5f; }
+
+        inline static double formatV(double x) { return x * .5; }
     };
 
     class segment : public FloatParameters<segment> {
@@ -140,8 +150,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 100.f, 1.f);
         auto static constexpr defaultV = 0.f;
-        inline static float formatV(float x) {return x * .001f;}
-        inline static double formatV(double x) {return x * .001;}
+
+        inline static float formatV(float x) { return x * .001f; }
+
+        inline static double formatV(double x) { return x * .001; }
     };
 
     class outGain : public FloatParameters<outGain> {
@@ -160,8 +172,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 100.f, .1f);
         auto static constexpr defaultV = 100.f;
-        inline static float formatV(float x) {return x * .01f;}
-        inline static double formatV(double x) {return x * .01;}
+
+        inline static float formatV(float x) { return x * .01f; }
+
+        inline static double formatV(double x) { return x * .01; }
     };
 
     class rms : public FloatParameters<rms> {
@@ -171,8 +185,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 1000.f, 1.f);
         auto static constexpr defaultV = 0.f;
-        inline static float formatV(float x) {return x * .001f;}
-        inline static double formatV(double x) {return x * .001;}
+
+        inline static float formatV(float x) { return x * .001f; }
+
+        inline static double formatV(double x) { return x * .001; }
     };
 
     class lookahead : public FloatParameters<lookahead> {
@@ -182,8 +198,10 @@ namespace ZLDsp {
         inline auto static const range =
                 juce::NormalisableRange<float>(0.f, 250.f, 1.f);
         auto static constexpr defaultV = 0.f;
-        inline static float formatV(float x) {return x * .001f;}
-        inline static double formatV(double x) {return x * .001;}
+
+        inline static float formatV(float x) { return x * .001f; }
+
+        inline static double formatV(double x) { return x * .001; }
     };
 
     // bool
@@ -191,7 +209,7 @@ namespace ZLDsp {
     class BoolParameters {
     public:
         static std::unique_ptr<juce::AudioParameterBool> get() {
-            return std::make_unique<juce::AudioParameterBool>(T::ID, T::name,
+            return std::make_unique<juce::AudioParameterBool>(juce::ParameterID(T::ID, versionHint), T::name,
                                                               T::defaultV);
         }
     };
@@ -216,7 +234,7 @@ namespace ZLDsp {
     public:
         static std::unique_ptr<juce::AudioParameterChoice> get() {
             return std::make_unique<juce::AudioParameterChoice>(
-                    T::ID, T::name, T::choices, T::defaultI);
+                    juce::ParameterID(T::ID, versionHint), T::name, T::choices, T::defaultI);
         }
     };
 
@@ -270,7 +288,7 @@ namespace ZLDsp {
     }
 
     inline static std::array presets{BinaryData::half_rms_m_xml};
-    inline static std::array presetNames {"Half RMS"};
+    inline static std::array presetNames{"Half RMS"};
 
 } // namespace ZLDsp
 

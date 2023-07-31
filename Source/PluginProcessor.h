@@ -14,6 +14,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include <BinaryData.h>
 #include "DSP/dsp_defines.h"
+#include "DSP/controller.h"
 
 #if (MSVC)
 #include "ipps.h"
@@ -64,6 +65,9 @@ public:
     void setStateInformation(const void *data, int sizeInBytes) override;
 
 private:
-
+    controller::Controller<float> controller;
+    controller::ControllerAttach<float> controllerAttach;
+    controller::DetectorAttach<float> detectorAttach;
+    controller::ComputerAttach<float> computerAttach;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

@@ -50,6 +50,8 @@ namespace controller {
 
         void setRMSSize(FloatType v);
 
+        void toSetRMSSize(FloatType v);
+
         void setLookAhead(FloatType v);
 
         void setSegment(FloatType v);
@@ -77,6 +79,9 @@ namespace controller {
         fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
         std::atomic<FloatType> subBufferSize;
         std::atomic<bool> subBufferSizeToReset = false;
+
+        std::atomic<FloatType> rmsSize;
+        std::atomic<bool> rmsSizeToReset = false;
 
         juce::dsp::ProcessSpec mainSpec = {44100, 512, 2};
 

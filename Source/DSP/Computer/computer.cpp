@@ -17,10 +17,8 @@ namespace computer {
             return x;
         } else if (x >= threshold + kneeW) {
             return juce::jlimit(x - bound.load(), x + bound.load(), x / ratio + (1 - 1 / ratio) * threshold);
-        } else if (x < threshold) {
-            return juce::jlimit(x - bound.load(), x + bound.load(), static_cast<FloatType>(c1->operator()(x)));
         } else {
-            return juce::jlimit(x - bound.load(), x + bound.load(), static_cast<FloatType>(c2->operator()(x)));
+            return juce::jlimit(x - bound.load(), x + bound.load(), cubic(x));
         }
     }
 
@@ -31,16 +29,16 @@ namespace computer {
 
     template<typename FloatType>
     void Computer<FloatType>::interpolate() {
-        std::vector<double> X1 = {threshold - kneeW, threshold};
-        std::vector<double> Y1 = {threshold - kneeW, threshold - kneeD * 0.75 * kneeW * (1 - 0.5 / ratio - 0.5)};
-        c1 = std::make_unique<tk::spline>(X1, Y1, tk::spline::cspline_hermite, false,
-                                          tk::spline::first_deriv, 1,
-                                          tk::spline::first_deriv, static_cast<double>(kneeS + (1 - kneeS) / ratio));
-        std::vector<double> X2 = {threshold, threshold + kneeW / ratio};
-        std::vector<double> Y2 = {threshold - kneeD * 0.75 * kneeW * (1 - 0.5 / ratio - 0.5), threshold - kneeW};
-        c2 = std::make_unique<tk::spline>(X2, Y2, tk::spline::cspline_hermite, false,
-                                          tk::spline::first_deriv, static_cast<double>(kneeS + (1 - kneeS) / ratio),
-                                          tk::spline::first_deriv, static_cast<double>(1 / ratio));
+        initialX = {threshold.load() - kneeW.load(),
+                    threshold.load(),
+                    threshold.load() + kneeW.load()};
+        initialY = {threshold.load() - kneeW.load(),
+                    threshold.load() - kneeD.load() * FloatType(0.75) * kneeW.load() *
+                                       (FloatType(1) - FloatType(0.5) / ratio.load() - FloatType(0.5)),
+                    threshold.load() + kneeW.load() / ratio.load()};
+        initialXY = {FloatType(1),
+                     kneeS.load() + (FloatType(1) - kneeS.load()) / ratio.load(),
+                     FloatType(1) / ratio.load()};
     }
 
     template

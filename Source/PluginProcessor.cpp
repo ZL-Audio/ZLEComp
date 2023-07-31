@@ -21,7 +21,17 @@ PluginProcessor::PluginProcessor()
                                  .withInput("Ext", juce::AudioChannelSet::stereo(),
                                             true)),
           parameters(*this, nullptr, juce::Identifier("ZLECompParameters"),
-                     ZLDsp::getParameterLayout()) {
+                     ZLDsp::getParameterLayout()),
+          controller(*this, parameters),
+          controllerAttach(controller, parameters),
+          detectorAttach(controller, parameters),
+          computerAttach(controller, parameters){
+    controllerAttach.initDefaultVs();
+    controllerAttach.addListeners();
+    detectorAttach.initDefaultVs();
+    detectorAttach.addListeners();
+    computerAttach.initDefaultVs();
+    computerAttach.addListeners();
 //    parameters.state.addChild (
 //            { "uiState", { { "width", ZLInterface::WindowWidth }, { "height", ZLInterface::WindowHeight } }, {} }, -1, nullptr);
 }
@@ -63,7 +73,8 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return static_cast<int>(ZLDsp::presets.size());   // NB: some hosts don't cope very well if you tell them there are 0 programs,
+    return 1;
+//    return static_cast<int>(ZLDsp::presets.size());   // NB: some hosts don't cope very well if you tell them there are 0 programs,
     // so this should be at least 1, even if you're not really implementing programs.
 }
 
@@ -73,18 +84,18 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     juce::ignoreUnused(index);
-    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
-        juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
-        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
-        parameters.replaceState(valueTreeToLoad);
-    }
+//    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
+//        juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
+//        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
+//        parameters.replaceState(valueTreeToLoad);
+//    }
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
     juce::ignoreUnused(index);
-    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
-        return ZLDsp::presetNames[static_cast<size_t>(index)];
-    }
+//    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
+//        return ZLDsp::presetNames[static_cast<size_t>(index)];
+//    }
     return {};
 }
 
@@ -97,7 +108,7 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
                                                           getMainBusNumOutputChannels()));
     juce::dsp::ProcessSpec spec{sampleRate, static_cast<juce::uint32> (samplesPerBlock),
                                 channels};
-    juce::ignoreUnused(spec);
+    controller.prepare(spec);
 }
 
 void PluginProcessor::releaseResources() {}
@@ -126,6 +137,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
+    controller.process(buffer);
 }
 
 //==============================================================================
