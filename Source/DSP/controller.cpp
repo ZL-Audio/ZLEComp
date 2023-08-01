@@ -61,11 +61,6 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::process(juce::AudioBuffer<FloatType> &buffer) {
-        // prepare lock
-        if (!lock[0].tryEnter() && !lock[1].tryEnter() && !lock[2].tryEnter()) {
-            m_processor->getBusBuffer(buffer, false, 0).applyGain(FloatType(0));
-            return;
-        }
         // copy buffer into allBuffer
         allBuffer.makeCopyOf(buffer, true);
         // copy side-chain into sideBuffer
@@ -82,7 +77,7 @@ namespace controller {
             return;
         }
         // apply lookahead
-        juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(buffer, false, 0));
+        juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
         mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
         // add dry samples
@@ -130,10 +125,6 @@ namespace controller {
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
         m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(m_processor->getBusBuffer(allBuffer, false, 0), true);
-        // exit lock
-        lock[0].exit();
-        lock[1].exit();
-        lock[2].exit();
     }
 
     template<typename FloatType>
@@ -154,7 +145,8 @@ namespace controller {
     template<typename FloatType>
     void Controller<FloatType>::setOversampleID(size_t idx, bool useLock) {
         if (useLock) {
-            lock[0].enter();
+            m_processor->suspendProcessing(true);
+            while (!m_processor->isSuspended()) {}
         }
         idxSampler.store(idx);
         auto rate = std::pow(2, idx);
@@ -164,14 +156,15 @@ namespace controller {
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
         setSegment(segment.load(), false);
         if (useLock) {
-            lock[0].exit();
+            m_processor->suspendProcessing(false);
         }
     }
 
     template<typename FloatType>
     void Controller<FloatType>::setRMSSize(FloatType v, bool useLock) {
         if (useLock) {
-            lock[2].enter();
+            m_processor->suspendProcessing(true);
+            while (!m_processor->isSuspended()) {}
         }
         rmsSize.store(v);
         auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v /
@@ -180,19 +173,21 @@ namespace controller {
         lTracker.setMomentarySize(mSize);
         rTracker.setMomentarySize(mSize);
         if (useLock) {
-            lock[2].exit();
+            m_processor->suspendProcessing(false);
         }
     }
 
     template<typename FloatType>
     void Controller<FloatType>::setLookAhead(FloatType v) {
-        mainDelay.setDelay(static_cast<FloatType>(v * mainSpec.sampleRate));
+        mainDelay.setDelay(static_cast<float>(static_cast<int>(v * mainSpec.sampleRate)));
+        setLatency();
     }
 
     template<typename FloatType>
     void Controller<FloatType>::setSegment(FloatType v, bool useLock) {
         if (useLock) {
-            lock[1].enter();
+            m_processor->suspendProcessing(true);
+            while (!m_processor->isSuspended()) {}
         }
         segment.store(v);
         subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * subBuffer.getMainSpec().sampleRate)));
@@ -210,8 +205,9 @@ namespace controller {
         rGainDSP.setRampDurationSeconds(rampSeconds);
 
         setRMSSize(rmsSize.load(), false);
+        setLatency();
         if (useLock) {
-            lock[1].exit();
+            m_processor->suspendProcessing(false);
         }
     }
 
@@ -228,6 +224,15 @@ namespace controller {
     template<typename FloatType>
     void Controller<FloatType>::setExternal(bool f) {
         external.store(f);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setLatency() {
+        if (overSamplers[idxSampler.load()]) {
+            m_processor->setLatencySamples(
+                    static_cast<int>(mainDelay.getDelay() + overSamplers[idxSampler.load()]->getLatencyInSamples()) +
+                    static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
+        }
     }
 
     template

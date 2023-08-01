@@ -79,7 +79,8 @@ namespace controller {
         juce::AudioProcessorValueTreeState *apvts;
 
         juce::AudioBuffer<FloatType> allBuffer;
-        juce::SpinLock lock[3];
+
+        void setLatency();
     };
 }
 
