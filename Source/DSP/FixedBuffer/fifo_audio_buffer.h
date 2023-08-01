@@ -18,7 +18,7 @@ namespace fixedBuffer {
     template<typename FloatType>
     class FIFOAudioBuffer {
     public:
-        FIFOAudioBuffer(int channels, int bufferSize);
+        explicit FIFOAudioBuffer(int channels=2, int bufferSize=441);
 
         void clear();
 
@@ -50,7 +50,7 @@ namespace fixedBuffer {
         juce::AbstractFifo fifo;
 
         /*< The actual audio buffer */
-        juce::AudioBuffer<FloatType> buffer = juce::AudioBuffer<FloatType>(2, 1);
+        juce::AudioBuffer<FloatType> buffer;
     };
 }
 

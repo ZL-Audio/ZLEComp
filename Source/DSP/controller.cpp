@@ -147,6 +147,7 @@ namespace controller {
         if (useLock) {
             m_processor->suspendProcessing(true);
             while (!m_processor->isSuspended()) {}
+            lock.enter();
         }
         idxSampler.store(idx);
         auto rate = std::pow(2, idx);
@@ -156,6 +157,7 @@ namespace controller {
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
         setSegment(segment.load(), false);
         if (useLock) {
+            lock.exit();
             m_processor->suspendProcessing(false);
         }
     }
@@ -165,6 +167,7 @@ namespace controller {
         if (useLock) {
             m_processor->suspendProcessing(true);
             while (!m_processor->isSuspended()) {}
+            lock.enter();
         }
         rmsSize.store(v);
         auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v /
@@ -173,6 +176,7 @@ namespace controller {
         lTracker.setMomentarySize(mSize);
         rTracker.setMomentarySize(mSize);
         if (useLock) {
+            lock.exit();
             m_processor->suspendProcessing(false);
         }
     }
@@ -188,6 +192,7 @@ namespace controller {
         if (useLock) {
             m_processor->suspendProcessing(true);
             while (!m_processor->isSuspended()) {}
+            lock.enter();
         }
         segment.store(v);
         subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * subBuffer.getMainSpec().sampleRate)));
@@ -207,6 +212,7 @@ namespace controller {
         setRMSSize(rmsSize.load(), false);
         setLatency();
         if (useLock) {
+            lock.exit();
             m_processor->suspendProcessing(false);
         }
     }
@@ -285,13 +291,11 @@ namespace controller {
         } else if (parameterID == ZLDsp::rms::ID) {
             controller->setRMSSize(ZLDsp::rms::formatV(v));
         } else if (parameterID == ZLDsp::lookahead::ID) {
-            controller->setLookAhead(ZLDsp::segment::formatV(v));
+            controller->setLookAhead(ZLDsp::lookahead::formatV(v));
             if (m_processor->getCurrentProgram() == 1) {
                 apvts->getParameter(ZLDsp::rms::ID)->beginChangeGesture();
                 apvts->getParameter(ZLDsp::rms::ID)
-                        ->setValueNotifyingHost(
-                                ZLDsp::rms::range.convertTo0to1(
-                                        static_cast<float>(v * 2)));
+                        ->setValueNotifyingHost(ZLDsp::rms::range.convertTo0to1(static_cast<float>(v * 2)));
                 apvts->getParameter(ZLDsp::rms::ID)->endChangeGesture();
             }
         } else if (parameterID == ZLDsp::segment::ID) {

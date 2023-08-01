@@ -26,15 +26,14 @@ namespace fixedBuffer {
     template<typename FloatType>
     void FIFOAudioBuffer<FloatType>::setSize(int channels, int bufferSize) {
         juce::ignoreUnused(channels);
+        clear();
         fifo.setTotalSize(bufferSize + 1);
-        buffer.clear();
         buffer.setSize(channels, bufferSize + 1);
     }
 
     template<typename FloatType>
     void FIFOAudioBuffer<FloatType>::push(const FloatType **samples, int numSamples) {
         jassert (fifo.getFreeSpace() >= numSamples);
-//        printf("push %d remain %d\n", numSamples, fifo.getFreeSpace());
         int start1, size1, start2, size2;
         fifo.prepareToWrite(numSamples, start1, size1, start2, size2);
         if (size1 > 0)
@@ -50,7 +49,6 @@ namespace fixedBuffer {
     void FIFOAudioBuffer<FloatType>::push(const juce::AudioBuffer<FloatType> &samples,
                                           int numSamples) {
         const int addSamples = numSamples < 0 ? samples.getNumSamples() : numSamples;
-//        printf("push %d remain %d\n", addSamples, fifo.getFreeSpace());
         jassert (fifo.getFreeSpace() >= addSamples);
 
         int start1, size1, start2, size2;
@@ -69,7 +67,6 @@ namespace fixedBuffer {
     template<typename FloatType>
     void FIFOAudioBuffer<FloatType>::push(juce::dsp::AudioBlock<FloatType> block, int numSamples) {
         const int addSamples = numSamples < 0 ? static_cast<int>(block.getNumSamples()) : numSamples;
-//        printf("push %d remain %d\n", addSamples, fifo.getFreeSpace());
         jassert (fifo.getFreeSpace() >= addSamples);
 
         int start1, size1, start2, size2;
