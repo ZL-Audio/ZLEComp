@@ -22,8 +22,7 @@ namespace fixedBuffer {
     public:
         juce::AudioBuffer<FloatType> subBuffer;
 
-        explicit FixedAudioBuffer(
-                int subBufferSize = static_cast<int>(ZLDsp::segment::defaultV));
+        explicit FixedAudioBuffer(int subBufferSize = 1);
 
         void clear();
 

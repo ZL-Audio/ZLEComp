@@ -28,7 +28,7 @@ namespace fixedBuffer {
         juce::ignoreUnused(channels);
         fifo.setTotalSize(bufferSize + 1);
         buffer.clear();
-        buffer.setSize(channels, bufferSize);
+        buffer.setSize(channels, bufferSize + 1);
     }
 
     template<typename FloatType>

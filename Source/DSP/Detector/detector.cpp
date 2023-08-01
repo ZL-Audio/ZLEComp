@@ -20,7 +20,6 @@ namespace detector {
         FloatType distanceC = (xS - xC) * smooth.load() + (target - xC) * (1 - smooth.load());
         FloatType slopeS = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceS))), std::abs(distanceS));
         FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), std::abs(distanceC));
-//        printf("target %f\txC %f\tdist %f\tslope %f\n", target, xC, distanceC, slopeC);
         xS += slopeS * sgn(distanceS);
         xC += slopeC * sgn(distanceC);
         xS = juce::jmax(xS, FloatType(0.0001));
@@ -37,7 +36,6 @@ namespace detector {
     template<typename FloatType>
     void Detector<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
         deltaT.store(static_cast<FloatType>(1 / spec.sampleRate));
-        reset();
     }
 
     template

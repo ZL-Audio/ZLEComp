@@ -46,7 +46,8 @@ namespace controller {
         outGainDSP.setRampDurationSeconds(0.1);
 
         allBuffer.setSize(static_cast<int>(spec.numChannels * 2), static_cast<int>(spec.maximumBlockSize));
-        subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
+        reset();
+        setOversampleID(idxSampler.load(), false);
     }
 
     template<typename FloatType>
@@ -60,20 +61,15 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::process(juce::AudioBuffer<FloatType> &buffer) {
-        // prepare
-        if (idxSamplerToReset.load()) {
-            setOversampleID(tempIdxSampler.load());
-        }
-        if (subBufferSizeToReset.load()) {
-            setSegment(subBufferSize.load());
-        }
-        if (rmsSizeToReset.load()) {
-            setRMSSize(rmsSize.load());
+        // prepare lock
+        if (!lock[0].tryEnter() && !lock[1].tryEnter() && !lock[2].tryEnter()) {
+            m_processor->getBusBuffer(buffer, false, 0).applyGain(FloatType(0));
+            return;
         }
         // copy buffer into allBuffer
         allBuffer.makeCopyOf(buffer, true);
         // copy side-chain into sideBuffer
-        juce::AudioBuffer <FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
+        juce::AudioBuffer<FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
         if (!external.load()) {
             sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, true, 0), true);
         }
@@ -86,7 +82,7 @@ namespace controller {
             return;
         }
         // apply lookahead
-        juce::AudioBuffer <FloatType> mainBuffer(m_processor->getBusBuffer(buffer, false, 0));
+        juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(buffer, false, 0));
         auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
         mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
         // add dry samples
@@ -117,13 +113,10 @@ namespace controller {
             // apply gain separately
             lGainDSP.setGainLinear(lGain);
             rGainDSP.setGainLinear(rGain);
-//            printf("lG %f\trG %f", lGain, rGain);
             auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
-            lSubBlock.multiplyBy(lGain);
-//            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
+            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
             auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
-            rSubBlock.multiplyBy(rGain);
-//            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
             subBuffer.pushSubBuffer();
         }
         subBuffer.popBlock(overSampledBuffer);
@@ -133,10 +126,14 @@ namespace controller {
         // mix wet samples
         mixer.mixWetSamples(allBlock.getSubsetChannelBlock(0, 2));
         // apply out gain
-        juce::AudioBuffer <FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
+        juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
         m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(m_processor->getBusBuffer(allBuffer, false, 0), true);
+        // exit lock
+        lock[0].exit();
+        lock[1].exit();
+        lock[2].exit();
     }
 
     template<typename FloatType>
@@ -155,43 +152,36 @@ namespace controller {
     }
 
     template<typename FloatType>
-    void Controller<FloatType>::setOversampleID(size_t idx) {
+    void Controller<FloatType>::setOversampleID(size_t idx, bool useLock) {
+        if (useLock) {
+            lock[0].enter();
+        }
         idxSampler.store(idx);
-        auto rate = std::pow(2, tempIdxSampler.load());
+        auto rate = std::pow(2, idx);
         juce::dsp::ProcessSpec spec{mainSpec.sampleRate * rate,
                                     mainSpec.maximumBlockSize * static_cast<juce::uint32>(rate),
                                     mainSpec.numChannels};
-        subBuffer.prepare(spec);
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
-        lTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        rTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        lDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        rDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        lGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        rGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 2});
-        idxSamplerToReset.store(false);
+        setSegment(segment.load(), false);
+        if (useLock) {
+            lock[0].exit();
+        }
     }
 
     template<typename FloatType>
-    void Controller<FloatType>::toSetOversampleID(size_t idx) {
-        tempIdxSampler.store(idx);
-        idxSamplerToReset.store(true);
-        subBufferSizeToReset.store(true);
-    }
-
-    template<typename FloatType>
-    void Controller<FloatType>::setRMSSize(FloatType v) {
+    void Controller<FloatType>::setRMSSize(FloatType v, bool useLock) {
+        if (useLock) {
+            lock[2].enter();
+        }
+        rmsSize.store(v);
         auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v /
                                          subBuffer.getSubSpec().maximumBlockSize);
+        mSize = juce::jmax(size_t(1), mSize);
         lTracker.setMomentarySize(mSize);
         rTracker.setMomentarySize(mSize);
-        rmsSizeToReset.store(false);
-    }
-
-    template<typename FloatType>
-    void Controller<FloatType>::toSetRMSSize(FloatType v) {
-        rmsSize.store(v);
-        rmsSizeToReset.store(true);
+        if (useLock) {
+            lock[2].exit();
+        }
     }
 
     template<typename FloatType>
@@ -200,16 +190,29 @@ namespace controller {
     }
 
     template<typename FloatType>
-    void Controller<FloatType>::setSegment(FloatType v) {
-        subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * mainSpec.sampleRate)));
-        subBufferSizeToReset.store(false);
-    }
+    void Controller<FloatType>::setSegment(FloatType v, bool useLock) {
+        if (useLock) {
+            lock[1].enter();
+        }
+        segment.store(v);
+        subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * subBuffer.getMainSpec().sampleRate)));
 
-    template<typename FloatType>
-    void Controller<FloatType>::toSetSegment(FloatType v) {
-        subBufferSize.store(v);
-        subBufferSizeToReset.store(true);
-        rmsSizeToReset.store(true);
+        juce::dsp::ProcessSpec spec = subBuffer.getSubSpec();
+        lTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+        rTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+        lDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+        rDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+        lGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+        rGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+
+        auto rampSeconds = double(spec.maximumBlockSize - 1) / 4 / spec.sampleRate;
+        lGainDSP.setRampDurationSeconds(rampSeconds);
+        rGainDSP.setRampDurationSeconds(rampSeconds);
+
+        setRMSSize(rmsSize.load(), false);
+        if (useLock) {
+            lock[1].exit();
+        }
     }
 
     template<typename FloatType>
@@ -271,13 +274,13 @@ namespace controller {
         } else if (parameterID == ZLDsp::mix::ID) {
             controller->setMixProportion(ZLDsp::mix::formatV(v));
         } else if (parameterID == ZLDsp::overSample::ID) {
-            controller->toSetOversampleID(static_cast<size_t>(v));
+            controller->setOversampleID(static_cast<size_t>(v));
         } else if (parameterID == ZLDsp::rms::ID) {
             controller->setRMSSize(ZLDsp::rms::formatV(v));
         } else if (parameterID == ZLDsp::lookahead::ID) {
             controller->setLookAhead(ZLDsp::segment::formatV(v));
         } else if (parameterID == ZLDsp::segment::ID) {
-            controller->toSetSegment(ZLDsp::segment::formatV(v));
+            controller->setSegment(ZLDsp::segment::formatV(v));
         } else if (parameterID == ZLDsp::audit::ID) {
             controller->setAudit(static_cast<bool>(v));
         } else if (parameterID == ZLDsp::external::ID) {

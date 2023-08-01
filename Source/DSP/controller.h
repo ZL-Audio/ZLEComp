@@ -44,19 +44,13 @@ namespace controller {
 
         void setMixProportion(FloatType v);
 
-        void setOversampleID(size_t idx);
+        void setOversampleID(size_t idx, bool useLock=true);
 
-        void toSetOversampleID(size_t idx);
-
-        void setRMSSize(FloatType v);
-
-        void toSetRMSSize(FloatType v);
+        void setRMSSize(FloatType v, bool useLock=true);
 
         void setLookAhead(FloatType v);
 
-        void setSegment(FloatType v);
-
-        void toSetSegment(FloatType v);
+        void setSegment(FloatType v, bool useLock=true);
 
         void setLink(FloatType v);
 
@@ -67,8 +61,7 @@ namespace controller {
     private:
         std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, ZLDsp::overSample::overSampleNUM>
                 overSamplers{};
-        std::atomic<size_t> idxSampler, tempIdxSampler;
-        std::atomic<bool> idxSamplerToReset = false;
+        std::atomic<size_t> idxSampler;
 
         std::atomic<bool> audit, external;
         std::atomic<FloatType> link;
@@ -77,11 +70,8 @@ namespace controller {
         juce::dsp::DryWetMixer<FloatType> mixer;
 
         fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
-        std::atomic<FloatType> subBufferSize;
-        std::atomic<bool> subBufferSizeToReset = false;
-
+        std::atomic<FloatType> segment;
         std::atomic<FloatType> rmsSize;
-        std::atomic<bool> rmsSizeToReset = false;
 
         juce::dsp::ProcessSpec mainSpec = {44100, 512, 2};
 
@@ -89,6 +79,7 @@ namespace controller {
         juce::AudioProcessorValueTreeState *apvts;
 
         juce::AudioBuffer<FloatType> allBuffer;
+        juce::SpinLock lock[3];
     };
 }
 

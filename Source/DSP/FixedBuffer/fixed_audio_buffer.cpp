@@ -40,6 +40,7 @@ namespace fixedBuffer {
         outputBuffer.setSize(static_cast<int>(mainSpec.numChannels),
                              static_cast<int>(mainSpec.maximumBlockSize) + subBufferSize);
         // put latency samples
+//        printf("set size %d %d\n", static_cast<int>(mainSpec.maximumBlockSize), subBufferSize);
         juce::AudioBuffer<FloatType> zeroBuffer(inputBuffer.getNumChannels(), subBufferSize);
         for (int channel = 0; channel < zeroBuffer.getNumChannels(); ++channel) {
             auto *channelData = zeroBuffer.getWritePointer(channel);

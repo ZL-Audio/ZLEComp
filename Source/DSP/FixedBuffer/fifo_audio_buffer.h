@@ -38,13 +38,13 @@ namespace fixedBuffer {
 
         inline auto getNumChannels() const { return buffer.getNumChannels(); }
 
-        inline auto getNumSamples() const { return fifo.getTotalSize(); }
+        inline auto getNumSamples() const { return fifo.getTotalSize() - 1; }
 
         inline auto getNumReady() const { return fifo.getNumReady(); }
 
         inline auto getFreeSpace() const { return fifo.getFreeSpace(); }
 
-        inline auto isFull() const { return fifo.getNumReady() >= fifo.getTotalSize() - 1; }
+        inline auto isFull() const { return fifo.getFreeSpace() == 0; }
 
     private:
         juce::AbstractFifo fifo;
