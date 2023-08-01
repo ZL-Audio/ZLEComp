@@ -50,7 +50,7 @@ namespace fixedBuffer {
         juce::AbstractFifo fifo;
 
         /*< The actual audio buffer */
-        juce::AudioBuffer<FloatType> buffer;
+        juce::AudioBuffer<FloatType> buffer = juce::AudioBuffer<FloatType>(2, 1);
     };
 }
 

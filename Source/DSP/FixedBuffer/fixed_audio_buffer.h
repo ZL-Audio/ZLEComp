@@ -20,7 +20,7 @@ namespace fixedBuffer {
     template<typename FloatType>
     class FixedAudioBuffer {
     public:
-        juce::AudioBuffer<FloatType> subBuffer;
+        juce::AudioBuffer<FloatType> subBuffer = juce::AudioBuffer<FloatType>(2, 1);
 
         explicit FixedAudioBuffer(int subBufferSize = 1);
 
