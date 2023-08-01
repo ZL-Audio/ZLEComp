@@ -44,13 +44,13 @@ namespace controller {
 
         void setMixProportion(FloatType v);
 
-        void setOversampleID(size_t idx, bool useLock=true);
+        void setOversampleID(size_t idx, bool useLock = true);
 
-        void setRMSSize(FloatType v, bool useLock=true);
+        void setRMSSize(FloatType v, bool useLock = true);
 
         void setLookAhead(FloatType v);
 
-        void setSegment(FloatType v, bool useLock=true);
+        void setSegment(FloatType v, bool useLock = true);
 
         void setLink(FloatType v);
 
@@ -88,7 +88,8 @@ namespace controller {
     template<typename FloatType>
     class ControllerAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
-        explicit ControllerAttach(Controller<FloatType> &c,
+        explicit ControllerAttach(juce::AudioProcessor &processor,
+                                  Controller<FloatType> &c,
                                   juce::AudioProcessorValueTreeState &parameters);
 
         ~ControllerAttach() override;
@@ -100,6 +101,7 @@ namespace controller {
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
     private:
+        juce::AudioProcessor *m_processor;
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
         constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID,

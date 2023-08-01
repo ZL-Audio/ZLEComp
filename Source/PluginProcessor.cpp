@@ -23,7 +23,7 @@ PluginProcessor::PluginProcessor()
           parameters(*this, nullptr, juce::Identifier("ZLECompParameters"),
                      ZLDsp::getParameterLayout()),
           controller(*this, parameters),
-          controllerAttach(controller, parameters),
+          controllerAttach(*this, controller, parameters),
           detectorAttach(controller, parameters),
           computerAttach(controller, parameters){
     controllerAttach.initDefaultVs();
@@ -73,17 +73,15 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return 1;
-//    return static_cast<int>(ZLDsp::presets.size());   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-    // so this should be at least 1, even if you're not really implementing programs.
+    return static_cast<int>(ZLDsp::presets.size());
 }
 
 int PluginProcessor::getCurrentProgram() {
-    return 0;
+    return programIndex.load();
 }
 
 void PluginProcessor::setCurrentProgram(int index) {
-    juce::ignoreUnused(index);
+    programIndex.store(index);
     if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
         juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
@@ -92,7 +90,6 @@ void PluginProcessor::setCurrentProgram(int index) {
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    juce::ignoreUnused(index);
     if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
         return ZLDsp::presetNames[static_cast<size_t>(index)];
     }
@@ -155,7 +152,7 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
     auto state = parameters.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
-//    const auto presetFile = "/Volumes/Ramdisk/halfRMS.xml";
+//    const auto presetFile = "/Volumes/Ramdisk/default.xml";
 //    xml->writeTo(juce::File(presetFile));
 }
 

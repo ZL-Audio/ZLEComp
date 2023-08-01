@@ -41,9 +41,9 @@ namespace ZLDsp {
     public:
         auto static constexpr ID = "ratio";
         auto static constexpr name = "Ratio";
-        auto static constexpr defaultV = 4.f;
+        auto static constexpr defaultV = 1.f;
         inline auto static const range =
-                juce::NormalisableRange<float>(1.f, 100.f, 0.01f, 0.19824f);
+                juce::NormalisableRange<float>(1.f, 100.f, 0.01f, 0.2160127f);
     };
 
     class kneeW : public FloatParameters<kneeW> {
@@ -287,8 +287,8 @@ namespace ZLDsp {
         return layout;
     }
 
-    inline const static std::array presets{BinaryData::half_rms_m_xml};
-    inline const static std::array presetNames{"Half RMS"};
+    inline const static std::array presets{BinaryData::default_xml, BinaryData::half_rms_m_xml};
+    inline const static std::array presetNames{"Default", "Half RMS"};
 
 } // namespace ZLDsp
 

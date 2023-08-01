@@ -69,5 +69,6 @@ private:
     controller::ControllerAttach<float> controllerAttach;
     controller::DetectorAttach<float> detectorAttach;
     controller::ComputerAttach<float> computerAttach;
+    std::atomic<int> programIndex = 0;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

@@ -109,6 +109,7 @@ juce_add_binary_data(Assets SOURCES
         resources/logo.svg
         resources/font/OpenSans-SemiBold.ttf
 
+        resources/presets/default.xml
         resources/presets/half_rms_m.xml)
 
 # Required for Linux happiness:

@@ -231,7 +231,7 @@ namespace controller {
         if (overSamplers[idxSampler.load()]) {
             m_processor->setLatencySamples(
                     static_cast<int>(mainDelay.getDelay() + overSamplers[idxSampler.load()]->getLatencyInSamples()) +
-                    static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
+                    static_cast<int>(segment.load()));
         }
     }
 
@@ -244,8 +244,10 @@ namespace controller {
 
 namespace controller {
     template<typename FloatType>
-    ControllerAttach<FloatType>::ControllerAttach(Controller<FloatType> &c,
+    ControllerAttach<FloatType>::ControllerAttach(juce::AudioProcessor &processor,
+                                                  Controller<FloatType> &c,
                                                   juce::AudioProcessorValueTreeState &parameters) {
+        m_processor = &processor;
         controller = &c;
         apvts = &parameters;
     }
@@ -284,6 +286,14 @@ namespace controller {
             controller->setRMSSize(ZLDsp::rms::formatV(v));
         } else if (parameterID == ZLDsp::lookahead::ID) {
             controller->setLookAhead(ZLDsp::segment::formatV(v));
+            if (m_processor->getCurrentProgram() == 1) {
+                apvts->getParameter(ZLDsp::rms::ID)->beginChangeGesture();
+                apvts->getParameter(ZLDsp::rms::ID)
+                        ->setValueNotifyingHost(
+                                ZLDsp::rms::range.convertTo0to1(
+                                        static_cast<float>(v * 2)));
+                apvts->getParameter(ZLDsp::rms::ID)->endChangeGesture();
+            }
         } else if (parameterID == ZLDsp::segment::ID) {
             controller->setSegment(ZLDsp::segment::formatV(v));
         } else if (parameterID == ZLDsp::audit::ID) {

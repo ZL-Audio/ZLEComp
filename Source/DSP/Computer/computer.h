@@ -76,11 +76,6 @@ namespace computer {
         std::atomic<FloatType> kneeW = ZLDsp::kneeW::formatV(
                 ZLDsp::kneeW::defaultV), kneeD = ZLDsp::kneeD::defaultV, kneeS = ZLDsp::kneeS::defaultV;
         std::atomic<FloatType> bound = ZLDsp::bound::defaultV;
-//        std::array<FloatType, 3> initialX{-60, -30, 0};
-//        std::array<FloatType, 3> initialY{-60, -30, 0};
-//        std::array<FloatType, 3> initialYX{1, 1, 1};
-//        boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>> cubic = boost::math::interpolators::cubic_hermite(
-//                std::move(initialX), std::move(initialY), std::move(initialYX));
         std::unique_ptr<boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>>> cubic;
         void interpolate();
     };
