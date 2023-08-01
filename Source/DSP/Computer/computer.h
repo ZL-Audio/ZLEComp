@@ -24,6 +24,8 @@ namespace computer {
             interpolate();
         }
 
+        Computer(const Computer<FloatType> &c);
+
         FloatType eval(FloatType x);
 
         FloatType process(FloatType x);
@@ -33,29 +35,41 @@ namespace computer {
             interpolate();
         }
 
+        inline FloatType getThreshold() const { return threshold.load(); }
+
         inline void setRatio(FloatType v) {
             ratio.store(v);
             interpolate();
         }
+
+        inline FloatType getRatio() const { return ratio.load();}
 
         inline void setKneeW(FloatType v) {
             kneeW.store(v);
             interpolate();
         }
 
+        inline FloatType getKneeW() const {return kneeW.load();}
+
         inline void setKneeD(FloatType v) {
             kneeD.store(v);
             interpolate();
         }
+
+        inline FloatType getKneeD() const {return kneeD.load();}
 
         inline void setKneeS(FloatType v) {
             kneeS.store(v);
             interpolate();
         }
 
+        inline FloatType getKneeS() const {return kneeS.load();}
+
         inline void setBound(FloatType v) {
             bound.store(v);
         }
+
+        inline FloatType getBound() const {return bound.load();}
 
     private:
         std::atomic<FloatType> threshold = ZLDsp::threshold::defaultV, ratio = ZLDsp::ratio::defaultV;
@@ -65,7 +79,8 @@ namespace computer {
         std::array<FloatType, 3> initialX{-60, -30, 0};
         std::array<FloatType, 3> initialY{-60, -30, 0};
         std::array<FloatType, 3> initialXY{1, 1, 1};
-        boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>> cubic = boost::math::interpolators::cubic_hermite(std::move(initialX), std::move(initialY), std::move(initialXY));
+        boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>> cubic = boost::math::interpolators::cubic_hermite(
+                std::move(initialX), std::move(initialY), std::move(initialXY));
 
         void interpolate();
     };

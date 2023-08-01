@@ -8,7 +8,7 @@
   <PARAM id="external" value="0.0"/>
   <PARAM id="knee_depth" value="0.5"/>
   <PARAM id="knee_slope" value="0.5"/>
-  <PARAM id="knee_width" value="0.0"/>
+  <PARAM id="knee_width" value="0.1"/>
   <PARAM id="link" value="1.0"/>
   <PARAM id="lookahead" value="125.0"/>
   <PARAM id="mix" value="100.0"/>

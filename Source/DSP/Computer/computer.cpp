@@ -12,6 +12,16 @@
 
 namespace computer {
     template<typename FloatType>
+    Computer<FloatType>::Computer(const Computer<FloatType> &c) {
+        setThreshold(c.getThreshold());
+        setRatio(c.getRatio());
+        setKneeW(c.getKneeW());
+        setKneeD(c.getKneeD());
+        setKneeS(c.getKneeS());
+        setBound(c.getBound());
+    }
+
+    template<typename FloatType>
     FloatType Computer<FloatType>::eval(FloatType x) {
         if (x <= threshold - kneeW) {
             return x;

@@ -84,18 +84,18 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     juce::ignoreUnused(index);
-//    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
-//        juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
-//        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
-//        parameters.replaceState(valueTreeToLoad);
-//    }
+    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
+        juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
+        const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
+        parameters.replaceState(valueTreeToLoad);
+    }
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
     juce::ignoreUnused(index);
-//    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
-//        return ZLDsp::presetNames[static_cast<size_t>(index)];
-//    }
+    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
+        return ZLDsp::presetNames[static_cast<size_t>(index)];
+    }
     return {};
 }
 
@@ -161,7 +161,6 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
-
     if (xmlState != nullptr)
         if (xmlState->hasTagName(parameters.state.getType()))
             parameters.replaceState(juce::ValueTree::fromXml(*xmlState));

@@ -51,7 +51,7 @@ namespace ZLDsp {
         auto static constexpr ID = "knee_width";
         auto static constexpr name = "Knee Width";
         inline auto static const range =
-                juce::NormalisableRange<float>(0.f, 1.f, .01f);
+                juce::NormalisableRange<float>(0.f, 1.f, .01f, .5f);
         auto static constexpr defaultV = 0.f;
 
         inline static float formatV(float x) { return std::max(x * 60, 0.0625f); }
@@ -287,8 +287,8 @@ namespace ZLDsp {
         return layout;
     }
 
-    inline static std::array presets{BinaryData::half_rms_m_xml};
-    inline static std::array presetNames{"Half RMS"};
+    inline const static std::array presets{BinaryData::half_rms_m_xml};
+    inline const static std::array presetNames{"Half RMS"};
 
 } // namespace ZLDsp
 
