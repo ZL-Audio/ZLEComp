@@ -102,15 +102,19 @@ namespace controller {
     private:
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
-        constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID, ZLDsp::overSample::ID,
-                                              ZLDsp::rms::ID, ZLDsp::lookahead::ID, ZLDsp::segment::ID,
-                                              ZLDsp::audit::ID, ZLDsp::external::ID};
+        constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID,
+                                              ZLDsp::overSample::ID,
+                                              ZLDsp::rms::ID, ZLDsp::lookahead::ID,
+                                              ZLDsp::segment::ID,
+                                              ZLDsp::audit::ID, ZLDsp::external::ID,
+                                              ZLDsp::sideGain::ID, ZLDsp::link::ID};
 
         constexpr const static std::array defaultVs{ZLDsp::outGain::defaultV, ZLDsp::mix::defaultV,
                                                     float(ZLDsp::overSample::defaultI),
                                                     ZLDsp::rms::defaultV, ZLDsp::lookahead::defaultV,
                                                     ZLDsp::segment::defaultV,
-                                                    float(ZLDsp::audit::defaultV), float(ZLDsp::external::defaultV)};
+                                                    float(ZLDsp::audit::defaultV), float(ZLDsp::external::defaultV),
+                                                    ZLDsp::sideGain::defaultV, ZLDsp::link::defaultV};
     };
 }
 
@@ -132,14 +136,13 @@ namespace controller {
     private:
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
-        constexpr const static std::array IDs{ZLDsp::sideGain::ID, ZLDsp::attack::ID, ZLDsp::release::ID,
+        constexpr const static std::array IDs{ZLDsp::attack::ID, ZLDsp::release::ID,
                                               ZLDsp::aStyle::ID, ZLDsp::rStyle::ID,
-                                              ZLDsp::smooth::ID, ZLDsp::link::ID};
+                                              ZLDsp::smooth::ID};
 
-        constexpr const static std::array defaultVs{ZLDsp::sideGain::defaultV,
-                                                    ZLDsp::attack::defaultV, ZLDsp::release::defaultV,
+        constexpr const static std::array defaultVs{ZLDsp::attack::defaultV, ZLDsp::release::defaultV,
                                                     float(ZLDsp::aStyle::defaultI), float(ZLDsp::rStyle::defaultI),
-                                                    ZLDsp::smooth::defaultV, ZLDsp::link::defaultV};
+                                                    ZLDsp::smooth::defaultV};
     };
 }
 
@@ -161,8 +164,9 @@ namespace controller {
     private:
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
-        constexpr const static std::array IDs{ZLDsp::threshold::ID, ZLDsp::ratio::ID, ZLDsp::kneeW::ID,
-                                              ZLDsp::kneeD::ID, ZLDsp::kneeS::ID, ZLDsp::bound::ID};
+        constexpr const static std::array IDs{ZLDsp::threshold::ID, ZLDsp::ratio::ID,
+                                              ZLDsp::kneeW::ID, ZLDsp::kneeD::ID,
+                                              ZLDsp::kneeS::ID, ZLDsp::bound::ID};
 
         constexpr const static std::array defaultVs{ZLDsp::threshold::defaultV, ZLDsp::ratio::defaultV,
                                                     ZLDsp::kneeW::defaultV, ZLDsp::kneeD::defaultV,

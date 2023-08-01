@@ -28,7 +28,7 @@ namespace computer {
         } else if (x >= threshold + kneeW) {
             return juce::jlimit(x - bound.load(), x + bound.load(), x / ratio + (1 - 1 / ratio) * threshold);
         } else {
-            return juce::jlimit(x - bound.load(), x + bound.load(), cubic(x));
+            return juce::jlimit(x - bound.load(), x + bound.load(), cubic->operator()(x));
         }
     }
 
@@ -39,16 +39,19 @@ namespace computer {
 
     template<typename FloatType>
     void Computer<FloatType>::interpolate() {
-        initialX = {threshold.load() - kneeW.load(),
-                    threshold.load(),
-                    threshold.load() + kneeW.load()};
-        initialY = {threshold.load() - kneeW.load(),
-                    threshold.load() - kneeD.load() * FloatType(0.75) * kneeW.load() *
-                                       (FloatType(1) - FloatType(0.5) / ratio.load() - FloatType(0.5)),
-                    threshold.load() + kneeW.load() / ratio.load()};
-        initialXY = {FloatType(1),
-                     kneeS.load() + (FloatType(1) - kneeS.load()) / ratio.load(),
-                     FloatType(1) / ratio.load()};
+        std::array initialX{threshold.load() - kneeW.load(),
+                            threshold.load(),
+                            threshold.load() + kneeW.load()};
+        std::array initialY{threshold.load() - kneeW.load(),
+                            threshold.load() - kneeD.load() * FloatType(0.75) * kneeW.load() *
+                                               (FloatType(1) - FloatType(0.5) / ratio.load() - FloatType(0.5)),
+                            threshold.load() + kneeW.load() / ratio.load()};
+        std::array initialYX{FloatType(1),
+                             kneeS.load() + (FloatType(1) - kneeS.load()) / ratio.load(),
+                             FloatType(1) / ratio.load()};
+        cubic = std::make_unique<boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>>>(std::move(initialX),
+                                                                                                      std::move(initialY),
+                                                                                                      std::move(initialYX));
     }
 
     template

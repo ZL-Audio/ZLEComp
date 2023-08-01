@@ -290,6 +290,10 @@ namespace controller {
             controller->setAudit(static_cast<bool>(v));
         } else if (parameterID == ZLDsp::external::ID) {
             controller->setExternal(static_cast<bool>(v));
+        } else if (parameterID == ZLDsp::sideGain::ID) {
+            controller->setSideGain(v);
+        } else if (parameterID == ZLDsp::link::ID) {
+            controller->setLink(v);
         }
     }
 
@@ -332,9 +336,7 @@ namespace controller {
     template<typename FloatType>
     void DetectorAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
         auto v = static_cast<FloatType>(newValue);
-        if (parameterID == ZLDsp::sideGain::ID) {
-            controller->setSideGain(v);
-        } else if (parameterID == ZLDsp::attack::ID) {
+        if (parameterID == ZLDsp::attack::ID) {
             controller->lDetector.setAttack(ZLDsp::attack::formatV(v));
             controller->rDetector.setAttack(ZLDsp::attack::formatV(v));
         } else if (parameterID == ZLDsp::release::ID) {
@@ -351,8 +353,6 @@ namespace controller {
         } else if (parameterID == ZLDsp::smooth::ID) {
             controller->lDetector.setSmooth(v);
             controller->rDetector.setSmooth(v);
-        } else if (parameterID == ZLDsp::link::ID) {
-            controller->setLink(v);
         }
     }
 
