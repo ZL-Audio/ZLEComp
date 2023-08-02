@@ -13,6 +13,16 @@
 namespace detector {
 
     template<typename FloatType>
+    Detector<FloatType>::Detector(const Detector<FloatType> &d) {
+        setDeltaT(d.getDeltaT());
+        setAStyle(d.getAStyle());
+        setRStyle(d.getRStyle());
+        setAttack(d.getAttack());
+        setRelease(d.getRelease());
+        setSmooth(d.getSmooth());
+    }
+
+    template<typename FloatType>
     FloatType Detector<FloatType>::process(FloatType target) {
         FloatType para = xC < target ? rPara.load() : aPara.load();
         size_t style = xC < target ? rStyle.load() : aStyle.load();
@@ -36,6 +46,8 @@ namespace detector {
     template<typename FloatType>
     void Detector<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
         deltaT.store(static_cast<FloatType>(1 / spec.sampleRate));
+        setAttack(getAttack());
+        setRelease(getRelease());
     }
 
     template

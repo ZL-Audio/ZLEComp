@@ -79,6 +79,12 @@ set(SourceFiles
         Source/DSP/dsp_defines.h
         Source/DSP/controller.h
         Source/DSP/controller.cpp
+        Source/DSP/controller_attach.h
+        Source/DSP/controller_attach.cpp
+        Source/DSP/detector_attach.h
+        Source/DSP/detector_attach.cpp
+        Source/DSP/computer_attach.h
+        Source/DSP/computer_attach.cpp
 
         Source/DSP/FixedBuffer/fifo_audio_buffer.h
         Source/DSP/FixedBuffer/fifo_audio_buffer.cpp

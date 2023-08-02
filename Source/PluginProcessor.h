@@ -15,6 +15,9 @@
 #include <BinaryData.h>
 #include "DSP/dsp_defines.h"
 #include "DSP/controller.h"
+#include "DSP/controller_attach.h"
+#include "DSP/detector_attach.h"
+#include "DSP/computer_attach.h"
 
 #if (MSVC)
 #include "ipps.h"

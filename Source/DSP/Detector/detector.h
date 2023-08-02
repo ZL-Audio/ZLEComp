@@ -23,39 +23,49 @@ namespace detector {
     public:
         Detector() = default;
 
+        Detector(const Detector<FloatType> &d);
+
         void reset();
 
         void prepare(const juce::dsp::ProcessSpec &spec);
 
         FloatType process(FloatType target);
 
-        inline void setAStyle(size_t idx) {
-            aStyle.store(idx);
-        }
+        inline void setAStyle(size_t idx) { aStyle.store(idx); }
 
-        inline void setRStyle(size_t idx) {
-            rStyle.store(idx);
-        }
+        inline size_t getAStyle() const { return aStyle.load(); }
+
+        inline void setRStyle(size_t idx) { rStyle.store(idx); }
+
+        inline size_t getRStyle() const { return rStyle.load(); }
 
         inline void setAttack(FloatType v) {
-            v = juce::jmax(v, FloatType(0.001));
+            v = juce::jmax(v, FloatType(0.0001));
+            attack.store(v);
             aPara.store(juce::jmin(scales<FloatType>[ZLDsp::aStyle::defaultI] / v * deltaT.load(), FloatType(1)));
-//            printf("v %f\taPara %f\n", v, aPara.load());
         }
+
+        inline FloatType getAttack() const { return attack.load(); }
 
         inline void setRelease(FloatType v) {
-            v = juce::jmax(v, FloatType(0.001));
+            v = juce::jmax(v, FloatType(0.0001));
+            release.store(v);
             rPara.store(juce::jmin(scales<FloatType>[ZLDsp::rStyle::defaultI] / v * deltaT.load(), FloatType(1)));
-//            printf("v %f\trPara %f\n", v, rPara.load());
         }
 
-        inline void setSmooth(FloatType v) {
-            smooth.store(v);
-        }
+        inline FloatType getRelease() const { return release.load(); }
+
+        inline void setSmooth(FloatType v) { smooth.store(v); }
+
+        inline FloatType getSmooth() const { return smooth.load(); }
+
+        inline void setDeltaT(FloatType v) { deltaT.store(v); }
+
+        inline FloatType getDeltaT() const { return deltaT.load(); }
 
     private:
         std::atomic<size_t> aStyle, rStyle;
-        std::atomic<FloatType> aPara, rPara, smooth;
+        std::atomic<FloatType> attack, release, aPara, rPara, smooth;
         std::atomic<FloatType> deltaT = FloatType(1) / FloatType(44100);
         FloatType xC = 1.0, xS = 1.0;
 

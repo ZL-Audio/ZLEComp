@@ -20,9 +20,7 @@ namespace computer {
     template<typename FloatType>
     class Computer {
     public:
-        Computer() {
-            interpolate();
-        }
+        Computer() { interpolate(); }
 
         Computer(const Computer<FloatType> &c);
 
