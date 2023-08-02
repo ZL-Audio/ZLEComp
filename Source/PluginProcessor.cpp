@@ -73,7 +73,7 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return static_cast<int>(ZLDsp::presets.size());
+    return static_cast<int>(ZLDsp::preset::presetNUM);
 }
 
 int PluginProcessor::getCurrentProgram() {
@@ -82,16 +82,16 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     programIndex.store(index);
-    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
-        juce::XmlDocument xmlDocument{ ZLDsp::presets[static_cast<size_t>(index)]};
+    if (index < ZLDsp::preset::presetNUM) {
+        juce::XmlDocument xmlDocument{ ZLDsp::preset::xmls[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
         parameters.replaceState(valueTreeToLoad);
     }
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    if (static_cast<size_t>(index) < ZLDsp::presets.size()) {
-        return ZLDsp::presetNames[static_cast<size_t>(index)];
+    if (index < ZLDsp::preset::presetNUM) {
+        return ZLDsp::preset::names[static_cast<size_t>(index)];
     }
     return {};
 }
@@ -152,7 +152,7 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
     auto state = parameters.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
-//    const auto presetFile = "/Volumes/Ramdisk/default.xml";
+//    const auto presetFile = "/Volumes/Ramdisk/nothing.xml";
 //    xml->writeTo(juce::File(presetFile));
 }
 

@@ -287,8 +287,17 @@ namespace ZLDsp {
         return layout;
     }
 
-    inline const static std::array presets{BinaryData::default_xml, BinaryData::half_rms_m_xml};
-    inline const static std::array presetNames{"Default", "Half RMS"};
+    class preset {
+    public:
+        enum {
+            nothing,
+            defaults,
+            halfRMS,
+            presetNUM
+        };
+        inline const static std::array xmls{BinaryData::nothing_xml, BinaryData::default_xml, BinaryData::half_rms_m_xml};
+        inline const static std::array names{"Nothing", "Default", "Half RMS"};
+    };
 
 } // namespace ZLDsp
 

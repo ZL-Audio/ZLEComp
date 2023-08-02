@@ -237,7 +237,7 @@ namespace controller {
         if (overSamplers[idxSampler.load()]) {
             m_processor->setLatencySamples(
                     static_cast<int>(mainDelay.getDelay() + overSamplers[idxSampler.load()]->getLatencyInSamples()) +
-                    static_cast<int>(segment.load()));
+                            static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
         }
     }
 
@@ -292,7 +292,7 @@ namespace controller {
             controller->setRMSSize(ZLDsp::rms::formatV(v));
         } else if (parameterID == ZLDsp::lookahead::ID) {
             controller->setLookAhead(ZLDsp::lookahead::formatV(v));
-            if (m_processor->getCurrentProgram() == 1) {
+            if (m_processor->getCurrentProgram() == ZLDsp::preset::halfRMS) {
                 apvts->getParameter(ZLDsp::rms::ID)->beginChangeGesture();
                 apvts->getParameter(ZLDsp::rms::ID)
                         ->setValueNotifyingHost(ZLDsp::rms::range.convertTo0to1(static_cast<float>(v * 2)));
