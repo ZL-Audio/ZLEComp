@@ -32,12 +32,37 @@ namespace detector {
 
     template<typename FloatType>
     static std::array<FloatType, iterType::styleNUM> scales = {
-            FloatType(13.65),
-            FloatType(25.063),
-            FloatType(8.8),
-            FloatType(20.65),
-            FloatType(30.325)
+            FloatType(11.375),
+            FloatType(25.475),
+            FloatType(7.35),
+            FloatType(23.975),
+            FloatType(16.025)
     };
+
+    template<typename FloatType>
+    static const std::array<FloatType, iterType::styleNUM> scales0 = {
+            FloatType(11.375),
+            FloatType(20.475),
+            FloatType(7.35),
+            FloatType(23.975),
+            FloatType(16.025)
+    };
+
+    template<typename FloatType>
+    static const std::array<FloatType, iterType::styleNUM> scales1 = {
+            FloatType(14.05),
+            FloatType(25.65),
+            FloatType(9.025),
+            FloatType(28.7),
+            FloatType(18.775)
+    };
+
+    template<typename FloatType>
+    static FloatType getScale(FloatType smooth) {
+        auto proportion = (1 - smooth) * (1 - smooth);
+        return scales0<FloatType>[ZLDsp::rStyle::defaultI] * proportion +
+               scales1<FloatType>[ZLDsp::rStyle::defaultI] * (1 - proportion);
+    }
 }
 
 #endif //ZLECOMP_ITER_FUNCS_H

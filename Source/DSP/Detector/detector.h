@@ -42,7 +42,7 @@ namespace detector {
         inline void setAttack(FloatType v) {
             v = juce::jmax(v, FloatType(0.0001));
             attack.store(v);
-            aPara.store(juce::jmin(scales<FloatType>[ZLDsp::aStyle::defaultI] / v * deltaT.load(), FloatType(1)));
+            aPara.store(juce::jmin(getScale(smooth.load()) / v * deltaT.load(), FloatType(1)));
         }
 
         inline FloatType getAttack() const { return attack.load(); }
@@ -50,12 +50,16 @@ namespace detector {
         inline void setRelease(FloatType v) {
             v = juce::jmax(v, FloatType(0.0001));
             release.store(v);
-            rPara.store(juce::jmin(scales<FloatType>[ZLDsp::rStyle::defaultI] / v * deltaT.load(), FloatType(1)));
+            rPara.store(juce::jmin(getScale(smooth.load()) / v * deltaT.load(), FloatType(1)));
         }
 
         inline FloatType getRelease() const { return release.load(); }
 
-        inline void setSmooth(FloatType v) { smooth.store(v); }
+        inline void setSmooth(FloatType v) {
+            smooth.store(v);
+            setAttack(attack.load());
+            setRelease(release.load());
+        }
 
         inline FloatType getSmooth() const { return smooth.load(); }
 
