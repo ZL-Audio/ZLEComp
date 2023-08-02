@@ -1,4 +1,4 @@
-name: Linux
+name: Full Test
 
 permissions:
   contents: write
@@ -35,6 +35,14 @@ jobs:
             os: ubuntu-22.04
             pluginval-binary: ./pluginval
             ccache: ccache
+          - name: macOS
+            os: macos-12
+            pluginval-binary: pluginval.app/Contents/MacOS/pluginval
+            ccache: ccache
+          - name: Windows
+            os: windows-latest
+            pluginval-binary: ./pluginval.exe
+            ccache: sccache
 
     steps:
 
@@ -50,6 +58,40 @@ jobs:
       run: |
         sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev xvfb ninja-build
         sudo /usr/bin/Xvfb $DISPLAY &
+
+    - name: Cache IPP (Windows)
+      if: runner.os == 'Windows'
+      id: cache-ipp
+      uses: actions/cache@v3
+      with:
+        key: ipp-v1
+        path: C:\Program Files (x86)\Intel\oneAPI\ipp
+
+    - name: Install IPP (Windows)
+      if: (runner.os == 'Windows') && (steps.cache-ipp.outputs.cache-hit != 'true')
+      shell: bash
+      run: |
+        curl --output oneapi.exe https://registrationcenter-download.intel.com/akdlm/irc_nas/19078/w_BaseKit_p_2023.0.0.25940_offline.exe
+        ./oneapi.exe -s -x -f oneapi
+        ./oneapi/bootstrapper.exe -s -c --action install --components=intel.oneapi.win.ipp.devel --eula=accept -p=NEED_VS2022_INTEGRATION=1 --log-dir=.
+
+    - name: Save IPP cache even on job fail
+      if: runner.os == 'Windows' && (steps.cache-ipp.outputs.cache-hit != 'true')
+      uses: actions/cache/save@v3
+      with:
+        path: C:\Program Files (x86)\Intel\oneAPI\ipp
+        key: ipp-v1
+
+    # This lets us use sscache on Windows
+    # We need to install ccache here for Windows to grab the right version
+    - name: Install Ninja (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      run: choco install ninja ccache
+
+    - name: Install macOS Deps
+      if: ${{ matrix.name == 'macOS' }}
+      run: brew install ninja osxutils
 
     - name: Checkout code
       uses: actions/checkout@v3
@@ -78,6 +120,13 @@ jobs:
         key: v3-${{ matrix.os }}-${{ matrix.type }}
         variant: ${{ matrix.ccache }}
 
+    - name: Import Certificates (macOS)
+      uses: apple-actions/import-codesign-certs@v2
+      if: ${{ matrix.name == 'macOS' }}
+      with:
+        p12-file-base64: ${{ secrets.DEV_ID_APP_CERT }}
+        p12-password: ${{ secrets.DEV_ID_APP_PASSWORD }}
+
     - name: Configure
       shell: bash
       run: cmake -B ${{ env.BUILD_DIR }} -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE}} -DCMAKE_C_COMPILER_LAUNCHER=${{ matrix.ccache }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ matrix.ccache }} -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" .
@@ -96,19 +145,46 @@ jobs:
         7z x pluginval_${{ matrix.name }}.zip
         ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
 
+    - name: Codesign (macOS)
+      working-directory: ${{ env.BUILD_DIR }}
+      if: ${{ matrix.name == 'macOS' }}
+      run: |
+        # Each plugin must be code signed
+        codesign --force -s "${{ secrets.DEV_ID_APPLICATION}}" -v "${{ env.VST3_PATH }}" --deep --strict --options=runtime --timestamp
+        codesign --force -s "${{ secrets.DEV_ID_APPLICATION}}" -v "${{ env.AU_PATH }}" --deep --strict --options=runtime --timestamp
+
+    - name: Create DMG (macOS)
+      if: ${{ matrix.name == 'macOS' }}
+      run: |
+        npm install -g appdmg
+        mkdir -p packaging/dmg
+        
+        # Create directories for the dmg symlinks
+        sudo mkdir -m 755 -p /Library/Audio/Plug-Ins/Components && sudo mkdir -m 755 -p /Library/Audio/Plug-Ins/VST3
+        ln -s /Library/Audio/Plug-Ins/Components "packaging/dmg/Your Mac's Component folder"
+        ln -s /Library/Audio/Plug-Ins/VST3 "packaging/dmg/Your Mac's VST3 folder"
+        mv "${{ env.ARTIFACTS_PATH }}/VST3/${{ env.PRODUCT_NAME }}.vst3" packaging/dmg
+        mv "${{ env.ARTIFACTS_PATH }}/AU/${{ env.PRODUCT_NAME }}.component" packaging/dmg
+        
+        # Run appdmg to create the .dmg
+        cd packaging && appdmg dmg.json "${{ env.INSTALLER_NAME}}.dmg"
+
     - name: Zip
       if: ${{ matrix.name == 'Linux' }}
       working-directory: ${{ env.ARTIFACTS_PATH }}
       run: 7z a -tzip ${{ env.INSTALLER_NAME }}.zip .
 
-    - name: Upload Zip (Linux)
-      if: ${{ matrix.name == 'Linux' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.INSTALLER_NAME }}.zip
-        path: '${{ env.ARTIFACTS_PATH }}/${{ env.INSTALLER_NAME }}.zip'
+    - name: Generate Installer (Windows)
+      if: ${{ matrix.name == 'Windows' }}
+      shell: bash
+      run: |
+        iscc "packaging\installer.iss"
+        mv "packaging/Output/${{ env.INSTALLER_NAME }}.exe" "${{ env.ARTIFACTS_PATH }}/"
 
     - name: Delete Artifacts
       uses: geekyeggo/delete-artifact@v2
       with:
-        name: ${{ env.INSTALLER_NAME }}.zip
+        name: |
+          ${{ env.INSTALLER_NAME }}.zip
+          ${{ env.INSTALLER_NAME }}.exe
+          ${{ env.INSTALLER_NAME }}.dmg
