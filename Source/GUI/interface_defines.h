@@ -1,9 +1,19 @@
+// ==============================================================================
+// Copyright (C) 2023 - zsliu98
+// This file is part of ZLEComp
+//
+// ZLEComp is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+// ZLEComp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
+// ==============================================================================
+
 #ifndef ZLINFLATOR_INTERFACE_DEFINES_H
 #define ZLINFLATOR_INTERFACE_DEFINES_H
 
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace ZLInterface {
+namespace interface {
     auto inline const WindowHeight = 280;
     auto inline const WindowWidth = 476;
     auto inline const WindowFixedAspectRatio = 1.7;
@@ -55,16 +65,16 @@ namespace ZLInterface {
                                  curveBottomLeft, curveBottomRight);
         auto offset = static_cast<int>(cornerSize * 0.5f);
         if (drawBright) {
-            juce::DropShadow brightShadow(ZLInterface::BrightShadowColor, radius,
+            juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {-offset, -offset});
             brightShadow.drawForPath(g, path);
         }
         if (drawDark) {
-            juce::DropShadow darkShadow(ZLInterface::DarkShadowColor, radius,
+            juce::DropShadow darkShadow(DarkShadowColor, radius,
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
-        g.setColour(ZLInterface::BackgroundColor);
+        g.setColour(BackgroundColor);
         g.fillPath(path);
         return boxBounds;
     }
@@ -86,21 +96,21 @@ namespace ZLInterface {
                                  curveBottomLeft, curveBottomRight);
         g.saveState();
         g.reduceClipRegion(mask);
-        g.fillAll(ZLInterface::BackgroundColor);
+        g.fillAll(BackgroundColor);
         auto offset = static_cast<int>(blurRadius * 1.5f);
         auto radius = juce::jmax(juce::roundToInt(blurRadius * 1.5f), 1);
         if (!flip) {
-            juce::DropShadow darkShadow(ZLInterface::DarkShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
-            juce::DropShadow brightShadow(ZLInterface::BrightShadowColor, radius,
+            juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
         } else {
-            juce::DropShadow brightShadow(ZLInterface::DarkShadowColor, radius,
+            juce::DropShadow brightShadow(DarkShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
-            juce::DropShadow darkShadow(ZLInterface::BrightShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(BrightShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
         }
@@ -114,7 +124,7 @@ namespace ZLInterface {
                                  curveTopLeft, curveTopRight,
                                  curveBottomLeft, curveBottomRight);
 
-        juce::DropShadow backShadow(ZLInterface::BackgroundColor, radius,
+        juce::DropShadow backShadow(BackgroundColor, radius,
                                     {0, 0});
         backShadow.drawForPath(g, path);
         g.restoreState();
@@ -124,7 +134,7 @@ namespace ZLInterface {
     inline juce::Rectangle<float> drawShadowEllipse(juce::Graphics &g,
                                                     juce::Rectangle<float> boxBounds,
                                                     float cornerSize,
-                                                    juce::Colour mainColour = ZLInterface::BackgroundColor,
+                                                    juce::Colour mainColour = BackgroundColor,
                                                     bool fit = true,
                                                     bool drawBright = true, bool drawDark = true) {
         juce::Path path;
@@ -143,12 +153,12 @@ namespace ZLInterface {
         g.saveState();
         g.reduceClipRegion(mask);
         if (drawDark) {
-            juce::DropShadow darkShadow(ZLInterface::DarkShadowColor, radius,
+            juce::DropShadow darkShadow(DarkShadowColor, radius,
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
         if (drawBright) {
-            juce::DropShadow brightShadow(ZLInterface::BrightShadowColor, radius,
+            juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {-offset, -offset});
             brightShadow.drawForPath(g, path);
         }
@@ -166,21 +176,21 @@ namespace ZLInterface {
         mask.addEllipse(boxBounds);
         g.saveState();
         g.reduceClipRegion(mask);
-        g.fillAll(ZLInterface::BackgroundColor);
+        g.fillAll(BackgroundColor);
         auto radius = juce::jmax(juce::roundToInt(cornerSize * 1.5f), 1);
         auto offset = static_cast<int>(cornerSize * 1.f);
         if (!flip) {
-            juce::DropShadow darkShadow(ZLInterface::DarkShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
-            juce::DropShadow brightShadow(ZLInterface::BrightShadowColor, radius,
+            juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
         } else {
-            juce::DropShadow brightShadow(ZLInterface::DarkShadowColor, radius,
+            juce::DropShadow brightShadow(DarkShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
-            juce::DropShadow darkShadow(ZLInterface::BrightShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(BrightShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
         }
@@ -190,7 +200,7 @@ namespace ZLInterface {
         juce::Path path;
         path.addEllipse(boxBounds);
 
-        juce::DropShadow backShadow(ZLInterface::BackgroundColor, radius,
+        juce::DropShadow backShadow(BackgroundColor, radius,
                                     {0, 0});
         backShadow.drawForPath(g, path);
         g.restoreState();

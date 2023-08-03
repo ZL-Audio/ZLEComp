@@ -13,7 +13,6 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include <BinaryData.h>
-#include "State/dummy_processor.h"
 #include "State/state_defines.h"
 #include "DSP/dsp_defines.h"
 #include "DSP/controller.h"

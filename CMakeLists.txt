@@ -77,7 +77,6 @@ set(SourceFiles
         Source/PluginProcessor.cpp
 
         Source/State/state_defines.h
-        Source/State/dummy_processor.h
 
         Source/DSP/dsp_defines.h
         Source/DSP/controller.h
@@ -103,6 +102,16 @@ set(SourceFiles
         Source/DSP/Detector/tracker.h
         Source/DSP/Detector/rms_tracker.h
         Source/DSP/Detector/rms_tracker.cpp
+
+
+        Source/GUI/interface_defines.h
+        Source/GUI/rotary_slider_look_and_feel.h
+        Source/GUI/rotary_slider_component.h
+        Source/GUI/button_look_and_feel.h
+        Source/GUI/button_component.h
+        Source/GUI/combobox_look_and_feel.h
+        Source/GUI/combo_box_component.h
+        Source/GUI/name_look_and_feel.h
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 

@@ -46,11 +46,17 @@ namespace controller {
 
         void setOversampleID(size_t idx, bool useLock = true);
 
+        void toSetOversampleID(size_t idx);
+
         void setRMSSize(FloatType v, bool useLock = true);
+
+        void toSetRMSSize(FloatType v);
 
         void setLookAhead(FloatType v);
 
         void setSegment(FloatType v, bool useLock = true);
+
+        void toSetSegment(FloatType v);
 
         void setLink(FloatType v);
 

@@ -74,7 +74,6 @@ namespace controller {
         // check audit mode
         if (audit.load()) {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(sideBuffer, true);
-            return;
         }
         // apply lookahead
         juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
@@ -124,6 +123,9 @@ namespace controller {
         juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        if (audit.load()) {
+            return;
+        }
         m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(m_processor->getBusBuffer(allBuffer, false, 0), true);
     }
 
@@ -145,10 +147,15 @@ namespace controller {
     template<typename FloatType>
     void Controller<FloatType>::setOversampleID(size_t idx, bool useLock) {
         if (useLock) {
-            m_processor->suspendProcessing(true);
-            while (!m_processor->isSuspended()) {}
-            lock.enter();
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(m_processor->getCallbackLock());
+            toSetOversampleID(idx);
+        } else {
+            toSetOversampleID(idx);
         }
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::toSetOversampleID(size_t idx) {
         idxSampler.store(idx);
         auto rate = std::pow(2, idx);
         juce::dsp::ProcessSpec spec{mainSpec.sampleRate * rate,
@@ -156,29 +163,26 @@ namespace controller {
                                     mainSpec.numChannels};
         subBuffer.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels * 2});
         setSegment(segment.load(), false);
-        if (useLock) {
-            lock.exit();
-            m_processor->suspendProcessing(false);
-        }
     }
 
     template<typename FloatType>
     void Controller<FloatType>::setRMSSize(FloatType v, bool useLock) {
         if (useLock) {
-            m_processor->suspendProcessing(true);
-            while (!m_processor->isSuspended()) {}
-            lock.enter();
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(m_processor->getCallbackLock());
+            toSetRMSSize(v);
+        } else {
+            toSetRMSSize(v);
         }
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::toSetRMSSize(FloatType v) {
         rmsSize.store(v);
         auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v /
                                          subBuffer.getSubSpec().maximumBlockSize);
         mSize = juce::jmax(size_t(1), mSize);
         lTracker.setMomentarySize(mSize);
         rTracker.setMomentarySize(mSize);
-        if (useLock) {
-            lock.exit();
-            m_processor->suspendProcessing(false);
-        }
     }
 
     template<typename FloatType>
@@ -190,10 +194,15 @@ namespace controller {
     template<typename FloatType>
     void Controller<FloatType>::setSegment(FloatType v, bool useLock) {
         if (useLock) {
-            m_processor->suspendProcessing(true);
-            while (!m_processor->isSuspended()) {}
-            lock.enter();
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(m_processor->getCallbackLock());
+            toSetSegment(v);
+        } else {
+            toSetSegment(v);
         }
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::toSetSegment(FloatType v) {
         segment.store(v);
         subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * subBuffer.getMainSpec().sampleRate)));
 
@@ -211,10 +220,6 @@ namespace controller {
 
         setRMSSize(rmsSize.load(), false);
         setLatency();
-        if (useLock) {
-            lock.exit();
-            m_processor->suspendProcessing(false);
-        }
     }
 
     template<typename FloatType>
@@ -224,7 +229,13 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::setAudit(bool f) {
+        const juce::GenericScopedLock<juce::CriticalSection> scopedLock(m_processor->getCallbackLock());
         audit.store(f);
+        if (f) {
+            m_processor->setLatencySamples(0);
+        } else {
+            setLatency();
+        }
     }
 
     template<typename FloatType>

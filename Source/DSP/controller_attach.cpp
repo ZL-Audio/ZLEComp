@@ -69,7 +69,7 @@ namespace controller {
         } else if (parameterID == ZLDsp::sideGain::ID) {
             controller->setSideGain(v);
         } else if (parameterID == ZLDsp::link::ID) {
-            controller->setLink(v);
+            controller->setLink(ZLDsp::link::formatV(v));
         }
     }
 
