@@ -76,6 +76,9 @@ set(SourceFiles
         Source/PluginEditor.cpp
         Source/PluginProcessor.cpp
 
+        Source/State/state_defines.h
+        Source/State/dummy_processor.h
+
         Source/DSP/dsp_defines.h
         Source/DSP/controller.h
         Source/DSP/controller.cpp

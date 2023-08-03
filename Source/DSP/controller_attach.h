@@ -15,6 +15,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "dsp_defines.h"
 #include "controller.h"
+#include "../State/state_defines.h"
 
 
 namespace controller {

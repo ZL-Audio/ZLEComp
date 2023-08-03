@@ -41,20 +41,20 @@ namespace detector {
 
     template<typename FloatType>
     static const std::array<FloatType, iterType::styleNUM> scales0 = {
-            FloatType(11.375),
-            FloatType(20.475),
-            FloatType(7.35),
-            FloatType(23.975),
-            FloatType(16.025)
+            FloatType(9.1046),
+            FloatType(15.9204),
+            FloatType(5.9165),
+            FloatType(17.6046),
+            FloatType(11.4072)
     };
 
     template<typename FloatType>
     static const std::array<FloatType, iterType::styleNUM> scales1 = {
-            FloatType(14.05),
-            FloatType(25.65),
-            FloatType(9.025),
-            FloatType(28.7),
-            FloatType(18.775)
+            FloatType(11.6414),
+            FloatType(20.7262),
+            FloatType(7.5334),
+            FloatType(22.0533),
+            FloatType(14.0133)
     };
 
     template<typename FloatType>

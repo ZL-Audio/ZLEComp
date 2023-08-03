@@ -13,6 +13,8 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include <BinaryData.h>
+#include "State/dummy_processor.h"
+#include "State/state_defines.h"
 #include "DSP/dsp_defines.h"
 #include "DSP/controller.h"
 #include "DSP/controller_attach.h"
@@ -26,6 +28,7 @@
 class PluginProcessor : public juce::AudioProcessor {
 public:
     juce::AudioProcessorValueTreeState parameters;
+    juce::AudioProcessorValueTreeState states;
 
     PluginProcessor();
 
@@ -68,6 +71,7 @@ public:
     void setStateInformation(const void *data, int sizeInBytes) override;
 
 private:
+//    state::DummyProcessor dummyProcessor;
     controller::Controller<float> controller;
     controller::ControllerAttach<float> controllerAttach;
     controller::DetectorAttach<float> detectorAttach;

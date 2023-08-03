@@ -20,12 +20,12 @@ PluginProcessor::PluginProcessor()
                                              true)
                                  .withInput("Ext", juce::AudioChannelSet::stereo(),
                                             true)),
-          parameters(*this, nullptr, juce::Identifier("ZLECompParameters"),
-                     ZLDsp::getParameterLayout()),
+          parameters(*this, nullptr, juce::Identifier("ZLECompParameters"), ZLDsp::getParameterLayout()),
+          states(*this, nullptr, juce::Identifier("ZLECompStates"), state::getParameterLayout()),
           controller(*this, parameters),
           controllerAttach(*this, controller, parameters),
           detectorAttach(controller, parameters),
-          computerAttach(controller, parameters){
+          computerAttach(controller, parameters) {
     controllerAttach.initDefaultVs();
     controllerAttach.addListeners();
     detectorAttach.initDefaultVs();
@@ -73,7 +73,7 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return static_cast<int>(ZLDsp::preset::presetNUM);
+    return static_cast<int>(state::preset::presetNUM);
 }
 
 int PluginProcessor::getCurrentProgram() {
@@ -82,16 +82,19 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     programIndex.store(index);
-    if (index < ZLDsp::preset::presetNUM) {
-        juce::XmlDocument xmlDocument{ ZLDsp::preset::xmls[static_cast<size_t>(index)]};
+    states.getParameter(state::programIdx::ID)->setValueNotifyingHost(
+            static_cast<float>(index) / static_cast<float>(state::programIdx::maxV));
+    if (index < state::preset::presetNUM) {
+        juce::XmlDocument xmlDocument{state::preset::xmls[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
-        parameters.replaceState(valueTreeToLoad);
+        parameters.replaceState(valueTreeToLoad.getChildWithName("ZLECompParameters"));
+        states.replaceState(valueTreeToLoad.getChildWithName("ZLECompStates"));
     }
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    if (index < ZLDsp::preset::presetNUM) {
-        return ZLDsp::preset::names[static_cast<size_t>(index)];
+    if (index < state::preset::presetNUM) {
+        return state::preset::names[static_cast<size_t>(index)];
     }
     return {};
 }
@@ -149,8 +152,10 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor() {
 
 //==============================================================================
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
-    auto state = parameters.copyState();
-    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    auto tempTree = juce::ValueTree("ZLECompParaState");
+    tempTree.appendChild(parameters.copyState(), nullptr);
+    tempTree.appendChild(states.copyState(), nullptr);
+    std::unique_ptr<juce::XmlElement> xml(tempTree.createXml());
     copyXmlToBinary(*xml, destData);
 //    const auto presetFile = "/Volumes/Ramdisk/nothing.xml";
 //    xml->writeTo(juce::File(presetFile));
@@ -158,9 +163,12 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
-    if (xmlState != nullptr)
-        if (xmlState->hasTagName(parameters.state.getType()))
-            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
+    if (xmlState != nullptr && xmlState->hasTagName("ZLECompParaState")) {
+        auto tempTree = juce::ValueTree::fromXml(*xmlState);
+        parameters.replaceState(tempTree.getChildWithName(parameters.state.getType()));
+        states.replaceState(tempTree.getChildWithName(states.state.getType()));
+        programIndex.store(static_cast<int>(*states.getRawParameterValue(state::programIdx::ID)));
+    }
 }
 
 //==============================================================================

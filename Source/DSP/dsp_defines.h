@@ -22,9 +22,10 @@ namespace ZLDsp {
     template<class T>
     class FloatParameters {
     public:
-        static std::unique_ptr<juce::AudioParameterFloat> get() {
+        static std::unique_ptr<juce::AudioParameterFloat> get(bool automate = true) {
+            auto attributes = juce::AudioParameterFloatAttributes().withAutomatable(automate);
             return std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(T::ID, versionHint), T::name, T::range,
-                                                               T::defaultV);
+                                                               T::defaultV, attributes);
         }
     };
 
@@ -208,9 +209,10 @@ namespace ZLDsp {
     template<class T>
     class BoolParameters {
     public:
-        static std::unique_ptr<juce::AudioParameterBool> get() {
+        static std::unique_ptr<juce::AudioParameterBool> get(bool automate = true) {
+            auto attributes = juce::AudioParameterBoolAttributes().withAutomatable(automate);
             return std::make_unique<juce::AudioParameterBool>(juce::ParameterID(T::ID, versionHint), T::name,
-                                                              T::defaultV);
+                                                              T::defaultV, attributes);
         }
     };
 
@@ -232,9 +234,10 @@ namespace ZLDsp {
     template<class T>
     class ChoiceParameters {
     public:
-        static std::unique_ptr<juce::AudioParameterChoice> get() {
+        static std::unique_ptr<juce::AudioParameterChoice> get(bool automate = true) {
+            auto attributes = juce::AudioParameterChoiceAttributes().withAutomatable(automate);
             return std::make_unique<juce::AudioParameterChoice>(
-                    juce::ParameterID(T::ID, versionHint), T::name, T::choices, T::defaultI);
+                    juce::ParameterID(T::ID, versionHint), T::name, T::choices, T::defaultI, attributes);
         }
     };
 
@@ -286,18 +289,6 @@ namespace ZLDsp {
                    overSample::get());
         return layout;
     }
-
-    class preset {
-    public:
-        enum {
-            nothing,
-            defaults,
-            halfRMS,
-            presetNUM
-        };
-        inline const static std::array xmls{BinaryData::nothing_xml, BinaryData::default_xml, BinaryData::half_rms_m_xml};
-        inline const static std::array names{"Nothing", "Default", "Half RMS"};
-    };
 
 } // namespace ZLDsp
 
