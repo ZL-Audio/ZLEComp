@@ -130,7 +130,10 @@ namespace panel {
             g.drawText(zlinterface::fixFormatFloat(x[yMinIndex] * 1000, 3),
                        juce::Rectangle<float>(
                                bound.getX() +
-                               (bound.getWidth() - (largePadding + smallPadding) * fontSize) * x[yMinIndex] / xMax,
+                               juce::jlimit(largePadding * 0.5f * fontSize,
+                                            bound.getWidth() - (largePadding * 2.5f + smallPadding) * fontSize,
+                                            (bound.getWidth() - (largePadding + smallPadding) * fontSize) *
+                                            x[yMinIndex] / xMax),
                                bound.getY() + bound.getHeight() - largePadding * fontSize,
                                largePadding * 2 * fontSize, fontSize),
                        juce::Justification::centred);

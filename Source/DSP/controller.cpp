@@ -207,12 +207,13 @@ namespace zlcontroller {
         subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * subBuffer.getMainSpec().sampleRate)));
 
         juce::dsp::ProcessSpec spec = subBuffer.getSubSpec();
-        lTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
-        rTracker.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
-        lDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
-        rDetector.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
-        lGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
-        rGainDSP.prepare({spec.sampleRate, spec.maximumBlockSize, spec.numChannels / 4});
+        spec.numChannels = spec.numChannels / 4;
+        lTracker.prepare(spec);
+        rTracker.prepare(spec);
+        lDetector.prepare(spec);
+        rDetector.prepare(spec);
+        lGainDSP.prepare(spec);
+        rGainDSP.prepare(spec);
 
         auto rampSeconds = double(spec.maximumBlockSize - 1) / 4 / spec.sampleRate;
         lGainDSP.setRampDurationSeconds(rampSeconds);

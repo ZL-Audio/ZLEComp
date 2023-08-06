@@ -58,10 +58,10 @@ namespace zldetector {
     };
 
     template<typename FloatType>
-    static FloatType getScale(FloatType smooth) {
+    static FloatType getScale(FloatType smooth, size_t style) {
         auto proportion = (1 - smooth) * (1 - smooth);
-        return scales0<FloatType>[zldsp::rStyle::defaultI] * proportion +
-               scales1<FloatType>[zldsp::rStyle::defaultI] * (1 - proportion);
+        return scales0<FloatType>[style] * proportion +
+               scales1<FloatType>[style] * (1 - proportion);
     }
 }
 
