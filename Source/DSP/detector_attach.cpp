@@ -64,45 +64,30 @@ namespace zlcontroller {
     }
 
     template<typename FloatType>
-    std::array<float, 200> DetectorAttach<FloatType>::getPlotArrayY() {
-        std::array<float, 200> temp = plotArrayY;
-        return temp;
-    }
-
-    template<typename FloatType>
-    std::array<float, 200> DetectorAttach<FloatType>::getPlotArrayX() {
-        std::array<float, 200> temp = plotArrayX;
-        return temp;
-    }
-
-    template<typename FloatType>
-    void DetectorAttach<FloatType>::calculatePlot() {
-        const juce::GenericScopedLock<juce::SpinLock> scopedLock (plotLock);
-        // init zldetector
+    void DetectorAttach<FloatType>::getPlotArray(std::vector<float> &x, std::vector<float> &y,
+                                                 FloatType target) {
         auto tempDetector = zldetector::Detector<FloatType>(controller->lDetector);
-        auto x = FloatType(0), y = FloatType(1);
+        auto x0 = FloatType(0), y0 = FloatType(1);
         // calculate attack plot
-        FloatType deltaT = tempDetector.getAttack() / 100;
+        FloatType deltaT = tempDetector.getAttack() / 200;
         tempDetector.setDeltaT(deltaT);
         tempDetector.setAttack(tempDetector.getAttack());
-        for (size_t i = 0; i < 100; ++i) {
-            plotArrayX[i] = static_cast<float>(x);
-            plotArrayY[i] = static_cast<float>(y);
-            x += deltaT;
-            y = tempDetector.process(FloatType(0.01));
+        while (y0 - target >= FloatType(0.001)) {
+            x.push_back(static_cast<float>(x0));
+            y.push_back( static_cast<float>(y0));
+            x0 += deltaT;
+            y0 = tempDetector.process(FloatType(target));
         }
         // calculate release plot
-        deltaT = tempDetector.getRelease() / 100;
+        deltaT = tempDetector.getRelease() / 200;
         tempDetector.setDeltaT(deltaT);
-        tempDetector.setAttack(tempDetector.getRelease());
-        for (size_t i = 100; i < 200; ++i) {
-            plotArrayX[i] = static_cast<float>(x);
-            plotArrayY[i] = static_cast<float>(y);
-            x += deltaT;
-            y = tempDetector.process(FloatType(1));
+        tempDetector.setRelease(tempDetector.getRelease());
+        while (1 - y0 >= FloatType(0.001)) {
+            x.push_back(static_cast<float>(x0));
+            y.push_back( static_cast<float>(y0));
+            x0 += deltaT;
+            y0 = tempDetector.process(FloatType(1));
         }
-        // finish
-        plotArrayReady.store(false);
     }
 
     template

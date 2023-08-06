@@ -41,20 +41,20 @@ namespace zldetector {
 
     template<typename FloatType>
     static const std::array<FloatType, iterType::styleNUM> scales0 = {
-            FloatType(9.1046),
-            FloatType(15.9204),
-            FloatType(5.9165),
-            FloatType(17.6046),
-            FloatType(11.4072)
+            FloatType(9.1049),
+            FloatType(15.9207),
+            FloatType(5.9168),
+            FloatType(17.6049),
+            FloatType(11.4074)
     };
 
     template<typename FloatType>
     static const std::array<FloatType, iterType::styleNUM> scales1 = {
-            FloatType(11.6414),
-            FloatType(20.7262),
-            FloatType(7.5334),
-            FloatType(22.0533),
-            FloatType(14.0133)
+            FloatType(11.6419),
+            FloatType(20.7267),
+            FloatType(7.5338),
+            FloatType(22.0537),
+            FloatType(14.0136)
     };
 
     template<typename FloatType>

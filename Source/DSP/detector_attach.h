@@ -38,7 +38,7 @@ namespace zlcontroller {
 
         std::array<float, plotSize> getPlotArrayX();
 
-        void calculatePlot();
+        void getPlotArray(std::vector<float> &x, std::vector<float> &y, FloatType target=FloatType(0.1));
 
     private:
         Controller<FloatType> *controller;
@@ -52,8 +52,6 @@ namespace zlcontroller {
                                                     zldsp::smooth::defaultV};
 
         std::atomic<bool> plotArrayReady = false;
-        std::array<float, plotSize> plotArrayX, plotArrayY;
-        juce::SpinLock plotLock;
     };
 }
 

@@ -36,8 +36,6 @@ namespace zlcontroller {
 
         void getPlotArray(std::vector<float> &x, std::vector<float> &y);
 
-        void calculatePlot();
-
     private:
         Controller<FloatType> *c;
         juce::AudioProcessorValueTreeState *apvts;
@@ -49,8 +47,6 @@ namespace zlcontroller {
                                                     zldsp::kneeW::defaultV, zldsp::kneeD::defaultV,
                                                     zldsp::kneeS::defaultV, zldsp::bound::defaultV};
         std::atomic<bool> plotArrayReady = false;
-        std::array<float, plotSize> plotArrayX, plotArrayY;
-        juce::SpinLock plotLock;
     };
 }
 

@@ -66,16 +66,6 @@ namespace zlcontroller {
         }
     }
 
-    template<typename FloatType>
-    void ComputerAttach<FloatType>::calculatePlot() {
-        const juce::GenericScopedLock<juce::SpinLock> scopedLock (plotLock);
-        for (size_t i = 0; i < 241; ++i) {
-            plotArrayX[i] = static_cast<float>(i - 240) * 0.25f;
-            plotArrayY[i] = static_cast<float>(c->lrComputer.eval(plotArrayX[i]));
-        }
-        plotArrayReady.store(false);
-    }
-
     template
     class ComputerAttach<float>;
 

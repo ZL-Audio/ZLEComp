@@ -45,7 +45,7 @@ namespace zldetector {
 
     template<typename FloatType>
     void Detector<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
-        deltaT.store(static_cast<FloatType>(1 / spec.sampleRate));
+        deltaT.store(static_cast<FloatType>(spec.maximumBlockSize / spec.sampleRate));
         setAttack(getAttack());
         setRelease(getRelease());
     }

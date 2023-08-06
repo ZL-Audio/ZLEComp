@@ -61,27 +61,36 @@ namespace panel {
                                                              zldsp::kneeW::ID, zldsp::kneeD::ID,
                                                              zldsp::kneeS::ID, zldsp::bound::ID};
         std::array<juce::String, 1> isComputerChangedStateIDs{zlstate::showComputer::ID};
-        std::atomic<bool> isComputerVisible = true;
+        std::atomic<bool> isComputerVisible = zlstate::showComputer::defaultV;
+
         void handleAsyncUpdate() override;
 
     };
 
-    class DetectorPlotPanel : public juce::Component, private ::juce::Value::Listener {
+    class DetectorPlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
+                              private juce::AsyncUpdater {
     public:
         explicit DetectorPlotPanel(PluginProcessor &p);
 
-        ~DetectorPlotPanel() override {}
+        ~DetectorPlotPanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void setFontSize(float fSize);
 
+        void parameterChanged(const juce::String &parameterID, float newValue) override;
+
     private:
         zlcontroller::DetectorAttach<float> *detectorAttach;
         float thickNess = 0.0f;
-        juce::Value isDetectorVisible;
+        PluginProcessor *processorRef;
+        std::array<juce::String, 5> isDetectorChangedParaIDs{zldsp::attack::ID, zldsp::release::ID,
+                                                             zldsp::aStyle::ID, zldsp::rStyle::ID,
+                                                             zldsp::smooth::ID};
+        std::array<juce::String, 1> isDetectorChangedStateIDs{zlstate::showDetector::ID};
+        std::atomic<bool> isDetectorVisible = zlstate::showDetector::defaultV;
 
-        void valueChanged(juce::Value &) override;
+        void handleAsyncUpdate() override;
     };
 }
 #endif //ZLECOMP_PLOT_PANEL_H

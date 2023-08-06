@@ -13,9 +13,11 @@
 namespace panel {
     MainPanel::MainPanel(PluginProcessor &p) :
             logoPanel(),
-            computerPlotPanel(p) {
+            computerPlotPanel(p),
+            detectorPlotPanel(p){
 //        addAndMakeVisible(logoPanel);
-        addAndMakeVisible(computerPlotPanel);
+//        addAndMakeVisible(computerPlotPanel);
+        addAndMakeVisible(detectorPlotPanel);
     }
 
     MainPanel::~MainPanel() = default;
@@ -31,8 +33,11 @@ namespace panel {
     }
 
     void MainPanel::resized() {
-//        logoPanel.setBounds(getLocalBounds());
+        logoPanel.setBounds(getLocalBounds());
         computerPlotPanel.setBounds(getLocalBounds());
         computerPlotPanel.setFontSize( static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
+
+        detectorPlotPanel.setBounds(getLocalBounds());
+        detectorPlotPanel.setFontSize( static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
     }
 } // panel

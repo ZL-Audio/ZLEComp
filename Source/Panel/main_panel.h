@@ -34,6 +34,7 @@ namespace panel {
     private:
         LogoPanel logoPanel;
         ComputerPlotPanel computerPlotPanel;
+        DetectorPlotPanel detectorPlotPanel;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainPanel)
     };
 

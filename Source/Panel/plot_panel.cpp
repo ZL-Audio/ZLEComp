@@ -24,6 +24,7 @@ namespace panel {
                 float xMin, float xMax, float yMin, float yMax,
                 float thickness) {
         juce::Path path;
+        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness, bound.getHeight() - thickness);
         path.startNewSubPath(getPointX(bound, x[0], xMin, xMax), getPointY(bound, y[0], yMin, yMax));
         for (size_t i = 1; i < x.size(); ++i) {
             path.lineTo(getPointX(bound, x[i], xMin, xMax), getPointY(bound, y[i], yMin, yMax));
@@ -40,11 +41,15 @@ namespace panel {
         for (const auto & isComputerChangedStateID : isComputerChangedStateIDs) {
             processorRef->states.addParameterListener(isComputerChangedStateID, this);
         }
+        isComputerVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showComputer::ID)));
     }
 
     ComputerPlotPanel::~ComputerPlotPanel() {
         for (size_t i = 0; i < 6; ++i) {
             processorRef->parameters.removeParameterListener(isComputerChangedParaIDs[i], this);
+        }
+        for (const auto & isComputerChangedStateID : isComputerChangedStateIDs) {
+            processorRef->states.removeParameterListener(isComputerChangedStateID, this);
         }
     }
 
@@ -52,8 +57,6 @@ namespace panel {
         if (isComputerVisible.load()) {
             std::vector<float> x, y;
             computerAttach->getPlotArray(x, y);
-            writeArray("/Volumes/Ramdisk/x.txt", x);
-            writeArray("/Volumes/Ramdisk/y.txt", y);
             plotXY(g, getLocalBounds().toFloat(),
                    x, y, -60.f, 0.f, -60.f, 0.f,
                    thickNess);
@@ -77,14 +80,29 @@ namespace panel {
 
     DetectorPlotPanel::DetectorPlotPanel(PluginProcessor &p) {
         detectorAttach = &p.getDetectorAttach();
-        isDetectorVisible.referTo(p.states.getParameterAsValue(zlstate::showDetector::ID));
-        isDetectorVisible.addListener(this);
+        processorRef = &p;
+        for (const auto & isDetectorChangedParaID : isDetectorChangedParaIDs) {
+            processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
+        }
+        for (const auto & isDetectorChangedStateID : isDetectorChangedStateIDs) {
+            processorRef->states.addParameterListener(isDetectorChangedStateID, this);
+        }
+        isDetectorVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showDetector::ID)));
+    }
+
+    DetectorPlotPanel::~DetectorPlotPanel() {
+        for (const auto & isDetectorChangedParaID : isDetectorChangedParaIDs) {
+            processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
+        }
+        for (const auto & isDetectorChangedStateID : isDetectorChangedStateIDs) {
+            processorRef->states.removeParameterListener(isDetectorChangedStateID, this);
+        }
     }
 
     void DetectorPlotPanel::paint(juce::Graphics &g) {
-        if (isDetectorVisible.getValue()) {
-            auto x = detectorAttach->getPlotArrayX();
-            auto y = detectorAttach->getPlotArrayY();
+        if (isDetectorVisible.load()) {
+            std::vector<float> x, y;
+            detectorAttach->getPlotArray(x, y);
             plotXY(g, getLocalBounds().toFloat(),
                    x, y, 0.f, *std::ranges::max_element(x), 0.1f, 1.f,
                    thickNess);
@@ -95,7 +113,14 @@ namespace panel {
         thickNess = fSize * 0.1f;
     }
 
-    void DetectorPlotPanel::valueChanged(juce::Value &) {
+    void DetectorPlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {
+        if (parameterID == zlstate::showDetector::ID) {
+            isDetectorVisible.store(static_cast<bool>(newValue));
+        }
+        triggerAsyncUpdate();
+    }
+
+    void DetectorPlotPanel::handleAsyncUpdate() {
         repaint();
     }
 }
