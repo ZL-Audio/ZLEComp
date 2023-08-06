@@ -35,20 +35,20 @@ namespace panel {
     ComputerPlotPanel::ComputerPlotPanel(PluginProcessor &p) {
         computerAttach = &p.getComputerAttach();
         processorRef = &p;
-        for (const auto & isComputerChangedParaID : isComputerChangedParaIDs) {
+        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
             processorRef->parameters.addParameterListener(isComputerChangedParaID, this);
         }
-        for (const auto & isComputerChangedStateID : isComputerChangedStateIDs) {
+        for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.addParameterListener(isComputerChangedStateID, this);
         }
         isComputerVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showComputer::ID)));
     }
 
     ComputerPlotPanel::~ComputerPlotPanel() {
-        for (size_t i = 0; i < 6; ++i) {
-            processorRef->parameters.removeParameterListener(isComputerChangedParaIDs[i], this);
+        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
+            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
         }
-        for (const auto & isComputerChangedStateID : isComputerChangedStateIDs) {
+        for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.removeParameterListener(isComputerChangedStateID, this);
         }
     }
@@ -59,12 +59,12 @@ namespace panel {
             computerAttach->getPlotArray(x, y);
             plotXY(g, getLocalBounds().toFloat(),
                    x, y, -60.f, 0.f, -60.f, 0.f,
-                   thickNess);
+                   fontSize * 0.1f);
         }
     }
 
     void ComputerPlotPanel::setFontSize(float fSize) {
-        thickNess = fSize * 0.1f;
+        fontSize = fSize;
     }
 
     void ComputerPlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {
@@ -81,20 +81,20 @@ namespace panel {
     DetectorPlotPanel::DetectorPlotPanel(PluginProcessor &p) {
         detectorAttach = &p.getDetectorAttach();
         processorRef = &p;
-        for (const auto & isDetectorChangedParaID : isDetectorChangedParaIDs) {
+        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
             processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
         }
-        for (const auto & isDetectorChangedStateID : isDetectorChangedStateIDs) {
+        for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.addParameterListener(isDetectorChangedStateID, this);
         }
         isDetectorVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showDetector::ID)));
     }
 
     DetectorPlotPanel::~DetectorPlotPanel() {
-        for (const auto & isDetectorChangedParaID : isDetectorChangedParaIDs) {
+        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
             processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
         }
-        for (const auto & isDetectorChangedStateID : isDetectorChangedStateIDs) {
+        for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.removeParameterListener(isDetectorChangedStateID, this);
         }
     }
@@ -103,14 +103,72 @@ namespace panel {
         if (isDetectorVisible.load()) {
             std::vector<float> x, y;
             detectorAttach->getPlotArray(x, y);
-            plotXY(g, getLocalBounds().toFloat(),
-                   x, y, 0.f, *std::ranges::max_element(x), 0.1f, 1.f,
-                   thickNess);
+            auto xMax = *std::ranges::max_element(x);
+            auto yMinIndex = static_cast<size_t>(std::distance(std::begin(y),
+                                                               std::min_element(std::begin(y), std::end(y))));
+
+            auto bound = getLocalBounds().toFloat();
+            g.setColour(zlinterface::TextInactiveColor);
+            g.setFont(fontSize * zlinterface::FontSmall);
+            g.drawText("0",
+                       juce::Rectangle<float>(
+                               bound.getX(), bound.getY() + smallPadding * fontSize,
+                               largePadding * 0.9f * fontSize, fontSize),
+                       juce::Justification::topRight);
+            g.drawText("-20",
+                       juce::Rectangle<float>(
+                               bound.getX(),
+                               bound.getY() + bound.getHeight() - (1.f + largePadding) * fontSize,
+                               largePadding * 0.9f * fontSize, fontSize),
+                       juce::Justification::bottomRight);
+            g.drawText(zlinterface::fixFormatFloat(xMax * 1000, 3),
+                       juce::Rectangle<float>(
+                               bound.getX() + bound.getWidth() - (largePadding * 2 + smallPadding) * fontSize,
+                               bound.getY() + bound.getHeight() - largePadding * fontSize,
+                               largePadding * 2 * fontSize, fontSize),
+                       juce::Justification::centredRight);
+            g.drawText(zlinterface::fixFormatFloat(x[yMinIndex] * 1000, 3),
+                       juce::Rectangle<float>(
+                               bound.getX() +
+                               (bound.getWidth() - (largePadding + smallPadding) * fontSize) * x[yMinIndex] / xMax,
+                               bound.getY() + bound.getHeight() - largePadding * fontSize,
+                               largePadding * 2 * fontSize, fontSize),
+                       juce::Justification::centred);
+
+            bound = bound.withTrimmedLeft(
+                    fontSize * largePadding).withTrimmedBottom(
+                    fontSize * largePadding).withTrimmedRight(
+                    fontSize * smallPadding).withTrimmedTop(
+                    fontSize * smallPadding);
+            g.setColour(zlinterface::TextInactiveColor);
+            g.drawRect(bound, fontSize * 0.1f);
+
+            bound = bound.withSizeKeepingCentre(bound.getWidth() - fontSize * 0.1f,
+                                                bound.getHeight() - fontSize * 0.1f);
+
+
+            float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
+            g.setColour(zlinterface::TextInactiveColor);
+            g.drawDashedLine(juce::Line<float>(getPointX(bound, x.front(), 0.f, xMax),
+                                               getPointY(bound, y.front(), 0.1f, 1.f),
+                                               getPointX(bound, x[yMinIndex], 0.f, xMax),
+                                               getPointY(bound, y[yMinIndex], 0.1f, 1.f)),
+                             dashLengths, 2, fontSize * 0.1f);
+            g.drawDashedLine(juce::Line<float>(
+                                     getPointX(bound, x[yMinIndex], 0.f, xMax),
+                                     getPointY(bound, y[yMinIndex], 0.1f, 1.f),
+                                     getPointX(bound, x.back(), 0.f, xMax),
+                                     getPointY(bound, y.back(), 0.1f, 1.f)),
+                             dashLengths, 2, fontSize * 0.1f);
+            g.setColour(zlinterface::TextColor);
+            plotXY(g, bound,
+                   x, y, 0.f, xMax, 0.1f, 1.f,
+                   fontSize * 0.1f);
         }
     }
 
     void DetectorPlotPanel::setFontSize(float fSize) {
-        thickNess = fSize * 0.1f;
+        fontSize = fSize;
     }
 
     void DetectorPlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {

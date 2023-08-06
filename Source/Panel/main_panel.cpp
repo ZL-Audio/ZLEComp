@@ -31,11 +31,18 @@ namespace panel {
     }
 
     void MainPanel::resized() {
-        logoPanel.setBounds(getLocalBounds());
-        computerPlotPanel.setBounds(getLocalBounds());
-        computerPlotPanel.setFontSize(static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
 
-        detectorPlotPanel.setBounds(getLocalBounds());
-        detectorPlotPanel.setFontSize(static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
+
+        auto bound = getLocalBounds().toFloat();
+        auto fontSize = bound.getHeight() * 0.0514f;
+        bound = zlinterface::getRoundedShadowRectangleArea(bound, fontSize * 0.5f, {});
+        auto intBound = bound.toNearestInt();
+
+        logoPanel.setBounds(intBound);
+        computerPlotPanel.setBounds(intBound);
+        computerPlotPanel.setFontSize(static_cast<float> (fontSize));
+
+        detectorPlotPanel.setBounds(intBound);
+        detectorPlotPanel.setFontSize(static_cast<float> (fontSize));
     }
 } // panel

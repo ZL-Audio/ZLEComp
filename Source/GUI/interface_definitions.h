@@ -37,16 +37,25 @@ namespace zlinterface {
         float blurRadius = 0.5f;
         bool curveTopLeft = true, curveTopRight = true, curveBottomLeft = true, curveBottomRight = true;
         bool fit = true, flip = false;
-        bool drawBright = true, drawDark = true;
+        bool drawBright = true, drawDark = true, drawMain = true;
         juce::Colour mainColour = BackgroundColor;
     };
+
+    inline juce::Rectangle<float> getRoundedShadowRectangleArea(juce::Rectangle<float> boxBounds,
+                                                                float cornerSize,
+                                                                const fillRoundedShadowRectangleArgs &args) {
+        auto radius = juce::jmax(juce::roundToInt(cornerSize * args.blurRadius * 1.5f), 1);
+        return boxBounds.withSizeKeepingCentre(
+                boxBounds.getWidth() - static_cast<float>(radius) - 1.42f * cornerSize,
+                boxBounds.getHeight() - static_cast<float>(radius) - 1.42f * cornerSize);
+    }
 
     inline juce::Rectangle<float> fillRoundedShadowRectangle(juce::Graphics &g,
                                                              juce::Rectangle<float> boxBounds,
                                                              float cornerSize,
                                                              const fillRoundedShadowRectangleArgs &args) {
         juce::Path path;
-        auto radius = juce::jmax(juce::roundToInt(cornerSize * 0.75f), 1);
+        auto radius = juce::jmax(juce::roundToInt(cornerSize * args.blurRadius * 1.5f), 1);
         if (args.fit) {
             boxBounds = boxBounds.withSizeKeepingCentre(
                     boxBounds.getWidth() - static_cast<float>(radius) - 1.42f * cornerSize,
@@ -58,6 +67,12 @@ namespace zlinterface {
                                  args.curveTopLeft, args.curveTopRight,
                                  args.curveBottomLeft, args.curveBottomRight);
         auto offset = static_cast<int>(cornerSize * args.blurRadius);
+        juce::Path mask(path);
+        mask.setUsingNonZeroWinding(false);
+        mask.addRectangle(boxBounds.withSizeKeepingCentre(boxBounds.getWidth() + cornerSize * 3,
+                                                          boxBounds.getHeight() + cornerSize * 3));
+        g.saveState();
+        g.reduceClipRegion(mask);
         if (args.drawBright) {
             juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {-offset, -offset});
@@ -68,8 +83,11 @@ namespace zlinterface {
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
-        g.setColour(args.mainColour);
-        g.fillPath(path);
+        g.restoreState();
+        if (args.drawMain) {
+            g.setColour(args.mainColour);
+            g.fillPath(path);
+        }
         return boxBounds;
     }
 
@@ -85,9 +103,11 @@ namespace zlinterface {
                                  args.curveBottomLeft, args.curveBottomRight);
         g.saveState();
         g.reduceClipRegion(mask);
-        g.fillAll(args.mainColour);
+        if (args.drawMain) {
+            g.fillAll(args.mainColour);
+        }
         auto offset = static_cast<int>(cornerSize * args.blurRadius);
-        auto radius = juce::jmax(juce::roundToInt(args.blurRadius * 1.5f), 1);
+        auto radius = juce::jmax(juce::roundToInt(cornerSize * args.blurRadius * 1.5f), 1);
         if (!args.flip) {
             juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
@@ -203,8 +223,24 @@ namespace zlinterface {
 
     inline std::string formatFloat(float x, int precision) {
         std::stringstream stream;
+        precision = std::max(0, precision);
         stream << std::fixed << std::setprecision(precision) << x;
         return stream.str();
+    }
+
+    inline std::string fixFormatFloat(float x, int length) {
+        auto y = std::abs(x);
+        if (y < 10) {
+            return formatFloat(x, length - 1);
+        } else if (y < 100) {
+            return formatFloat(x, length - 2);
+        } else if (y < 1000) {
+            return formatFloat(x, length - 3);
+        } else if (y < 10000) {
+            return formatFloat(x, length - 4);
+        } else {
+            return formatFloat(x, length - 5);
+        }
     }
 }
 
