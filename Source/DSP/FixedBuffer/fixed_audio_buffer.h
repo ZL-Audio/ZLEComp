@@ -13,7 +13,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-#include "../dsp_defines.h"
+#include "../dsp_definitions.h"
 #include "fifo_audio_buffer.h"
 
 namespace fixedBuffer {

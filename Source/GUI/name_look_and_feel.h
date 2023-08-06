@@ -11,10 +11,10 @@
 #ifndef ZLINFLATOR_NAMELOOKANDFEEL_H
 #define ZLINFLATOR_NAMELOOKANDFEEL_H
 
-#include "interface_defines.h"
+#include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
     class NameLookAndFeel : public juce::LookAndFeel_V4 {
     public:
         void drawLabel(juce::Graphics &g, juce::Label &label) override {

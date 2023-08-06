@@ -11,10 +11,10 @@
 #ifndef ZLINFLATOR_COMBOBOXLOOKANDFEEL_H
 #define ZLINFLATOR_COMBOBOXLOOKANDFEEL_H
 
-#include "interface_defines.h"
+#include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
 class ComboboxLookAndFeel : public juce::LookAndFeel_V4 {
 public:
     // rounded menu box

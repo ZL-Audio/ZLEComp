@@ -10,7 +10,7 @@
 
 #include "controller_attach.h"
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     ControllerAttach<FloatType>::ControllerAttach(juce::AudioProcessor &processor,
                                                   Controller<FloatType> &c,
@@ -44,32 +44,32 @@ namespace controller {
     template<typename FloatType>
     void ControllerAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
         auto v = static_cast<FloatType>(newValue);
-        if (parameterID == ZLDsp::outGain::ID) {
+        if (parameterID == zldsp::outGain::ID) {
             controller->setOutGain(v);
-        } else if (parameterID == ZLDsp::mix::ID) {
-            controller->setMixProportion(ZLDsp::mix::formatV(v));
-        } else if (parameterID == ZLDsp::overSample::ID) {
+        } else if (parameterID == zldsp::mix::ID) {
+            controller->setMixProportion(zldsp::mix::formatV(v));
+        } else if (parameterID == zldsp::overSample::ID) {
             controller->setOversampleID(static_cast<size_t>(v));
-        } else if (parameterID == ZLDsp::rms::ID) {
-            controller->setRMSSize(ZLDsp::rms::formatV(v));
-        } else if (parameterID == ZLDsp::lookahead::ID) {
-            controller->setLookAhead(ZLDsp::lookahead::formatV(v));
-            if (m_processor->getCurrentProgram() == state::preset::halfRMS) {
-                apvts->getParameter(ZLDsp::rms::ID)->beginChangeGesture();
-                apvts->getParameter(ZLDsp::rms::ID)
-                        ->setValueNotifyingHost(ZLDsp::rms::range.convertTo0to1(static_cast<float>(v * 2)));
-                apvts->getParameter(ZLDsp::rms::ID)->endChangeGesture();
+        } else if (parameterID == zldsp::rms::ID) {
+            controller->setRMSSize(zldsp::rms::formatV(v));
+        } else if (parameterID == zldsp::lookahead::ID) {
+            controller->setLookAhead(zldsp::lookahead::formatV(v));
+            if (m_processor->getCurrentProgram() == zlstate::preset::halfRMS) {
+                apvts->getParameter(zldsp::rms::ID)->beginChangeGesture();
+                apvts->getParameter(zldsp::rms::ID)
+                        ->setValueNotifyingHost(zldsp::rms::range.convertTo0to1(static_cast<float>(v * 2)));
+                apvts->getParameter(zldsp::rms::ID)->endChangeGesture();
             }
-        } else if (parameterID == ZLDsp::segment::ID) {
-            controller->setSegment(ZLDsp::segment::formatV(v));
-        } else if (parameterID == ZLDsp::audit::ID) {
+        } else if (parameterID == zldsp::segment::ID) {
+            controller->setSegment(zldsp::segment::formatV(v));
+        } else if (parameterID == zldsp::audit::ID) {
             controller->setAudit(static_cast<bool>(v));
-        } else if (parameterID == ZLDsp::external::ID) {
+        } else if (parameterID == zldsp::external::ID) {
             controller->setExternal(static_cast<bool>(v));
-        } else if (parameterID == ZLDsp::sideGain::ID) {
+        } else if (parameterID == zldsp::sideGain::ID) {
             controller->setSideGain(v);
-        } else if (parameterID == ZLDsp::link::ID) {
-            controller->setLink(ZLDsp::link::formatV(v));
+        } else if (parameterID == zldsp::link::ID) {
+            controller->setLink(zldsp::link::formatV(v));
         }
     }
 

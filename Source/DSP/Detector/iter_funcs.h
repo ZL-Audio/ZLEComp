@@ -14,9 +14,9 @@
 #define ZLECOMP_ITER_FUNCS_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "../dsp_defines.h"
+#include "../dsp_definitions.h"
 
-namespace detector {
+namespace zldetector {
     enum iterType {
         classic, style1, style2, style3, style4, styleNUM
     };
@@ -60,8 +60,8 @@ namespace detector {
     template<typename FloatType>
     static FloatType getScale(FloatType smooth) {
         auto proportion = (1 - smooth) * (1 - smooth);
-        return scales0<FloatType>[ZLDsp::rStyle::defaultI] * proportion +
-               scales1<FloatType>[ZLDsp::rStyle::defaultI] * (1 - proportion);
+        return scales0<FloatType>[zldsp::rStyle::defaultI] * proportion +
+               scales1<FloatType>[zldsp::rStyle::defaultI] * (1 - proportion);
     }
 }
 

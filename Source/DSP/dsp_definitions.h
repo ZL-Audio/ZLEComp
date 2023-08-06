@@ -8,14 +8,14 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLECOMP_DSP_DEFINES_H
-#define ZLECOMP_DSP_DEFINES_H
+#ifndef ZLECOMP_DSP_DEFINITIONS_H
+#define ZLECOMP_DSP_DEFINITIONS_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include <BinaryData.h>
 
-namespace ZLDsp {
+namespace zldsp {
     // float
     inline auto static const versionHint = 1;
 
@@ -290,6 +290,6 @@ namespace ZLDsp {
         return layout;
     }
 
-} // namespace ZLDsp
+} // namespace zldsp
 
-#endif //ZLECOMP_DSP_DEFINES_H
+#endif //ZLECOMP_DSP_DEFINITIONS_H

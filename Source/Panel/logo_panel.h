@@ -8,31 +8,23 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#pragma once
+#ifndef ZLLMATCH_LOGOPANEL_H
+#define ZLLMATCH_LOGOPANEL_H
 
-#include "PluginProcessor.h"
-#include "Panel/main_panel.h"
-#include "State/state_definitions.h"
+#include <BinaryData.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
-//==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor,
-private juce::Value::Listener {
-public:
-    explicit PluginEditor(PluginProcessor &p);
+namespace panel {
+    class LogoPanel : public juce::Component {
+    public:
+        explicit LogoPanel();
 
-    ~PluginEditor() override;
+        ~LogoPanel() override;
 
-    //==============================================================================
-    void paint(juce::Graphics &) override;
+        void paint(juce::Graphics &g) override;
 
-    void resized() override;
-
-private:
-    PluginProcessor &processorRef;
-    panel::MainPanel mainPanel;
-    juce::Value lastUIWidth, lastUIHeight;
-
-    void valueChanged (juce::Value&) override;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
-};
+    private:
+        const std::unique_ptr<juce::Drawable> brandDrawable, logoDrawable;
+    };
+}
+#endif //ZLLMATCH_LOGOPANEL_H

@@ -11,10 +11,10 @@
 #ifndef ZLINFLATOR_ROTARYSLIDERLOOKANDFEEL_H
 #define ZLINFLATOR_ROTARYSLIDERLOOKANDFEEL_H
 
-#include "interface_defines.h"
+#include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
     class RotarySliderLookAndFeel : public juce::LookAndFeel_V4 {
     public:
         explicit RotarySliderLookAndFeel() = default;

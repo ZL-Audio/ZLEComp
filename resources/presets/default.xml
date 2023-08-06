@@ -25,6 +25,11 @@
     <PARAM id="threshold" value="-18.0"/>
   </ZLECompParameters>
   <ZLECompStates>
-    <PARAM id="program_idx" value="1.0"/>
+    <PARAM id="program_idx" value="0.0"/>
+    <PARAM id="show_computer" value="1.0"/>
+    <PARAM id="show_detector" value="0.0"/>
+    <PARAM id="show_meter" value="1.0"/>
+    <PARAM id="window_h" value="300"/>
+    <PARAM id="window_w" value="300"/>
   </ZLECompStates>
 </ZLECompParaState>

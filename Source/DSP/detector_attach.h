@@ -13,13 +13,14 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-#include "dsp_defines.h"
+#include "dsp_definitions.h"
 #include "controller.h"
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     class DetectorAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
+        constexpr const static size_t plotSize = 200;
         explicit DetectorAttach(Controller<FloatType> &c,
                                 juce::AudioProcessorValueTreeState &parameters);
 
@@ -33,25 +34,25 @@ namespace controller {
 
         inline bool isPlotArrayReady() { return plotArrayReady.load(); }
 
-        std::array<FloatType, 200> getPlotArrayY();
+        std::array<float, plotSize> getPlotArrayY();
 
-        std::array<FloatType, 200> getPlotArrayX();
+        std::array<float, plotSize> getPlotArrayX();
 
         void calculatePlot();
 
     private:
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
-        constexpr const static std::array IDs{ZLDsp::attack::ID, ZLDsp::release::ID,
-                                              ZLDsp::aStyle::ID, ZLDsp::rStyle::ID,
-                                              ZLDsp::smooth::ID};
+        constexpr const static std::array IDs{zldsp::attack::ID, zldsp::release::ID,
+                                              zldsp::aStyle::ID, zldsp::rStyle::ID,
+                                              zldsp::smooth::ID};
 
-        constexpr const static std::array defaultVs{ZLDsp::attack::defaultV, ZLDsp::release::defaultV,
-                                                    float(ZLDsp::aStyle::defaultI), float(ZLDsp::rStyle::defaultI),
-                                                    ZLDsp::smooth::defaultV};
+        constexpr const static std::array defaultVs{zldsp::attack::defaultV, zldsp::release::defaultV,
+                                                    float(zldsp::aStyle::defaultI), float(zldsp::rStyle::defaultI),
+                                                    zldsp::smooth::defaultV};
 
         std::atomic<bool> plotArrayReady = false;
-        std::array<FloatType, 200> plotArrayX, plotArrayY;
+        std::array<float, plotSize> plotArrayX, plotArrayY;
         juce::SpinLock plotLock;
     };
 }

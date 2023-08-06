@@ -13,8 +13,8 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
 #include <BinaryData.h>
-#include "State/state_defines.h"
-#include "DSP/dsp_defines.h"
+#include "State/state_definitions.h"
+#include "DSP/dsp_definitions.h"
 #include "DSP/controller.h"
 #include "DSP/controller_attach.h"
 #include "DSP/detector_attach.h"
@@ -69,12 +69,23 @@ public:
 
     void setStateInformation(const void *data, int sizeInBytes) override;
 
+    inline zlcontroller::ControllerAttach<float>& getControllerAttach() {
+        return controllerAttach;
+    }
+
+    inline zlcontroller::DetectorAttach<float>& getDetectorAttach() {
+        return detectorAttach;
+    }
+
+    inline zlcontroller::ComputerAttach<float>& getComputerAttach() {
+        return computerAttach;
+    }
+
 private:
-//    state::DummyProcessor dummyProcessor;
-    controller::Controller<float> controller;
-    controller::ControllerAttach<float> controllerAttach;
-    controller::DetectorAttach<float> detectorAttach;
-    controller::ComputerAttach<float> computerAttach;
+    zlcontroller::Controller<float> controller;
+    zlcontroller::ControllerAttach<float> controllerAttach;
+    zlcontroller::DetectorAttach<float> detectorAttach;
+    zlcontroller::ComputerAttach<float> computerAttach;
     std::atomic<int> programIndex = 0;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

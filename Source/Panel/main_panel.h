@@ -8,31 +8,36 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#pragma once
+#ifndef ZLECOMP_MAIN_PANEL_H
+#define ZLECOMP_MAIN_PANEL_H
 
-#include "PluginProcessor.h"
-#include "Panel/main_panel.h"
-#include "State/state_definitions.h"
+#include <juce_audio_processors/juce_audio_processors.h>
+#include "../PluginProcessor.h"
+#include "../DSP/computer_attach.h"
+#include "../DSP/detector_attach.h"
+#include "../GUI/interface_definitions.h"
+#include "logo_panel.h"
+#include "plot_panel.h"
 
-//==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor,
-private juce::Value::Listener {
-public:
-    explicit PluginEditor(PluginProcessor &p);
+namespace panel {
 
-    ~PluginEditor() override;
+    class MainPanel : public juce::Component {
+    public:
+        explicit MainPanel(PluginProcessor &p);
 
-    //==============================================================================
-    void paint(juce::Graphics &) override;
+        ~MainPanel() override;
 
-    void resized() override;
+        void paint(juce::Graphics &g) override;
 
-private:
-    PluginProcessor &processorRef;
-    panel::MainPanel mainPanel;
-    juce::Value lastUIWidth, lastUIHeight;
+        void resized() override;
 
-    void valueChanged (juce::Value&) override;
+    private:
+        UIState uiState;
+        LogoPanel logoPanel;
+        ComputerPlotPanel computerPlotPanel;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainPanel)
+    };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
-};
+} // panel
+
+#endif //ZLECOMP_MAIN_PANEL_H

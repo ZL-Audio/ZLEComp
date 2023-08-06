@@ -15,7 +15,7 @@
 #include "../FixedBuffer/fifo_audio_buffer.h"
 #include <boost/circular_buffer.hpp>
 
-namespace detector {
+namespace zldetector {
 
     template<typename FloatType>
     class RMSTracker : Tracker<FloatType> {
@@ -68,6 +68,6 @@ namespace detector {
         boost::circular_buffer<FloatType> loudnessBuffer;
     };
 
-} // detector
+} // zldetector
 
 #endif //ZLECOMP_RMS_TRACKER_H

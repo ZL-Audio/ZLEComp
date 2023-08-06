@@ -10,7 +10,7 @@
 
 #include "controller.h"
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     Controller<FloatType>::Controller(juce::AudioProcessor &processor,
                                       juce::AudioProcessorValueTreeState &parameters) {
@@ -19,7 +19,7 @@ namespace controller {
         m_processor = &processor;
         apvts = &parameters;
 
-        mixer.setWetMixProportion(ZLDsp::mix::formatV(ZLDsp::mix::defaultV));
+        mixer.setWetMixProportion(zldsp::mix::formatV(zldsp::mix::defaultV));
     }
 
     template<typename FloatType>
@@ -30,7 +30,7 @@ namespace controller {
     template<typename FloatType>
     void Controller<FloatType>::prepare(const juce::dsp::ProcessSpec spec) {
         mainSpec = {spec.sampleRate, spec.maximumBlockSize, spec.numChannels};
-        for (size_t i = 0; i < ZLDsp::overSample::overSampleNUM; ++i) {
+        for (size_t i = 0; i < zldsp::overSample::overSampleNUM; ++i) {
             overSamplers[i] = std::make_unique<juce::dsp::Oversampling<FloatType>>(
                     spec.numChannels * 2, i,
                     juce::dsp::Oversampling<FloatType>::filterHalfBandFIREquiripple,
@@ -123,10 +123,10 @@ namespace controller {
         juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
-        if (audit.load()) {
-            return;
+        if (!audit.load()) {
+            m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(
+                    m_processor->getBusBuffer(allBuffer, true, 1), true);
         }
-        m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(m_processor->getBusBuffer(allBuffer, false, 0), true);
     }
 
     template<typename FloatType>
@@ -231,11 +231,7 @@ namespace controller {
     void Controller<FloatType>::setAudit(bool f) {
         const juce::GenericScopedLock<juce::CriticalSection> scopedLock(m_processor->getCallbackLock());
         audit.store(f);
-        if (f) {
-            m_processor->setLatencySamples(0);
-        } else {
-            setLatency();
-        }
+        setLatency();
     }
 
     template<typename FloatType>
@@ -245,10 +241,12 @@ namespace controller {
 
     template<typename FloatType>
     void Controller<FloatType>::setLatency() {
-        if (overSamplers[idxSampler.load()]) {
+        if (audit.load()) {
+            m_processor->setLatencySamples(0);
+        } else if (overSamplers[idxSampler.load()]) {
             m_processor->setLatencySamples(
                     static_cast<int>(mainDelay.getDelay() + overSamplers[idxSampler.load()]->getLatencyInSamples()) +
-                            static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
+                    static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
         }
     }
 

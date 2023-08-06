@@ -10,7 +10,7 @@
 
 #include "rms_tracker.h"
 
-namespace detector {
+namespace zldetector {
 
     template<typename FloatType>
     RMSTracker<FloatType>::~RMSTracker() {
@@ -67,4 +67,4 @@ namespace detector {
 
     template
     class RMSTracker<double>;
-} // detector
+} // zldetector

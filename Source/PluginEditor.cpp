@@ -12,33 +12,44 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-PluginEditor::PluginEditor (PluginProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
-{
-    juce::ignoreUnused (processorRef);
+PluginEditor::PluginEditor(PluginProcessor &p) :
+        AudioProcessorEditor(&p), processorRef(p),
+        mainPanel(p) {
+    juce::ignoreUnused(processorRef);
+
+    addAndMakeVisible(mainPanel);
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setResizeLimits(zlstate::windowW::minV, zlstate::windowH::minV, zlstate::windowW::maxV, zlstate::windowH::maxV);
+    getConstrainer()->setFixedAspectRatio(
+            static_cast<float>(zlstate::windowW::defaultV) / static_cast<float>(zlstate::windowH::defaultV));
+    setResizable(true, p.wrapperType != PluginProcessor::wrapperType_AudioUnitv3);
+    lastUIWidth.referTo(p.states.getParameterAsValue(zlstate::windowW::ID));
+    lastUIHeight.referTo(p.states.getParameterAsValue(zlstate::windowH::ID));
+    setSize(lastUIWidth.getValue(), lastUIHeight.getValue());
+    lastUIWidth.addListener(this);
+    lastUIHeight.addListener(this);
 }
 
-PluginEditor::~PluginEditor()
-{
-
-}
+PluginEditor::~PluginEditor() = default;
 
 //==============================================================================
-void PluginEditor::paint (juce::Graphics& g)
-{
+void PluginEditor::paint(juce::Graphics &g) {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.setColour(juce::Colours::white);
+    g.setFont(15.0f);
+    g.drawFittedText("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
-void PluginEditor::resized()
-{
-    // lay out the positions of your components
+void PluginEditor::resized() {
+    mainPanel.setBounds(getLocalBounds());
+    lastUIWidth = getWidth();
+    lastUIHeight = getHeight();
+}
+
+void PluginEditor::valueChanged (juce::Value&) {
+    setSize (lastUIWidth.getValue(), lastUIHeight.getValue());
 }

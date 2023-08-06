@@ -10,7 +10,7 @@
 
 #include "detector.h"
 
-namespace detector {
+namespace zldetector {
 
     template<typename FloatType>
     Detector<FloatType>::Detector(const Detector<FloatType> &d) {
@@ -55,4 +55,4 @@ namespace detector {
 
     template
     class Detector<double>;
-} // detector
+} // zldetector

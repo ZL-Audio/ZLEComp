@@ -13,7 +13,7 @@
 
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
     auto inline const WindowHeight = 280;
     auto inline const WindowWidth = 476;
     auto inline const WindowFixedAspectRatio = 1.7;

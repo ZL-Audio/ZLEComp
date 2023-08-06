@@ -13,19 +13,19 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-#include "dsp_defines.h"
+#include "dsp_definitions.h"
 #include "Computer/computer.h"
 #include "Detector/detector.h"
 #include "Detector/rms_tracker.h"
 #include "FixedBuffer/fixed_audio_buffer.h"
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     class Controller {
     public:
-        detector::Detector<FloatType> lDetector, rDetector;
-        detector::RMSTracker<FloatType> lTracker, rTracker;
-        computer::Computer<FloatType> lrComputer;
+        zldetector::Detector<FloatType> lDetector, rDetector;
+        zldetector::RMSTracker<FloatType> lTracker, rTracker;
+        zlcomputer::Computer<FloatType> lrComputer;
 
         explicit Controller(juce::AudioProcessor &processor,
                             juce::AudioProcessorValueTreeState &parameters);
@@ -65,7 +65,7 @@ namespace controller {
         void setExternal(bool f);
 
     private:
-        std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, ZLDsp::overSample::overSampleNUM>
+        std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, zldsp::overSample::overSampleNUM>
                 overSamplers{};
         std::atomic<size_t> idxSampler;
 
@@ -83,7 +83,6 @@ namespace controller {
 
         juce::AudioProcessor *m_processor;
         juce::AudioProcessorValueTreeState *apvts;
-        juce::SpinLock lock;
 
         juce::AudioBuffer<FloatType> allBuffer;
 

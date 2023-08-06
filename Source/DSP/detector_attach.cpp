@@ -10,7 +10,7 @@
 
 #include "detector_attach.h"
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     DetectorAttach<FloatType>::DetectorAttach(Controller<FloatType> &c,
                                               juce::AudioProcessorValueTreeState &parameters) {
@@ -42,21 +42,21 @@ namespace controller {
     template<typename FloatType>
     void DetectorAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
         auto v = static_cast<FloatType>(newValue);
-        if (parameterID == ZLDsp::attack::ID) {
-            controller->lDetector.setAttack(ZLDsp::attack::formatV(v));
-            controller->rDetector.setAttack(ZLDsp::attack::formatV(v));
-        } else if (parameterID == ZLDsp::release::ID) {
-            controller->lDetector.setRelease(ZLDsp::release::formatV(v));
-            controller->rDetector.setRelease(ZLDsp::release::formatV(v));
-        } else if (parameterID == ZLDsp::aStyle::ID) {
+        if (parameterID == zldsp::attack::ID) {
+            controller->lDetector.setAttack(zldsp::attack::formatV(v));
+            controller->rDetector.setAttack(zldsp::attack::formatV(v));
+        } else if (parameterID == zldsp::release::ID) {
+            controller->lDetector.setRelease(zldsp::release::formatV(v));
+            controller->rDetector.setRelease(zldsp::release::formatV(v));
+        } else if (parameterID == zldsp::aStyle::ID) {
             auto idx = static_cast<size_t>(v);
             controller->lDetector.setAStyle(idx);
             controller->rDetector.setAStyle(idx);
-        } else if (parameterID == ZLDsp::rStyle::ID) {
+        } else if (parameterID == zldsp::rStyle::ID) {
             auto idx = static_cast<size_t>(v);
             controller->lDetector.setRStyle(idx);
             controller->rDetector.setRStyle(idx);
-        } else if (parameterID == ZLDsp::smooth::ID) {
+        } else if (parameterID == zldsp::smooth::ID) {
             controller->lDetector.setSmooth(v);
             controller->rDetector.setSmooth(v);
         }
@@ -64,30 +64,30 @@ namespace controller {
     }
 
     template<typename FloatType>
-    std::array<FloatType, 200> DetectorAttach<FloatType>::getPlotArrayY() {
-        std::array<FloatType, 200> temp = plotArrayY;
+    std::array<float, 200> DetectorAttach<FloatType>::getPlotArrayY() {
+        std::array<float, 200> temp = plotArrayY;
         return temp;
     }
 
     template<typename FloatType>
-    std::array<FloatType, 200> DetectorAttach<FloatType>::getPlotArrayX() {
-        std::array<FloatType, 200> temp = plotArrayX;
+    std::array<float, 200> DetectorAttach<FloatType>::getPlotArrayX() {
+        std::array<float, 200> temp = plotArrayX;
         return temp;
     }
 
     template<typename FloatType>
     void DetectorAttach<FloatType>::calculatePlot() {
         const juce::GenericScopedLock<juce::SpinLock> scopedLock (plotLock);
-        // init detector
-        auto tempDetector = detector::Detector<FloatType>(controller->lDetector);
+        // init zldetector
+        auto tempDetector = zldetector::Detector<FloatType>(controller->lDetector);
         auto x = FloatType(0), y = FloatType(1);
         // calculate attack plot
         FloatType deltaT = tempDetector.getAttack() / 100;
         tempDetector.setDeltaT(deltaT);
         tempDetector.setAttack(tempDetector.getAttack());
         for (size_t i = 0; i < 100; ++i) {
-            plotArrayX[i] = x;
-            plotArrayY[i] = y;
+            plotArrayX[i] = static_cast<float>(x);
+            plotArrayY[i] = static_cast<float>(y);
             x += deltaT;
             y = tempDetector.process(FloatType(0.01));
         }
@@ -96,8 +96,8 @@ namespace controller {
         tempDetector.setDeltaT(deltaT);
         tempDetector.setAttack(tempDetector.getRelease());
         for (size_t i = 100; i < 200; ++i) {
-            plotArrayX[i] = x;
-            plotArrayY[i] = y;
+            plotArrayX[i] = static_cast<float>(x);
+            plotArrayY[i] = static_cast<float>(y);
             x += deltaT;
             y = tempDetector.process(FloatType(1));
         }

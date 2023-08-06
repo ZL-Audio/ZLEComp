@@ -10,7 +10,7 @@
 
 #include "computer.h"
 
-namespace computer {
+namespace zlcomputer {
     template<typename FloatType>
     Computer<FloatType>::Computer(const Computer<FloatType> &c) {
         setThreshold(c.getThreshold());

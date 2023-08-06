@@ -76,9 +76,9 @@ set(SourceFiles
         Source/PluginEditor.cpp
         Source/PluginProcessor.cpp
 
-        Source/State/state_defines.h
+        Source/State/state_definitions.h
 
-        Source/DSP/dsp_defines.h
+        Source/DSP/dsp_definitions.h
         Source/DSP/controller.h
         Source/DSP/controller.cpp
         Source/DSP/controller_attach.h
@@ -87,15 +87,12 @@ set(SourceFiles
         Source/DSP/detector_attach.cpp
         Source/DSP/computer_attach.h
         Source/DSP/computer_attach.cpp
-
         Source/DSP/FixedBuffer/fifo_audio_buffer.h
         Source/DSP/FixedBuffer/fifo_audio_buffer.cpp
         Source/DSP/FixedBuffer/fixed_audio_buffer.h
         Source/DSP/FixedBuffer/fixed_audio_buffer.cpp
-
         Source/DSP/Computer/computer.h
         Source/DSP/Computer/computer.cpp
-
         Source/DSP/Detector/iter_funcs.h
         Source/DSP/Detector/detector.h
         Source/DSP/Detector/detector.cpp
@@ -103,8 +100,7 @@ set(SourceFiles
         Source/DSP/Detector/rms_tracker.h
         Source/DSP/Detector/rms_tracker.cpp
 
-
-        Source/GUI/interface_defines.h
+        Source/GUI/interface_definitions.h
         Source/GUI/rotary_slider_look_and_feel.h
         Source/GUI/rotary_slider_component.h
         Source/GUI/button_look_and_feel.h
@@ -112,6 +108,13 @@ set(SourceFiles
         Source/GUI/combobox_look_and_feel.h
         Source/GUI/combo_box_component.h
         Source/GUI/name_look_and_feel.h
+
+        Source/Panel/main_panel.h
+        Source/Panel/main_panel.cpp
+        Source/Panel/logo_panel.h
+        Source/Panel/logo_panel.cpp
+        Source/Panel/plot_panel.h
+        Source/Panel/plot_panel.cpp
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 

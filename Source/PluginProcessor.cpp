@@ -20,8 +20,8 @@ PluginProcessor::PluginProcessor()
                                              true)
                                  .withInput("Ext", juce::AudioChannelSet::stereo(),
                                             true)),
-          parameters(*this, nullptr, juce::Identifier("ZLECompParameters"), ZLDsp::getParameterLayout()),
-          states(*this, nullptr, juce::Identifier("ZLECompStates"), state::getParameterLayout()),
+          parameters(*this, nullptr, juce::Identifier("ZLECompParameters"), zldsp::getParameterLayout()),
+          states(*this, nullptr, juce::Identifier("ZLECompStates"), zlstate::getParameterLayout()),
           controller(*this, parameters),
           controllerAttach(*this, controller, parameters),
           detectorAttach(controller, parameters),
@@ -73,7 +73,7 @@ double PluginProcessor::getTailLengthSeconds() const {
 }
 
 int PluginProcessor::getNumPrograms() {
-    return static_cast<int>(state::preset::presetNUM);
+    return static_cast<int>(zlstate::preset::presetNUM);
 }
 
 int PluginProcessor::getCurrentProgram() {
@@ -82,10 +82,10 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     programIndex.store(index);
-    states.getParameter(state::programIdx::ID)->setValueNotifyingHost(
-            static_cast<float>(index) / static_cast<float>(state::programIdx::maxV));
-    if (index < state::preset::presetNUM) {
-        juce::XmlDocument xmlDocument{state::preset::xmls[static_cast<size_t>(index)]};
+    states.getParameter(zlstate::programIdx::ID)->setValueNotifyingHost(
+            zlstate::programIdx::convertTo01(index));
+    if (index < zlstate::preset::presetNUM) {
+        juce::XmlDocument xmlDocument{zlstate::preset::xmls[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
         parameters.replaceState(valueTreeToLoad.getChildWithName("ZLECompParameters"));
         states.replaceState(valueTreeToLoad.getChildWithName("ZLECompStates"));
@@ -93,8 +93,8 @@ void PluginProcessor::setCurrentProgram(int index) {
 }
 
 const juce::String PluginProcessor::getProgramName(int index) {
-    if (index < state::preset::presetNUM) {
-        return state::preset::names[static_cast<size_t>(index)];
+    if (index < zlstate::preset::presetNUM) {
+        return zlstate::preset::names[static_cast<size_t>(index)];
     }
     return {};
 }
@@ -146,8 +146,8 @@ bool PluginProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *PluginProcessor::createEditor() {
-//    return new PluginEditor(*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new PluginEditor(*this);
+//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -157,8 +157,8 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
     tempTree.appendChild(states.copyState(), nullptr);
     std::unique_ptr<juce::XmlElement> xml(tempTree.createXml());
     copyXmlToBinary(*xml, destData);
-//    const auto presetFile = "/Volumes/Ramdisk/nothing.xml";
-//    xml->writeTo(juce::File(presetFile));
+    const auto presetFile = "/Volumes/Ramdisk/nothing.xml";
+    xml->writeTo(juce::File(presetFile));
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
@@ -167,7 +167,7 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
         auto tempTree = juce::ValueTree::fromXml(*xmlState);
         parameters.replaceState(tempTree.getChildWithName(parameters.state.getType()));
         states.replaceState(tempTree.getChildWithName(states.state.getType()));
-        programIndex.store(static_cast<int>(*states.getRawParameterValue(state::programIdx::ID)));
+        programIndex.store(static_cast<int>(*states.getRawParameterValue(zlstate::programIdx::ID)));
     }
 }
 

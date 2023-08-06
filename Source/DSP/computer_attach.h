@@ -13,14 +13,15 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-#include "dsp_defines.h"
+#include "dsp_definitions.h"
 #include "controller.h"
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     class ComputerAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
-        explicit ComputerAttach(Controller<FloatType> &c,
+        constexpr const static size_t plotSize = 121;
+        explicit ComputerAttach(Controller<FloatType> &control,
                                 juce::AudioProcessorValueTreeState &parameters);
 
         ~ComputerAttach() override;
@@ -33,27 +34,23 @@ namespace controller {
 
         inline bool isPlotArrayReady() { return plotArrayReady.load(); }
 
-        std::array<FloatType, 121> getPlotArrayY();
-
-        std::array<FloatType, 121> getPlotArrayX();
+        void getPlotArray(std::vector<float> &x, std::vector<float> &y);
 
         void calculatePlot();
 
     private:
-        Controller<FloatType> *controller;
+        Controller<FloatType> *c;
         juce::AudioProcessorValueTreeState *apvts;
-        constexpr const static std::array IDs{ZLDsp::threshold::ID, ZLDsp::ratio::ID,
-                                              ZLDsp::kneeW::ID, ZLDsp::kneeD::ID,
-                                              ZLDsp::kneeS::ID, ZLDsp::bound::ID};
+        constexpr const static std::array IDs{zldsp::threshold::ID, zldsp::ratio::ID,
+                                              zldsp::kneeW::ID, zldsp::kneeD::ID,
+                                              zldsp::kneeS::ID, zldsp::bound::ID};
 
-        constexpr const static std::array defaultVs{ZLDsp::threshold::defaultV, ZLDsp::ratio::defaultV,
-                                                    ZLDsp::kneeW::defaultV, ZLDsp::kneeD::defaultV,
-                                                    ZLDsp::kneeS::defaultV, ZLDsp::bound::defaultV};
+        constexpr const static std::array defaultVs{zldsp::threshold::defaultV, zldsp::ratio::defaultV,
+                                                    zldsp::kneeW::defaultV, zldsp::kneeD::defaultV,
+                                                    zldsp::kneeS::defaultV, zldsp::bound::defaultV};
         std::atomic<bool> plotArrayReady = false;
-        std::array<FloatType, 121> plotArrayX, plotArrayY;
+        std::array<float, plotSize> plotArrayX, plotArrayY;
         juce::SpinLock plotLock;
-
-
     };
 }
 

@@ -13,10 +13,10 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-#include "../dsp_defines.h"
+#include "../dsp_definitions.h"
 #include "iter_funcs.h"
 
-namespace detector {
+namespace zldetector {
 
     template<typename FloatType>
     class Detector {
@@ -78,6 +78,6 @@ namespace detector {
         }
     };
 
-} // detector
+} // zldetector
 
 #endif //ZLECOMP_DETECTOR_H

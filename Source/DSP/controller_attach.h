@@ -13,12 +13,12 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-#include "dsp_defines.h"
+#include "dsp_definitions.h"
 #include "controller.h"
-#include "../State/state_defines.h"
+#include "../State/state_definitions.h"
 
 
-namespace controller {
+namespace zlcontroller {
     template<typename FloatType>
     class ControllerAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
@@ -38,19 +38,19 @@ namespace controller {
         juce::AudioProcessor *m_processor;
         Controller<FloatType> *controller;
         juce::AudioProcessorValueTreeState *apvts;
-        constexpr const static std::array IDs{ZLDsp::outGain::ID, ZLDsp::mix::ID,
-                                              ZLDsp::overSample::ID,
-                                              ZLDsp::rms::ID, ZLDsp::lookahead::ID,
-                                              ZLDsp::segment::ID,
-                                              ZLDsp::audit::ID, ZLDsp::external::ID,
-                                              ZLDsp::sideGain::ID, ZLDsp::link::ID};
+        constexpr const static std::array IDs{zldsp::outGain::ID, zldsp::mix::ID,
+                                              zldsp::overSample::ID,
+                                              zldsp::rms::ID, zldsp::lookahead::ID,
+                                              zldsp::segment::ID,
+                                              zldsp::audit::ID, zldsp::external::ID,
+                                              zldsp::sideGain::ID, zldsp::link::ID};
 
-        constexpr const static std::array defaultVs{ZLDsp::outGain::defaultV, ZLDsp::mix::defaultV,
-                                                    float(ZLDsp::overSample::defaultI),
-                                                    ZLDsp::rms::defaultV, ZLDsp::lookahead::defaultV,
-                                                    ZLDsp::segment::defaultV,
-                                                    float(ZLDsp::audit::defaultV), float(ZLDsp::external::defaultV),
-                                                    ZLDsp::sideGain::defaultV, ZLDsp::link::defaultV};
+        constexpr const static std::array defaultVs{zldsp::outGain::defaultV, zldsp::mix::defaultV,
+                                                    float(zldsp::overSample::defaultI),
+                                                    zldsp::rms::defaultV, zldsp::lookahead::defaultV,
+                                                    zldsp::segment::defaultV,
+                                                    float(zldsp::audit::defaultV), float(zldsp::external::defaultV),
+                                                    zldsp::sideGain::defaultV, zldsp::link::defaultV};
     };
 }
 

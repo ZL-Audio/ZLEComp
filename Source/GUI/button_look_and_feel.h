@@ -12,10 +12,10 @@
 #define ZLINFLATOR_BUTTONLOOKANDFEEL_H
 
 
-#include "interface_defines.h"
+#include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
     class ButtonLookAndFeel : public juce::LookAndFeel_V4 {
     public:
         explicit ButtonLookAndFeel() = default;

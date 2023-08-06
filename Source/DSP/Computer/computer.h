@@ -13,9 +13,9 @@
 
 #include <boost/circular_buffer.hpp>
 #include <boost/math/interpolators/cubic_hermite.hpp>
-#include "../dsp_defines.h"
+#include "../dsp_definitions.h"
 
-namespace computer {
+namespace zlcomputer {
 
     template<typename FloatType>
     class Computer {
@@ -70,10 +70,10 @@ namespace computer {
         inline FloatType getBound() const {return bound.load();}
 
     private:
-        std::atomic<FloatType> threshold = ZLDsp::threshold::defaultV, ratio = ZLDsp::ratio::defaultV;
-        std::atomic<FloatType> kneeW = ZLDsp::kneeW::formatV(
-                ZLDsp::kneeW::defaultV), kneeD = ZLDsp::kneeD::defaultV, kneeS = ZLDsp::kneeS::defaultV;
-        std::atomic<FloatType> bound = ZLDsp::bound::defaultV;
+        std::atomic<FloatType> threshold = zldsp::threshold::defaultV, ratio = zldsp::ratio::defaultV;
+        std::atomic<FloatType> kneeW = zldsp::kneeW::formatV(
+                zldsp::kneeW::defaultV), kneeD = zldsp::kneeD::defaultV, kneeS = zldsp::kneeS::defaultV;
+        std::atomic<FloatType> bound = zldsp::bound::defaultV;
         std::unique_ptr<boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>>> cubic;
         void interpolate();
     };

@@ -13,10 +13,10 @@
 
 #include "name_look_and_feel.h"
 #include "rotary_slider_look_and_feel.h"
-#include "interface_defines.h"
+#include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
     class RotarySliderComponent : public juce::Component {
     public:
         explicit RotarySliderComponent(const juce::String &labelText) : myLookAndFeel() {

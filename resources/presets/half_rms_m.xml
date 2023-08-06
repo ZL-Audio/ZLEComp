@@ -9,7 +9,7 @@
     <PARAM id="external" value="0.0"/>
     <PARAM id="knee_depth" value="0.5"/>
     <PARAM id="knee_slope" value="0.5"/>
-    <PARAM id="knee_width" value="0.1"/>
+    <PARAM id="knee_width" value="0.15"/>
     <PARAM id="link" value="1.0"/>
     <PARAM id="lookahead" value="125.0"/>
     <PARAM id="mix" value="100.0"/>
@@ -25,6 +25,11 @@
     <PARAM id="threshold" value="-18.0"/>
   </ZLECompParameters>
   <ZLECompStates>
-    <PARAM id="program_idx" value="2.0"/>
+    <PARAM id="program_idx" value="0.0"/>
+    <PARAM id="show_computer" value="1.0"/>
+    <PARAM id="show_detector" value="0.0"/>
+    <PARAM id="show_meter" value="1.0"/>
+    <PARAM id="window_h" value="300"/>
+    <PARAM id="window_w" value="300"/>
   </ZLECompStates>
 </ZLECompParaState>

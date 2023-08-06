@@ -13,10 +13,10 @@
 
 #include "button_look_and_feel.h"
 #include "name_look_and_feel.h"
-#include "interface_defines.h"
+#include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
 
-namespace interface {
+namespace zlinterface {
     class ButtonComponent : public juce::Component {
     public:
         explicit ButtonComponent(const juce::String &labelText) {
