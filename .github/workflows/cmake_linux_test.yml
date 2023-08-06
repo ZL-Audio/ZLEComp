@@ -6,6 +6,8 @@ permissions:
 on:
   workflow_dispatch:
   push:
+    tags-ignore:
+      - '**'
 
 # When pushing new commits, cancel any running builds on that branch
 concurrency:

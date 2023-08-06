@@ -32,7 +32,6 @@ namespace panel {
         void resized() override;
 
     private:
-        UIState uiState;
         LogoPanel logoPanel;
         ComputerPlotPanel computerPlotPanel;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainPanel)
