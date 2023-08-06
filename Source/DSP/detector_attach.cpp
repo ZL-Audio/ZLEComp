@@ -60,7 +60,6 @@ namespace zlcontroller {
             controller->lDetector.setSmooth(v);
             controller->rDetector.setSmooth(v);
         }
-        plotArrayReady.store(true);
     }
 
     template<typename FloatType>

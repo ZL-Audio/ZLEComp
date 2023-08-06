@@ -32,12 +32,6 @@ namespace zlcontroller {
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
-        inline bool isPlotArrayReady() { return plotArrayReady.load(); }
-
-        std::array<float, plotSize> getPlotArrayY();
-
-        std::array<float, plotSize> getPlotArrayX();
-
         void getPlotArray(std::vector<float> &x, std::vector<float> &y, FloatType target=FloatType(0.1));
 
     private:
@@ -50,8 +44,6 @@ namespace zlcontroller {
         constexpr const static std::array defaultVs{zldsp::attack::defaultV, zldsp::release::defaultV,
                                                     float(zldsp::aStyle::defaultI), float(zldsp::rStyle::defaultI),
                                                     zldsp::smooth::defaultV};
-
-        std::atomic<bool> plotArrayReady = false;
     };
 }
 

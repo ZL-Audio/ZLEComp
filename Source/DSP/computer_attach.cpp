@@ -55,7 +55,6 @@ namespace zlcontroller {
         } else if (parameterID == zldsp::bound::ID) {
             c->lrComputer.setBound(v);
         }
-        plotArrayReady.store(true);
     }
 
     template<typename FloatType>

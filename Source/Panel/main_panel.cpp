@@ -16,8 +16,8 @@ namespace panel {
             computerPlotPanel(p),
             detectorPlotPanel(p) {
 //        addAndMakeVisible(logoPanel);
-//        addAndMakeVisible(computerPlotPanel);
-        addAndMakeVisible(detectorPlotPanel);
+        addAndMakeVisible(computerPlotPanel);
+//        addAndMakeVisible(detectorPlotPanel);
     }
 
     MainPanel::~MainPanel() = default;

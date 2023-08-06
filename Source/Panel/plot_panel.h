@@ -55,6 +55,7 @@ namespace panel {
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
     private:
+        auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::ComputerAttach<float> *computerAttach;
         float fontSize = 0.0f;
         PluginProcessor *processorRef;

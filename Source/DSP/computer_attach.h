@@ -21,6 +21,7 @@ namespace zlcontroller {
     class ComputerAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
         constexpr const static size_t plotSize = 121;
+
         explicit ComputerAttach(Controller<FloatType> &control,
                                 juce::AudioProcessorValueTreeState &parameters);
 
@@ -32,9 +33,9 @@ namespace zlcontroller {
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
-        inline bool isPlotArrayReady() { return plotArrayReady.load(); }
-
         void getPlotArray(std::vector<float> &x, std::vector<float> &y);
+
+        FloatType getThreshold() { return c->lrComputer.getThreshold(); }
 
     private:
         Controller<FloatType> *c;
@@ -46,7 +47,6 @@ namespace zlcontroller {
         constexpr const static std::array defaultVs{zldsp::threshold::defaultV, zldsp::ratio::defaultV,
                                                     zldsp::kneeW::defaultV, zldsp::kneeD::defaultV,
                                                     zldsp::kneeS::defaultV, zldsp::bound::defaultV};
-        std::atomic<bool> plotArrayReady = false;
     };
 }
 

@@ -12,10 +12,12 @@
 
 namespace panel {
     float getPointX(juce::Rectangle<float> bound, float x, float xMin, float xMax) {
+        x = juce::jlimit(xMin, xMax, x);
         return (x - xMin) / (xMax - xMin) * bound.getWidth() + bound.getX();
     }
 
     float getPointY(juce::Rectangle<float> bound, float y, float yMin, float yMax) {
+        y = juce::jlimit(yMin, yMax, y);
         return (yMax - y) / (yMax - yMin) * bound.getHeight() + bound.getY();
     }
 
@@ -57,7 +59,57 @@ namespace panel {
         if (isComputerVisible.load()) {
             std::vector<float> x, y;
             computerAttach->getPlotArray(x, y);
-            plotXY(g, getLocalBounds().toFloat(),
+            auto bound = getLocalBounds().toFloat();
+
+            g.setColour(zlinterface::TextInactiveColor);
+            g.setFont(fontSize * zlinterface::FontSmall);
+            g.drawText("0",
+                       juce::Rectangle<float>(
+                               bound.getX(), bound.getY() + smallPadding * fontSize,
+                               largePadding * 0.9f * fontSize, fontSize),
+                       juce::Justification::topRight);
+            g.drawText("-60",
+                       juce::Rectangle<float>(
+                               bound.getX(),
+                               bound.getY() + bound.getHeight() - (1.f + largePadding) * fontSize,
+                               largePadding * 0.9f * fontSize, fontSize),
+                       juce::Justification::bottomRight);
+
+            auto threshold = static_cast<float>(computerAttach->getThreshold());
+            g.drawText(zlinterface::formatFloat(threshold, 0),
+                       juce::Rectangle<float>(
+                               bound.getX(),
+                               bound.getY() + smallPadding * fontSize +
+                               juce::jlimit(fontSize, bound.getHeight() - (largePadding + smallPadding + 1) * fontSize,
+                                            (bound.getHeight() - (largePadding + smallPadding) * fontSize) * threshold /
+                                            (-60.f)) - fontSize * 0.5f,
+                               largePadding * 0.9f * fontSize, fontSize),
+                       juce::Justification::centredRight);
+
+            bound = bound.withTrimmedLeft(
+                    fontSize * largePadding).withTrimmedBottom(
+                    fontSize * largePadding).withTrimmedRight(
+                    fontSize * smallPadding).withTrimmedTop(
+                    fontSize * smallPadding);
+            g.setColour(zlinterface::TextInactiveColor);
+            g.drawRect(bound, fontSize * 0.1f);
+
+            bound = bound.withSizeKeepingCentre(bound.getWidth() - fontSize * 0.1f,
+                                                bound.getHeight() - fontSize * 0.1f);
+
+            float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
+            g.setColour(zlinterface::TextInactiveColor);
+            g.drawDashedLine(juce::Line<float>(bound.getX(), bound.getY() + bound.getHeight(),
+                                               bound.getX() + bound.getWidth(), bound.getY()),
+                             dashLengths, 2, fontSize * 0.1f);
+
+            auto thresholdY = getPointY(bound, static_cast<float>(computerAttach->getThreshold()), -60.f, 0.f);
+            g.drawDashedLine(juce::Line<float>(bound.getX(), thresholdY,
+                                               bound.getX() + bound.getWidth(), thresholdY),
+                             dashLengths, 2, fontSize * 0.1f);
+
+            g.setColour(zlinterface::TextColor);
+            plotXY(g, bound,
                    x, y, -60.f, 0.f, -60.f, 0.f,
                    fontSize * 0.1f);
         }
@@ -148,7 +200,6 @@ namespace panel {
 
             bound = bound.withSizeKeepingCentre(bound.getWidth() - fontSize * 0.1f,
                                                 bound.getHeight() - fontSize * 0.1f);
-
 
             float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
             g.setColour(zlinterface::TextInactiveColor);
