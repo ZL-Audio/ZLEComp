@@ -14,15 +14,6 @@
 #include "juce_gui_basics/juce_gui_basics.h"
 
 namespace zlinterface {
-    auto inline const WindowHeight = 280;
-    auto inline const WindowWidth = 476;
-    auto inline const WindowFixedAspectRatio = 1.7;
-    auto inline const WindowMinHeight = 200;
-    auto inline const WindowMinWidth = 340;
-    auto inline const WindowMaxHeight = WindowMinHeight * 10;
-    auto inline const WindowMaxWidth = WindowMinWidth * 10;
-
-
     auto inline const TextColor = juce::Colour(87, 96, 110);
     auto inline const TextInactiveColor = TextColor.withAlpha(0.5f);
     auto inline const TextHideColor = TextColor.withAlpha(0.25f);
@@ -42,18 +33,21 @@ namespace zlinterface {
 
     auto inline const RefreshFreqHz = 60;
 
+    struct fillRoundedShadowRectangleArgs {
+        float blurRadius = 0.5f;
+        bool curveTopLeft = true, curveTopRight = true, curveBottomLeft = true, curveBottomRight = true;
+        bool fit = true, flip = false;
+        bool drawBright = true, drawDark = true;
+        juce::Colour mainColour = BackgroundColor;
+    };
+
     inline juce::Rectangle<float> fillRoundedShadowRectangle(juce::Graphics &g,
                                                              juce::Rectangle<float> boxBounds,
                                                              float cornerSize,
-                                                             bool curveTopLeft = true,
-                                                             bool curveTopRight = true,
-                                                             bool curveBottomLeft = true,
-                                                             bool curveBottomRight = true,
-                                                             bool fit = true,
-                                                             bool drawBright = true, bool drawDark = true) {
+                                                             const fillRoundedShadowRectangleArgs &args) {
         juce::Path path;
         auto radius = juce::jmax(juce::roundToInt(cornerSize * 0.75f), 1);
-        if (fit) {
+        if (args.fit) {
             boxBounds = boxBounds.withSizeKeepingCentre(
                     boxBounds.getWidth() - static_cast<float>(radius) - 1.42f * cornerSize,
                     boxBounds.getHeight() - static_cast<float>(radius) - 1.42f * cornerSize);
@@ -61,20 +55,20 @@ namespace zlinterface {
         path.addRoundedRectangle(boxBounds.getX(), boxBounds.getY(),
                                  boxBounds.getWidth(), boxBounds.getHeight(),
                                  cornerSize, cornerSize,
-                                 curveTopLeft, curveTopRight,
-                                 curveBottomLeft, curveBottomRight);
-        auto offset = static_cast<int>(cornerSize * 0.5f);
-        if (drawBright) {
+                                 args.curveTopLeft, args.curveTopRight,
+                                 args.curveBottomLeft, args.curveBottomRight);
+        auto offset = static_cast<int>(cornerSize * args.blurRadius);
+        if (args.drawBright) {
             juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {-offset, -offset});
             brightShadow.drawForPath(g, path);
         }
-        if (drawDark) {
+        if (args.drawDark) {
             juce::DropShadow darkShadow(DarkShadowColor, radius,
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
-        g.setColour(BackgroundColor);
+        g.setColour(args.mainColour);
         g.fillPath(path);
         return boxBounds;
     }
@@ -82,24 +76,19 @@ namespace zlinterface {
     inline juce::Rectangle<float> fillRoundedInnerShadowRectangle(juce::Graphics &g,
                                                                   juce::Rectangle<float> boxBounds,
                                                                   float cornerSize,
-                                                                  float blurRadius,
-                                                                  bool curveTopLeft = true,
-                                                                  bool curveTopRight = true,
-                                                                  bool curveBottomLeft = true,
-                                                                  bool curveBottomRight = true,
-                                                                  bool flip = false) {
+                                                                  const fillRoundedShadowRectangleArgs &args) {
         juce::Path mask;
         mask.addRoundedRectangle(boxBounds.getX(), boxBounds.getY(),
                                  boxBounds.getWidth(), boxBounds.getHeight(),
                                  cornerSize, cornerSize,
-                                 curveTopLeft, curveTopRight,
-                                 curveBottomLeft, curveBottomRight);
+                                 args.curveTopLeft, args.curveTopRight,
+                                 args.curveBottomLeft, args.curveBottomRight);
         g.saveState();
         g.reduceClipRegion(mask);
-        g.fillAll(BackgroundColor);
-        auto offset = static_cast<int>(blurRadius * 1.5f);
-        auto radius = juce::jmax(juce::roundToInt(blurRadius * 1.5f), 1);
-        if (!flip) {
+        g.fillAll(args.mainColour);
+        auto offset = static_cast<int>(cornerSize * args.blurRadius);
+        auto radius = juce::jmax(juce::roundToInt(args.blurRadius * 1.5f), 1);
+        if (!args.flip) {
             juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
@@ -121,8 +110,8 @@ namespace zlinterface {
         path.addRoundedRectangle(boxBounds.getX(), boxBounds.getY(),
                                  boxBounds.getWidth(), boxBounds.getHeight(),
                                  cornerSize, cornerSize,
-                                 curveTopLeft, curveTopRight,
-                                 curveBottomLeft, curveBottomRight);
+                                 args.curveTopLeft, args.curveTopRight,
+                                 args.curveBottomLeft, args.curveBottomRight);
 
         juce::DropShadow backShadow(BackgroundColor, radius,
                                     {0, 0});
@@ -131,39 +120,44 @@ namespace zlinterface {
         return boxBounds;
     }
 
+    struct fillShadowEllipseArgs {
+        float blurRadius = 0.5f;
+        bool fit = true, flip = false;
+        bool drawBright = true, drawDark = true;
+        juce::Colour mainColour = BackgroundColor;
+    };
+
     inline juce::Rectangle<float> drawShadowEllipse(juce::Graphics &g,
                                                     juce::Rectangle<float> boxBounds,
                                                     float cornerSize,
-                                                    juce::Colour mainColour = BackgroundColor,
-                                                    bool fit = true,
-                                                    bool drawBright = true, bool drawDark = true) {
+                                                    const fillShadowEllipseArgs &args) {
         juce::Path path;
         auto radius = juce::jmax(juce::roundToInt(cornerSize * 0.75f), 1);
-        if (fit) {
+        if (args.fit) {
             boxBounds = boxBounds.withSizeKeepingCentre(
                     boxBounds.getWidth() - static_cast<float>(radius) - 1.5f * cornerSize,
                     boxBounds.getHeight() - static_cast<float>(radius) - 1.5f * cornerSize);
         }
         path.addEllipse(boxBounds);
-        auto offset = static_cast<int>(cornerSize * 0.5f);
+        auto offset = static_cast<int>(cornerSize * args.blurRadius);
         juce::Path mask;
         mask.addEllipse(boxBounds.withSizeKeepingCentre(boxBounds.getWidth() * 3, boxBounds.getHeight() * 3));
         mask.setUsingNonZeroWinding(false);
         mask.addEllipse(boxBounds);
         g.saveState();
         g.reduceClipRegion(mask);
-        if (drawDark) {
+        if (args.drawDark) {
             juce::DropShadow darkShadow(DarkShadowColor, radius,
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
-        if (drawBright) {
+        if (args.drawBright) {
             juce::DropShadow brightShadow(BrightShadowColor, radius,
                                           {-offset, -offset});
             brightShadow.drawForPath(g, path);
         }
         g.restoreState();
-        g.setColour(mainColour);
+        g.setColour(args.mainColour);
         g.fillPath(path);
         return boxBounds;
     }
@@ -171,15 +165,15 @@ namespace zlinterface {
     inline juce::Rectangle<float> drawInnerShadowEllipse(juce::Graphics &g,
                                                          juce::Rectangle<float> boxBounds,
                                                          float cornerSize,
-                                                         bool flip = false) {
+                                                         const fillShadowEllipseArgs &args) {
         juce::Path mask;
         mask.addEllipse(boxBounds);
         g.saveState();
         g.reduceClipRegion(mask);
         g.fillAll(BackgroundColor);
         auto radius = juce::jmax(juce::roundToInt(cornerSize * 1.5f), 1);
-        auto offset = static_cast<int>(cornerSize * 1.f);
-        if (!flip) {
+        auto offset = static_cast<int>(cornerSize * args.blurRadius);
+        if (!args.flip) {
             juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);

@@ -25,10 +25,8 @@ namespace zlinterface {
             juce::ignoreUnused(shouldDrawButtonAsDown);
             auto bounds = button.getLocalBounds().toFloat();
             // draw button
-            bounds = fillRoundedShadowRectangle(g, bounds, fontSize * 0.5f);
-            fillRoundedInnerShadowRectangle(g, bounds, fontSize * 0.5f, fontSize * 0.15f,
-                                            true, true, true, true,
-                                            true);
+            bounds = fillRoundedShadowRectangle(g, bounds, fontSize * 0.5f, {});
+            fillRoundedInnerShadowRectangle(g, bounds, fontSize * 0.5f, {.blurRadius=0.3f, .flip=true});
             // draw ON/OFF
             if (editable.load()) {
                 g.setColour(TextColor);

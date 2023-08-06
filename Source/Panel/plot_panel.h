@@ -11,8 +11,8 @@
 #ifndef ZLECOMP_PLOT_PANEL_H
 #define ZLECOMP_PLOT_PANEL_H
 
-#include <iostream>
-#include <fstream>
+//#include <iostream>
+//#include <fstream>
 #include <span>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../PluginProcessor.h"
@@ -30,15 +30,15 @@ namespace panel {
                 float xMin, float xMax, float yMin, float yMax,
                 float thickness);
 
-    inline static void writeArray(const std::string &fileName, std::vector<float> &x) {
-        std::ofstream myFile(fileName);
-        if (myFile.is_open()) {
-            for (const auto &xx: x) {
-                myFile << xx << ", ";
-            }
-            myFile << "\n";
-        }
-    }
+//    inline static void writeArray(const std::string &fileName, std::vector<float> &x) {
+//        std::ofstream myFile(fileName);
+//        if (myFile.is_open()) {
+//            for (const auto &xx: x) {
+//                myFile << xx << ", ";
+//            }
+//            myFile << "\n";
+//        }
+//    }
 
     class ComputerPlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
                               private juce::AsyncUpdater {

@@ -28,9 +28,9 @@ namespace zlinterface {
             auto diameter = juce::jmin(bounds.getWidth(), bounds.getHeight());
             bounds = bounds.withSizeKeepingCentre(diameter, diameter);
             // draw knob
-            auto oldBounds = drawInnerShadowEllipse(g, bounds, fontSize * 0.5f);
-            auto newBounds = drawShadowEllipse(g, oldBounds, fontSize * 0.5f);
-            drawInnerShadowEllipse(g, newBounds, fontSize * 0.15f, true);
+            auto oldBounds = drawInnerShadowEllipse(g, bounds, fontSize * 0.5f, {});
+            auto newBounds = drawShadowEllipse(g, oldBounds, fontSize * 0.5f, {});
+            drawInnerShadowEllipse(g, newBounds, fontSize * 0.15f, {.flip=true});
             // draw arrow
             auto arrowUnit = (diameter - newBounds.getWidth()) * 0.5f;
             auto arrowBound = juce::Rectangle<float>(
@@ -52,11 +52,9 @@ namespace zlinterface {
             g.saveState();
             g.reduceClipRegion(mask);
             drawShadowEllipse(g, arrowBound, fontSize * 0.5f,
-                              BackgroundColor,
-                              false, false, true);
+                              {.fit=false, .drawBright=false, .drawDark=true});
             drawShadowEllipse(g, arrowStartBound, fontSize * 0.5f,
-                              TextHideColor,
-                              false, false, true);
+                              {.fit=false, .drawBright=false, .drawDark=true, .mainColour=TextHideColor});
 
             juce::Path filling;
             filling.addPieSegment(bounds, rotaryStartAngle, rotationAngle, 0);
@@ -65,7 +63,7 @@ namespace zlinterface {
                                   0);
             g.setColour(TextHideColor);
             g.fillPath(filling);
-            drawInnerShadowEllipse(g, arrowBound, fontSize * 0.15f, true);
+            drawInnerShadowEllipse(g, arrowBound, fontSize * 0.15f, {.flip=true});
             g.restoreState();
         }
 

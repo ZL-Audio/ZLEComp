@@ -14,7 +14,7 @@ namespace panel {
     MainPanel::MainPanel(PluginProcessor &p) :
             logoPanel(),
             computerPlotPanel(p),
-            detectorPlotPanel(p){
+            detectorPlotPanel(p) {
 //        addAndMakeVisible(logoPanel);
 //        addAndMakeVisible(computerPlotPanel);
         addAndMakeVisible(detectorPlotPanel);
@@ -26,18 +26,16 @@ namespace panel {
         g.fillAll(zlinterface::BackgroundColor);
         auto bound = getLocalBounds().toFloat();
         float fontSize = bound.getHeight() * 0.0514f;
-        bound = zlinterface::fillRoundedShadowRectangle(g, bound, fontSize * 0.5f);
-        zlinterface::fillRoundedInnerShadowRectangle(g, bound, fontSize * 0.5f,
-                                                   fontSize * 0.15f,
-                                                     true, true, true, true, true);
+        bound = zlinterface::fillRoundedShadowRectangle(g, bound, fontSize * 0.5f, {});
+        zlinterface::fillRoundedInnerShadowRectangle(g, bound, fontSize * 0.5f, {.blurRadius=0.45f, .flip=true});
     }
 
     void MainPanel::resized() {
         logoPanel.setBounds(getLocalBounds());
         computerPlotPanel.setBounds(getLocalBounds());
-        computerPlotPanel.setFontSize( static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
+        computerPlotPanel.setFontSize(static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
 
         detectorPlotPanel.setBounds(getLocalBounds());
-        detectorPlotPanel.setFontSize( static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
+        detectorPlotPanel.setFontSize(static_cast<float> (getLocalBounds().toFloat().getHeight()) * 0.0514f);
     }
 } // panel
