@@ -12,7 +12,6 @@
 
 namespace panel {
     MainPanel::MainPanel(PluginProcessor &p) :
-            uiState(),
             logoPanel(),
             computerPlotPanel(p) {
 //        addAndMakeVisible(logoPanel);
