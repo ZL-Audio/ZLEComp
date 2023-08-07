@@ -31,7 +31,7 @@ namespace zlinterface {
     auto inline const FontHuge2 = 3.0f;
     auto inline const FontHuge3 = 4.5f;
 
-    auto inline const RefreshFreqHz = 120;
+    auto inline const RefreshFreqHz = 60;
 
     struct fillRoundedShadowRectangleArgs {
         float blurRadius = 0.5f;
