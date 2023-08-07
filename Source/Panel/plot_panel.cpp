@@ -161,7 +161,7 @@ namespace zlpanel {
         if (isDetectorVisible.load()) {
             std::vector<float> x, y;
             detectorAttach->getPlotArray(x, y);
-            auto xMax = *std::ranges::max_element(x);
+            auto xMax = x.back();
             auto yMinIndex = static_cast<size_t>(std::distance(std::begin(y),
                                                                std::min_element(std::begin(y), std::end(y))));
 
