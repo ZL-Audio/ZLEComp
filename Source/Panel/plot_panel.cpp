@@ -10,7 +10,7 @@
 
 #include "plot_panel.h"
 
-namespace panel {
+namespace zlpanel {
     float getPointX(juce::Rectangle<float> bound, float x, float xMin, float xMax) {
         x = juce::jlimit(xMin, xMax, x);
         return (x - xMin) / (xMax - xMin) * bound.getWidth() + bound.getX();
@@ -24,11 +24,17 @@ namespace panel {
     void plotXY(juce::Graphics &g, juce::Rectangle<float> bound,
                 std::span<const float> x, std::span<const float> y,
                 float xMin, float xMax, float yMin, float yMax,
-                float thickness) {
+                float thickness, long numToPlots) {
+        if (x.empty() || x.size() < y.size()) {
+            return;
+        }
         juce::Path path;
         bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness, bound.getHeight() - thickness);
         path.startNewSubPath(getPointX(bound, x[0], xMin, xMax), getPointY(bound, y[0], yMin, yMax));
-        for (size_t i = 1; i < x.size(); ++i) {
+        if (numToPlots < 0) {
+            numToPlots = static_cast<long>(x.size());
+        }
+        for (size_t i = 1; i < static_cast<size_t>(numToPlots); ++i) {
             path.lineTo(getPointX(bound, x[i], xMin, xMax), getPointY(bound, y[i], yMin, yMax));
         }
         g.strokePath(path, juce::PathStrokeType(thickness, juce::PathStrokeType::curved));
@@ -80,10 +86,10 @@ namespace panel {
                        juce::Rectangle<float>(
                                bound.getX(),
                                bound.getY() + smallPadding * fontSize +
-                               juce::jlimit(fontSize, bound.getHeight() - (largePadding + smallPadding + 1) * fontSize,
+                               juce::jlimit(fontSize.load(), bound.getHeight() - (largePadding + smallPadding + 1) * fontSize,
                                             (bound.getHeight() - (largePadding + smallPadding) * fontSize) * threshold /
                                             (-60.f)) - fontSize * 0.5f,
-                               largePadding * 0.9f * fontSize, fontSize),
+                               largePadding * 0.95f * fontSize, fontSize),
                        juce::Justification::centredRight);
 
             bound = bound.withTrimmedLeft(
@@ -171,7 +177,7 @@ namespace panel {
                        juce::Rectangle<float>(
                                bound.getX(),
                                bound.getY() + bound.getHeight() - (1.f + largePadding) * fontSize,
-                               largePadding * 0.9f * fontSize, fontSize),
+                               largePadding * 0.95f * fontSize, fontSize),
                        juce::Justification::bottomRight);
             g.drawText(zlinterface::fixFormatFloat(xMax * 1000, 3),
                        juce::Rectangle<float>(
@@ -233,6 +239,70 @@ namespace panel {
     }
 
     void DetectorPlotPanel::handleAsyncUpdate() {
+        repaint();
+    }
+
+    PlotPanel::PlotPanel(PluginProcessor &p) :
+            computerPlotPanel(p),
+            detectorPlotPanel(p) {
+        processorRef = &p;
+        for (const auto &isVisibleChangedStateID: isVisibleChangedStateIDs) {
+            processorRef->states.addParameterListener(isVisibleChangedStateID, this);
+        }
+        isComputerVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showComputer::ID)));
+        isDetectorVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showDetector::ID)));
+
+        addAndMakeVisible(computerPlotPanel);
+        addAndMakeVisible(detectorPlotPanel);
+    }
+
+    PlotPanel::~PlotPanel() {
+        for (const auto &isVisibleChangedStateID: isVisibleChangedStateIDs) {
+            processorRef->states.removeParameterListener(isVisibleChangedStateID, this);
+        }
+    }
+
+    void PlotPanel::paint(juce::Graphics &g) {
+        if (isComputerVisible.load() || isDetectorVisible.load()) {
+            auto bound = getLocalBounds().toFloat();
+            bound = bound.withWidth(bound.getHeight());
+            zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {
+                    .blurRadius=0.25f, .mainColour=zlinterface::BackgroundInactiveColor});
+        }
+    }
+
+    void PlotPanel::resized() {
+        auto bound = getLocalBounds().toFloat();
+        bound = bound.withWidth(bound.getHeight());
+        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+        computerPlotPanel.setBounds(bound.toNearestInt());
+        detectorPlotPanel.setBounds(bound.toNearestInt());
+    }
+
+    void PlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {
+        auto v = static_cast<bool>(newValue);
+        if (parameterID == zlstate::showComputer::ID) {
+            isComputerVisible.store(v);
+            if (v) {
+                processorRef->states.getParameter(zlstate::showDetector::ID)->setValueNotifyingHost(0.f);
+            }
+        } else if (parameterID == zlstate::showDetector::ID) {
+            isDetectorVisible.store(v);
+            if (v) {
+                processorRef->states.getParameter(zlstate::showComputer::ID)->setValueNotifyingHost(0.f);
+            }
+        }
+        triggerAsyncUpdate();
+    }
+
+    void PlotPanel::setFontSize(float fSize) {
+        fontSize = fSize;
+        computerPlotPanel.setFontSize(fSize);
+        detectorPlotPanel.setFontSize(fSize);
+        triggerAsyncUpdate();
+    }
+
+    void PlotPanel::handleAsyncUpdate() {
         repaint();
     }
 }

@@ -8,31 +8,37 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#pragma once
+#ifndef ZLECOMP_CENTER_PANEL_H
+#define ZLECOMP_CENTER_PANEL_H
 
-#include "PluginProcessor.h"
-#include "Panel/main_panel.h"
-#include "State/state_definitions.h"
+#include <juce_audio_processors/juce_audio_processors.h>
+#include "../PluginProcessor.h"
+#include "../GUI/interface_definitions.h"
+#include "../State/state_definitions.h"
+#include "plot_panel.h"
+#include "monitor_panel.h"
 
-//==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor,
-private juce::Value::Listener {
-public:
-    explicit PluginEditor(PluginProcessor &p);
+namespace zlpanel {
 
-    ~PluginEditor() override;
+    class CenterPanel : public juce::Component {
+    public:
+        explicit CenterPanel(PluginProcessor &p);
 
-    //==============================================================================
-    void paint(juce::Graphics &) override;
+        ~CenterPanel() override;
 
-    void resized() override;
+        void paint(juce::Graphics &g) override;
 
-private:
-    PluginProcessor &processorRef;
-    zlpanel::MainPanel mainPanel;
-    juce::Value lastUIWidth, lastUIHeight;
+        void resized() override;
 
-    void valueChanged (juce::Value&) override;
+        void setFontSize(float fSize);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
-};
+    private:
+        PluginProcessor *processorRef;
+        PlotPanel plotPanel;
+        MonitorPanel monitorPanel;
+        float fontSize = 0.0f;
+    };
+
+} // zlpanel
+
+#endif //ZLECOMP_CENTER_PANEL_H

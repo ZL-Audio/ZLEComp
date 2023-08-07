@@ -32,12 +32,9 @@ PluginProcessor::PluginProcessor()
     detectorAttach.addListeners();
     computerAttach.initDefaultVs();
     computerAttach.addListeners();
-//    parameters.state.addChild (
-//            { "uiState", { { "width", ZLInterface::WindowWidth }, { "height", ZLInterface::WindowHeight } }, {} }, -1, nullptr);
 }
 
-PluginProcessor::~PluginProcessor() {
-}
+PluginProcessor::~PluginProcessor() = default;
 
 //==============================================================================
 const juce::String PluginProcessor::getName() const {

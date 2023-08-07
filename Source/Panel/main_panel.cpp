@@ -10,13 +10,12 @@
 
 #include "main_panel.h"
 
-namespace panel {
+namespace zlpanel {
     MainPanel::MainPanel(PluginProcessor &p) :
-            logoPanel(),
-            computerPlotPanel(p),
-            detectorPlotPanel(p) {
+            logoPanel(), centerPanel(p) {
+        addAndMakeVisible(centerPanel);
 //        addAndMakeVisible(logoPanel);
-        addAndMakeVisible(computerPlotPanel);
+//        addAndMakeVisible(computerPlotPanel);
 //        addAndMakeVisible(detectorPlotPanel);
     }
 
@@ -39,10 +38,12 @@ namespace panel {
         auto intBound = bound.toNearestInt();
 
         logoPanel.setBounds(intBound);
-        computerPlotPanel.setBounds(intBound);
-        computerPlotPanel.setFontSize(static_cast<float> (fontSize));
-
-        detectorPlotPanel.setBounds(intBound);
-        detectorPlotPanel.setFontSize(static_cast<float> (fontSize));
+        centerPanel.setBounds(intBound);
+        centerPanel.setFontSize(static_cast<float> (fontSize));
+//        computerPlotPanel.setBounds(intBound);
+//        computerPlotPanel.setFontSize(static_cast<float> (fontSize));
+//
+//        detectorPlotPanel.setBounds(intBound);
+//        detectorPlotPanel.setFontSize(static_cast<float> (fontSize));
     }
 } // panel

@@ -81,6 +81,14 @@ public:
         return computerAttach;
     }
 
+    inline zlmeter::MeterSource<float> &getMeterIn() {
+        return controller.meterIn;
+    }
+
+    inline zlmeter::MeterSource<float> &getMeterOut() {
+        return controller.meterOut;
+    }
+
 private:
     zlcontroller::Controller<float> controller;
     zlcontroller::ControllerAttach<float> controllerAttach;

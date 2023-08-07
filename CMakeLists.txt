@@ -99,6 +99,7 @@ set(SourceFiles
         Source/DSP/Detector/tracker.h
         Source/DSP/Detector/rms_tracker.h
         Source/DSP/Detector/rms_tracker.cpp
+        Source/DSP/Meter/meter.h
 
         Source/GUI/interface_definitions.h
         Source/GUI/rotary_slider_look_and_feel.h
@@ -111,10 +112,14 @@ set(SourceFiles
 
         Source/Panel/main_panel.h
         Source/Panel/main_panel.cpp
+        Source/Panel/center_panel.h
+        Source/Panel/center_panel.cpp
         Source/Panel/logo_panel.h
         Source/Panel/logo_panel.cpp
         Source/Panel/plot_panel.h
         Source/Panel/plot_panel.cpp
+        Source/Panel/monitor_panel.h
+        Source/Panel/monitor_panel.cpp
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 

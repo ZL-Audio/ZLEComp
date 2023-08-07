@@ -17,9 +17,9 @@
 #include "../DSP/detector_attach.h"
 #include "../GUI/interface_definitions.h"
 #include "logo_panel.h"
-#include "plot_panel.h"
+#include "center_panel.h"
 
-namespace panel {
+namespace zlpanel {
 
     class MainPanel : public juce::Component {
     public:
@@ -33,8 +33,7 @@ namespace panel {
 
     private:
         LogoPanel logoPanel;
-        ComputerPlotPanel computerPlotPanel;
-        DetectorPlotPanel detectorPlotPanel;
+        CenterPanel centerPanel;
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainPanel)
     };
 

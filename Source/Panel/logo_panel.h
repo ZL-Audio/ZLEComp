@@ -14,7 +14,7 @@
 #include <BinaryData.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
-namespace panel {
+namespace zlpanel {
     class LogoPanel : public juce::Component {
     public:
         explicit LogoPanel();

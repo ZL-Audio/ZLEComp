@@ -18,6 +18,7 @@
 #include "Detector/detector.h"
 #include "Detector/rms_tracker.h"
 #include "FixedBuffer/fixed_audio_buffer.h"
+#include "Meter/meter.h"
 
 namespace zlcontroller {
     template<typename FloatType>
@@ -26,6 +27,7 @@ namespace zlcontroller {
         zldetector::Detector<FloatType> lDetector, rDetector;
         zldetector::RMSTracker<FloatType> lTracker, rTracker;
         zlcomputer::Computer<FloatType> lrComputer;
+        zlmeter::MeterSource<FloatType> meterIn, meterOut;
 
         explicit Controller(juce::AudioProcessor &processor,
                             juce::AudioProcessorValueTreeState &parameters);

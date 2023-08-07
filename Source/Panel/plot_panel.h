@@ -21,7 +21,7 @@
 #include "../DSP/computer_attach.h"
 #include "../DSP/detector_attach.h"
 
-namespace panel {
+namespace zlpanel {
     float getPointX(juce::Rectangle<float> bound, float x, float xMin, float xMax);
 
     float getPointY(juce::Rectangle<float> bound, float y, float yMin, float yMax);
@@ -29,17 +29,7 @@ namespace panel {
     void plotXY(juce::Graphics &g, juce::Rectangle<float> bound,
                 std::span<const float> x, std::span<const float> y,
                 float xMin, float xMax, float yMin, float yMax,
-                float thickness);
-
-//    inline static void writeArray(const std::string &fileName, std::vector<float> &x) {
-//        std::ofstream myFile(fileName);
-//        if (myFile.is_open()) {
-//            for (const auto &xx: x) {
-//                myFile << xx << ", ";
-//            }
-//            myFile << "\n";
-//        }
-//    }
+                float thickness, long numToPlots = -1);
 
     class ComputerPlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
                               private juce::AsyncUpdater {
@@ -57,7 +47,7 @@ namespace panel {
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::ComputerAttach<float> *computerAttach;
-        float fontSize = 0.0f;
+        std::atomic<float> fontSize = 0.0f;
         PluginProcessor *processorRef;
         std::array<juce::String, 6> isComputerChangedParaIDs{zldsp::threshold::ID, zldsp::ratio::ID,
                                                              zldsp::kneeW::ID, zldsp::kneeD::ID,
@@ -85,13 +75,40 @@ namespace panel {
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::DetectorAttach<float> *detectorAttach;
-        float fontSize = 0.0f;
+        std::atomic<float> fontSize = 0.0f;
         PluginProcessor *processorRef;
         std::array<juce::String, 5> isDetectorChangedParaIDs{zldsp::attack::ID, zldsp::release::ID,
                                                              zldsp::aStyle::ID, zldsp::rStyle::ID,
                                                              zldsp::smooth::ID};
         std::array<juce::String, 1> isDetectorChangedStateIDs{zlstate::showDetector::ID};
         std::atomic<bool> isDetectorVisible = zlstate::showDetector::defaultV;
+
+        void handleAsyncUpdate() override;
+    };
+
+    class PlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
+                      private juce::AsyncUpdater {
+    public:
+        explicit PlotPanel(PluginProcessor &p);
+
+        ~PlotPanel() override;
+
+        void paint(juce::Graphics &g) override;
+
+        void resized() override;
+
+        void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+        void setFontSize(float fSize);
+
+    private:
+        PluginProcessor *processorRef;
+        std::atomic<bool> isComputerVisible, isDetectorVisible;
+        std::array<juce::String, 2> isVisibleChangedStateIDs{zlstate::showComputer::ID,
+                                                             zlstate::showDetector::ID};
+        ComputerPlotPanel computerPlotPanel;
+        DetectorPlotPanel detectorPlotPanel;
+        std::atomic<float> fontSize = 0.0f;
 
         void handleAsyncUpdate() override;
     };

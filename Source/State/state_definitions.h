@@ -82,9 +82,9 @@ namespace zlstate {
     public:
         auto static constexpr ID = "window_w";
         auto static constexpr name = "Window W";
-        inline static const int minV = 200;
-        inline static const int maxV = 400;
-        inline static const int defaultV = 300;
+        inline static const int minV = 400;
+        inline static const int maxV = 800;
+        inline static const int defaultV = 600;
         inline auto static const range =
                 juce::NormalisableRange<float>(minV, maxV, 1.f);
     };
@@ -140,10 +140,10 @@ namespace zlstate {
         auto static constexpr defaultV = false;
     };
 
-    class showMeter : public BoolParameters<showMeter> {
+    class showMonitor : public BoolParameters<showMonitor> {
     public:
-        auto static constexpr ID = "show_meter";
-        auto static constexpr name = "Show Meter";
+        auto static constexpr ID = "show_monitor";
+        auto static constexpr name = "Show Monitor";
         auto static constexpr defaultV = true;
     };
 
@@ -153,7 +153,7 @@ namespace zlstate {
                    windowW::get(false), windowH::get(false),
                    showComputer::get("C", false),
                    showDetector::get("D", false),
-                   showMeter::get("M", false));
+                   showMonitor::get("M", false));
         return layout;
     }
 

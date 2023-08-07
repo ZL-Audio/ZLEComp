@@ -39,6 +39,9 @@ namespace zlcontroller {
         }
         mixer.prepare(spec);
 
+        meterIn.prepare(spec);
+        meterOut.prepare(spec);
+
         mainDelay.prepare(spec);
         sideGainDSP.prepare(spec);
         sideGainDSP.setRampDurationSeconds(0.1);
@@ -79,6 +82,7 @@ namespace zlcontroller {
         juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
         mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
+        meterIn.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
         // add dry samples
         mixer.pushDrySamples(mainBlock);
         // apply over-sampling(up)
@@ -123,6 +127,7 @@ namespace zlcontroller {
         juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        meterOut.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
         if (!audit.load()) {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(
                     m_processor->getBusBuffer(allBuffer, true, 1), true);
