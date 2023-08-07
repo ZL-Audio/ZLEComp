@@ -17,9 +17,12 @@ namespace zlpanel {
         processorRef = &p;
         addAndMakeVisible(monitorPanel);
         addAndMakeVisible(plotPanel);
+        startTimerHz(10);
     }
 
-    CenterPanel::~CenterPanel() = default;
+    CenterPanel::~CenterPanel() {
+        stopTimer();
+    }
 
     void CenterPanel::paint(juce::Graphics &g) {
         juce::ignoreUnused(g);
@@ -36,5 +39,9 @@ namespace zlpanel {
         fontSize = fSize;
         plotPanel.setFontSize(fSize);
         monitorPanel.setFontSize(fSize);
+    }
+
+    void CenterPanel::timerCallback() {
+        repaint();
     }
 } // zlpanel

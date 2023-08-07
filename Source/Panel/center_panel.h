@@ -20,7 +20,7 @@
 
 namespace zlpanel {
 
-    class CenterPanel : public juce::Component {
+class CenterPanel : public juce::Component, private juce::Timer {
     public:
         explicit CenterPanel(PluginProcessor &p);
 
@@ -37,6 +37,7 @@ namespace zlpanel {
         PlotPanel plotPanel;
         MonitorPanel monitorPanel;
         float fontSize = 0.0f;
+        void timerCallback() override;
     };
 
 } // zlpanel

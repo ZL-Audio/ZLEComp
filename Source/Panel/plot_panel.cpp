@@ -277,6 +277,7 @@ namespace zlpanel {
         bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
         computerPlotPanel.setBounds(bound.toNearestInt());
         detectorPlotPanel.setBounds(bound.toNearestInt());
+        setFontSize(fontSize.load());
     }
 
     void PlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {

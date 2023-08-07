@@ -33,9 +33,9 @@ namespace zlpanel {
         processorRef = &p;
         meterIn = &p.getMeterIn();
         meterOut = &p.getMeterOut();
-        rmsIn.set_capacity(zlinterface::RefreshFreqHz * timeInSeconds);
-        rmsOut.set_capacity(zlinterface::RefreshFreqHz * timeInSeconds);
-        startTimerHz(zlinterface::RefreshFreqHz);
+        rmsIn.set_capacity(callBackHz * timeInSeconds);
+        rmsOut.set_capacity(callBackHz * timeInSeconds);
+        startTimerHz(callBackHz);
     }
 
     MonitorPanel::~MonitorPanel() {
@@ -58,10 +58,16 @@ namespace zlpanel {
         bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
                                             bound.getHeight() - thickness);
 
-        g.setColour(zlinterface::TextHideColor);
-        plotY(g, bound, rmsIn, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
-        g.setColour(zlinterface::TextColor);
-        plotY(g, bound, rmsOut, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+//        g.setColour(zlinterface::TextHideColor);
+//        plotY(g, bound, rmsIn, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+//        g.setColour(zlinterface::TextColor);
+//        plotY(g, bound, rmsOut, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+        juce::Image image = juce::Image(juce::Image::PixelFormat::ARGB, timeInSeconds * callBackHz, 60, true);
+        for (size_t i = 0; i < rmsIn.size(); ++i) {
+            image.setPixelAt(callBackHz * timeInSeconds - static_cast<int>(rmsIn.size()) + static_cast<int>(i + 1),
+                             static_cast<int>(-rmsIn[i]), zlinterface::TextHideColor);
+        }
+        g.drawImage(image, bound);
     }
 
     void MonitorPanel::setFontSize(float fSize) {
