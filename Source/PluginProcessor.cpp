@@ -85,7 +85,8 @@ void PluginProcessor::setCurrentProgram(int index) {
         juce::XmlDocument xmlDocument{zlstate::preset::xmls[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
         parameters.replaceState(valueTreeToLoad.getChildWithName("ZLECompParameters"));
-        states.replaceState(valueTreeToLoad.getChildWithName("ZLECompStates"));
+        auto tempIndex = valueTreeToLoad.getChildWithName(states.state.getType()).getProperty(zlstate::programIdx::ID);
+        programIndex.store(static_cast<int>(tempIndex.operator int()));
     }
 }
 

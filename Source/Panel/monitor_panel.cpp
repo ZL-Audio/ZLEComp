@@ -29,7 +29,8 @@ namespace zlpanel {
         g.strokePath(path, juce::PathStrokeType(thickness, juce::PathStrokeType::curved));
     }
 
-    MonitorPanel::MonitorPanel(PluginProcessor &p) {
+    MonitorPanel::MonitorPanel(PluginProcessor &p) :
+            image(juce::Image::ARGB, 100, 100, true) {
         processorRef = &p;
         meterIn = &p.getMeterIn();
         meterOut = &p.getMeterOut();
@@ -73,6 +74,10 @@ namespace zlpanel {
 //                             static_cast<int>(-rmsIn[i]), zlinterface::TextHideColor);
 //        }
 //        g.drawImage(image, bound);
+    }
+
+    void MonitorPanel::resized() {
+        image = image.rescaled(getWidth(), getHeight());
     }
 
     void MonitorPanel::setFontSize(float fSize) {

@@ -63,7 +63,7 @@ namespace zlstate {
     class programIdx : public IntParameters<programIdx> {
     public:
         auto static constexpr ID = "program_idx";
-        auto static constexpr name = "Program Idx";
+        auto static constexpr name = "NA_Program Idx";
         inline static const int minV = 0;
         inline static const int maxV = preset::presetNUM - 1;
         inline static const int defaultV = 0;
@@ -81,7 +81,7 @@ namespace zlstate {
     class windowW : public FloatParameters<windowW> {
     public:
         auto static constexpr ID = "window_w";
-        auto static constexpr name = "Window W";
+        auto static constexpr name = "NA_Window W";
         inline static const int minV = 400;
         inline static const int maxV = 800;
         inline static const int defaultV = 600;
@@ -101,7 +101,7 @@ namespace zlstate {
     class windowH : public FloatParameters<windowH> {
     public:
         auto static constexpr ID = "window_h";
-        auto static constexpr name = "Window H";
+        auto static constexpr name = "NA_Window H";
         inline static const int minV = 200;
         inline static const int maxV = 400;
         inline static const int defaultV = 300;
@@ -129,21 +129,21 @@ namespace zlstate {
     class showComputer : public BoolParameters<showComputer> {
     public:
         auto static constexpr ID = "show_computer";
-        auto static constexpr name = "Show Computer";
+        auto static constexpr name = "NA_Show Computer";
         auto static constexpr defaultV = true;
     };
 
     class showDetector : public BoolParameters<showDetector> {
     public:
         auto static constexpr ID = "show_detector";
-        auto static constexpr name = "Show Detector";
+        auto static constexpr name = "NA_Show Detector";
         auto static constexpr defaultV = false;
     };
 
     class showMonitor : public BoolParameters<showMonitor> {
     public:
         auto static constexpr ID = "show_monitor";
-        auto static constexpr name = "Show Monitor";
+        auto static constexpr name = "NA_Show Monitor";
         auto static constexpr defaultV = true;
     };
 

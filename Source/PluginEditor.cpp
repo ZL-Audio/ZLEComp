@@ -51,5 +51,5 @@ void PluginEditor::resized() {
 }
 
 void PluginEditor::valueChanged (juce::Value&) {
-    setSize (lastUIWidth.getValue(), lastUIHeight.getValue());
+    setSize(lastUIWidth.getValue(), lastUIHeight.getValue());
 }
