@@ -30,8 +30,6 @@ namespace zlpanel {
     }
 
     void MainPanel::resized() {
-
-
         auto bound = getLocalBounds().toFloat();
         auto fontSize = bound.getHeight() * 0.0514f;
         bound = zlinterface::getRoundedShadowRectangleArea(bound, fontSize * 0.5f, {});

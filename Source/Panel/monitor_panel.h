@@ -28,7 +28,7 @@ namespace zlpanel {
     class MonitorPanel : public juce::Component, private juce::Timer,
                          public juce::AudioProcessorValueTreeState::Listener {
     public:
-        auto static constexpr timeInSeconds = 10, callBackHz = 60, upScaling = 2;
+        auto static constexpr timeInSeconds = 5, callBackHz = 120, upScaling = 1;
 
         explicit MonitorPanel(PluginProcessor &p);
 

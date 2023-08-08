@@ -34,9 +34,9 @@ namespace zlpanel {
         processorRef = &p;
         meterIn = &p.getMeterIn();
         meterOut = &p.getMeterOut();
-        rmsIn.set_capacity(callBackHz * timeInSeconds);
-        rmsOut.set_capacity(callBackHz * timeInSeconds);
-        rmsDiff.set_capacity(callBackHz * timeInSeconds);
+        rmsIn.set_capacity(callBackHz * timeInSeconds * 3);
+        rmsOut.set_capacity(callBackHz * timeInSeconds * 3);
+        rmsDiff.set_capacity(callBackHz * timeInSeconds * 3);
         startTimerHz(callBackHz);
     }
 
@@ -76,7 +76,9 @@ namespace zlpanel {
         tempG.drawImageAt(oldImage, 0, 0);
         // draw the new part
         auto tempBound = image.getBounds().toFloat();
-        tempBound = tempBound.withTrimmedLeft(juce::jmax((1 - deltaX) * tempBound.getWidth() - 4, 0.f));
+        tempBound = tempBound.withTrimmedLeft(
+                juce::jmax((1 - deltaX) * tempBound.getWidth() - upScaling * fontSize * 0.15f,
+                           0.f));
         tempG.setColour(zlinterface::TextHideColor);
         plotY(tempG, tempBound, rmsIn, rmsIn.size(), -60.f, 0.f, thickness * upScaling);
         tempG.setColour(zlinterface::TextColor);
@@ -93,7 +95,7 @@ namespace zlpanel {
         image.duplicateIfShared();
         // draw image to panel
         g.setOpacity(1.0f);
-        g.drawImage(image, bound);
+        g.drawImageAt(image, bound.toNearestInt().getX(), bound.toNearestInt().getY());
 
 
 
@@ -129,11 +131,24 @@ namespace zlpanel {
     }
 
     void MonitorPanel::resized() {
-        image = image.rescaled(getWidth() * upScaling, getHeight() * upScaling);
+//        image = image.rescaled(getWidth() * upScaling, getHeight() * upScaling);
     }
 
     void MonitorPanel::setFontSize(float fSize) {
         fontSize = fSize;
+        auto bound = getLocalBounds().toFloat();
+        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+        bound = bound.withTrimmedLeft(
+                fontSize * largePadding).withTrimmedBottom(
+                fontSize * largePadding).withTrimmedRight(
+                fontSize * largePadding).withTrimmedTop(
+                fontSize * smallPadding);
+        auto thickness = fontSize * 0.1f;
+        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
+                                            bound.getHeight() - thickness);
+        image = image.rescaled(bound.toNearestInt().getWidth() * upScaling,
+                               bound.toNearestInt().getHeight() * upScaling);
+
     }
 
     void MonitorPanel::parameterChanged(const juce::String &parameterID, float newValue) {
@@ -154,6 +169,6 @@ namespace zlpanel {
 //        rmsIn.push_back(inV);
 //        rmsOut.push_back(outV);
 //        rmsDiff.push_back(outV - inV);
-        repaint();
+//        repaint();
     }
 } // zlpanel
