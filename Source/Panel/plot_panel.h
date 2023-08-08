@@ -47,7 +47,7 @@ namespace zlpanel {
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::ComputerAttach<float> *computerAttach;
-        std::atomic<float> fontSize = 0.0f;
+        float fontSize = 0.0f;
         PluginProcessor *processorRef;
         std::array<juce::String, 6> isComputerChangedParaIDs{zldsp::threshold::ID, zldsp::ratio::ID,
                                                              zldsp::kneeW::ID, zldsp::kneeD::ID,
@@ -75,7 +75,7 @@ namespace zlpanel {
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::DetectorAttach<float> *detectorAttach;
-        std::atomic<float> fontSize = 0.0f;
+        float fontSize = 0.0f;
         PluginProcessor *processorRef;
         std::array<juce::String, 5> isDetectorChangedParaIDs{zldsp::attack::ID, zldsp::release::ID,
                                                              zldsp::aStyle::ID, zldsp::rStyle::ID,

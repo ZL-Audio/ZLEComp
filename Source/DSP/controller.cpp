@@ -13,7 +13,9 @@
 namespace zlcontroller {
     template<typename FloatType>
     Controller<FloatType>::Controller(juce::AudioProcessor &processor,
-                                      juce::AudioProcessorValueTreeState &parameters) {
+                                      juce::AudioProcessorValueTreeState &parameters) :
+            meterIn(processor),
+            meterOut(processor) {
         mainDelay.setMaximumDelayInSamples(48000);
         mainDelay.setDelay(0);
         m_processor = &processor;

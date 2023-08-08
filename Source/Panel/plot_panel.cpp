@@ -86,7 +86,7 @@ namespace zlpanel {
                        juce::Rectangle<float>(
                                bound.getX(),
                                bound.getY() + smallPadding * fontSize +
-                               juce::jlimit(fontSize.load(), bound.getHeight() - (largePadding + smallPadding + 1) * fontSize,
+                               juce::jlimit(fontSize, bound.getHeight() - (largePadding + smallPadding + 1) * fontSize,
                                             (bound.getHeight() - (largePadding + smallPadding) * fontSize) * threshold /
                                             (-60.f)) - fontSize * 0.5f,
                                largePadding * 0.95f * fontSize, fontSize),
@@ -277,7 +277,6 @@ namespace zlpanel {
         bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
         computerPlotPanel.setBounds(bound.toNearestInt());
         detectorPlotPanel.setBounds(bound.toNearestInt());
-        setFontSize(fontSize.load());
     }
 
     void PlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {
@@ -300,7 +299,7 @@ namespace zlpanel {
         fontSize = fSize;
         computerPlotPanel.setFontSize(fSize);
         detectorPlotPanel.setFontSize(fSize);
-        triggerAsyncUpdate();
+        resized();
     }
 
     void PlotPanel::handleAsyncUpdate() {

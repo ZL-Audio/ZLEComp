@@ -28,7 +28,7 @@ namespace zlpanel {
     class MonitorPanel : public juce::Component, private juce::Timer,
                          public juce::AudioProcessorValueTreeState::Listener {
     public:
-        auto static constexpr timeInSeconds = 6, callBackHz = 120;
+        auto static constexpr timeInSeconds = 10, callBackHz = 60;
 
         explicit MonitorPanel(PluginProcessor &p);
 
@@ -46,8 +46,9 @@ namespace zlpanel {
         std::atomic<bool> isMonitorVisible = zlstate::showMonitor::defaultV;
         zlmeter::MeterSource<float> *meterIn, *meterOut;
         float fontSize = 0.0f;
-        boost::circular_buffer<float> rmsIn, rmsOut;
+        boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;
         void timerCallback() override;
+        juce::Image image;
     };
 
 } // zlpanel

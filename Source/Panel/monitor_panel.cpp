@@ -35,6 +35,7 @@ namespace zlpanel {
         meterOut = &p.getMeterOut();
         rmsIn.set_capacity(callBackHz * timeInSeconds);
         rmsOut.set_capacity(callBackHz * timeInSeconds);
+        rmsDiff.set_capacity(callBackHz * timeInSeconds);
         startTimerHz(callBackHz);
     }
 
@@ -58,10 +59,14 @@ namespace zlpanel {
         bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
                                             bound.getHeight() - thickness);
 
+        thickness = thickness * 0.75f;
         g.setColour(zlinterface::TextHideColor);
         plotY(g, bound, rmsIn, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
         g.setColour(zlinterface::TextColor);
         plotY(g, bound, rmsOut, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+        g.setColour(juce::Colours::darkred);
+        plotY(g, bound, rmsDiff, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+
 //        juce::Image image = juce::Image(juce::Image::PixelFormat::ARGB, timeInSeconds * callBackHz, 60, true);
 //        for (size_t i = 0; i < rmsIn.size(); ++i) {
 //            image.setPixelAt(callBackHz * timeInSeconds - static_cast<int>(rmsIn.size()) + static_cast<int>(i + 1),
@@ -82,8 +87,16 @@ namespace zlpanel {
     }
 
     void MonitorPanel::timerCallback() {
-        rmsIn.push_back(meterIn->getCurrentMeanRMS());
-        rmsOut.push_back(meterOut->getCurrentMeanRMS());
+        auto num = meterIn->appendHistory(rmsIn);
+        meterOut->appendHistory(rmsOut, num);
+        for (size_t i = rmsIn.size() - num; i < rmsIn.size(); ++i) {
+            rmsDiff.push_back(rmsOut[i] - rmsIn[i]);
+        }
+
+//        auto inV = meterIn->getCurrentMeanPeak(), outV = meterOut->getCurrentMeanPeak();
+//        rmsIn.push_back(inV);
+//        rmsOut.push_back(outV);
+//        rmsDiff.push_back(outV - inV);
         repaint();
     }
 } // zlpanel
