@@ -45,6 +45,7 @@ namespace zlpanel {
     }
 
     void MonitorPanel::paint(juce::Graphics &g) {
+        // draw boundary
         auto bound = getLocalBounds().toFloat();
         bound = zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {.blurRadius=0.25f});
         bound = bound.withTrimmedLeft(
@@ -53,20 +54,71 @@ namespace zlpanel {
                 fontSize * largePadding).withTrimmedTop(
                 fontSize * smallPadding);
         g.setColour(zlinterface::TextInactiveColor);
-
         auto thickness = fontSize * 0.1f;
         g.drawRect(bound, thickness);
-
         bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
                                             bound.getHeight() - thickness);
+        // calculate time difference
+        auto currentTime = juce::Time::getCurrentTime();
+        auto relativeTime = currentTime - previousTime;
+        previousTime = currentTime;
+        if (relativeTime.inDays() >= 1) {
+            return;
+        }
+        // draw the old part
+        auto tempImage = juce::Image(juce::Image::ARGB, image.getWidth(), image.getHeight(), true);
+        auto tempG = juce::Graphics(tempImage);
+        tempG.setOpacity(1.0f);
+        auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
+        auto area = image.getBounds().toFloat();
+        area = area.withTrimmedLeft(deltaX * area.getWidth());
+        auto oldImage = image.getClippedImage(area.toNearestInt());
+        tempG.drawImageAt(oldImage, 0, 0);
+        // draw the new part
+        auto tempBound = image.getBounds().toFloat();
+        tempBound = tempBound.withTrimmedLeft(juce::jmax((1 - deltaX) * tempBound.getWidth() - 4, 0.f));
+        tempG.setColour(zlinterface::TextHideColor);
+        plotY(tempG, tempBound, rmsIn, rmsIn.size(), -60.f, 0.f, thickness * upScaling);
+        tempG.setColour(zlinterface::TextColor);
+        plotY(tempG, tempBound, rmsOut, rmsOut.size(), -60.f, 0.f, thickness * upScaling);
+        tempG.setColour(juce::Colours::darkred);
+        plotY(tempG, tempBound, rmsDiff, rmsDiff.size(), -60.f, 0.f, thickness * upScaling);
+        while (rmsIn.size() > 1) {
+            rmsIn.pop_front();
+            rmsOut.pop_front();
+            rmsDiff.pop_front();
+        }
+        // update image
+        image = tempImage;
+        image.duplicateIfShared();
+        // draw image to panel
+        g.setOpacity(1.0f);
+        g.drawImage(image, bound);
 
-        thickness = thickness * 0.75f;
-        g.setColour(zlinterface::TextHideColor);
-        plotY(g, bound, rmsIn, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
-        g.setColour(zlinterface::TextColor);
-        plotY(g, bound, rmsOut, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
-        g.setColour(juce::Colours::darkred);
-        plotY(g, bound, rmsDiff, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+
+
+//        auto bound = getLocalBounds().toFloat();
+//        bound = zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {.blurRadius=0.25f});
+//        bound = bound.withTrimmedLeft(
+//                fontSize * largePadding).withTrimmedBottom(
+//                fontSize * largePadding).withTrimmedRight(
+//                fontSize * largePadding).withTrimmedTop(
+//                fontSize * smallPadding);
+//        g.setColour(zlinterface::TextInactiveColor);
+//
+//        auto thickness = fontSize * 0.1f;
+//        g.drawRect(bound, thickness);
+//
+//        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
+//                                            bound.getHeight() - thickness);
+//
+//        thickness = thickness * 0.75f;
+//        g.setColour(zlinterface::TextHideColor);
+//        plotY(g, bound, rmsIn, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+//        g.setColour(zlinterface::TextColor);
+//        plotY(g, bound, rmsOut, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
+//        g.setColour(juce::Colours::darkred);
+//        plotY(g, bound, rmsDiff, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
 
 //        juce::Image image = juce::Image(juce::Image::PixelFormat::ARGB, timeInSeconds * callBackHz, 60, true);
 //        for (size_t i = 0; i < rmsIn.size(); ++i) {
@@ -77,7 +129,7 @@ namespace zlpanel {
     }
 
     void MonitorPanel::resized() {
-        image = image.rescaled(getWidth(), getHeight());
+        image = image.rescaled(getWidth() * upScaling, getHeight() * upScaling);
     }
 
     void MonitorPanel::setFontSize(float fSize) {

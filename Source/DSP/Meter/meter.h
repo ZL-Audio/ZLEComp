@@ -44,6 +44,7 @@ namespace zlmeter {
         }
 
         void prepare(const juce::dsp::ProcessSpec &spec) {
+            historyRMS.set_capacity(static_cast<size_t>(spec.sampleRate / spec.maximumBlockSize));
             for (auto f: {&currentRMS, &currentPeak, &peakMax, &bufferRMS, &bufferPeak, &displayRMS, &displayPeak}) {
                 (*f).resize(spec.numChannels);
             }
@@ -143,7 +144,7 @@ namespace zlmeter {
         std::vector<FloatType> bufferRMS, bufferPeak;
         std::vector<FloatType> displayRMS, displayPeak;
         std::atomic<bool> lock = false;
-        std::deque<FloatType> historyRMS;
+        boost::circular_buffer<FloatType> historyRMS;
         juce::AudioProcessor *processorRef;
         float decayRate = 0.12f;
         bool dataFlag = false;
