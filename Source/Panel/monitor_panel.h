@@ -20,10 +20,10 @@
 
 namespace zlpanel {
 
-    inline void plotY(juce::Graphics &g, juce::Rectangle<float> bound,
-                      boost::circular_buffer<float> &y,
-                      size_t xNum, float yMin, float yMax,
-                      float thickness);
+    inline juce::Point<float> plotY(juce::Graphics &g, juce::Rectangle<float> bound,
+                                    boost::circular_buffer<float> &y,
+                                    size_t xNum, float yMin, float yMax,
+                                    float thickness, std::optional<juce::Point<float>> startPoint = std::nullopt);
 
     class MonitorPanel : public juce::Component, private juce::Timer,
                          public juce::AudioProcessorValueTreeState::Listener {
@@ -49,10 +49,13 @@ namespace zlpanel {
         zlmeter::MeterSource<float> *meterIn, *meterOut;
         float fontSize = 0.0f;
         boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;
+
         void timerCallback() override;
 
         juce::Image image;
         juce::Time previousTime;
+        juce::Point<float> lastInEndPoint, lastOutEndPoint, lastDiffEndPoint;
+        int discardNum = 1, inDiscardIndex = 0, outDiscardIndex = 0;
     };
 
 } // zlpanel

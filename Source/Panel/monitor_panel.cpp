@@ -11,22 +11,33 @@
 #include "monitor_panel.h"
 
 namespace zlpanel {
-    void plotY(juce::Graphics &g, juce::Rectangle<float> bound,
-               boost::circular_buffer<float> &y,
-               size_t xNum, float yMin, float yMax,
-               float thickness) {
+    juce::Point<float> plotY(juce::Graphics &g, juce::Rectangle<float> bound,
+                             boost::circular_buffer<float> &y,
+                             size_t xNum, float yMin, float yMax,
+                             float thickness, std::optional<juce::Point<float>> startPoint) {
         if (y.empty()) {
-            return;
+            return {0.f, 0.f};
         }
         juce::Path path;
-        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness, bound.getHeight() - thickness);
-        path.startNewSubPath(getPointX(bound, static_cast<float>(xNum - y.size()), 0, static_cast<float>(xNum - 1)),
-                             getPointY(bound, y[0], yMin, yMax));
-        for (size_t i = 1; i < y.size(); i++) {
-            path.lineTo(getPointX(bound, static_cast<float>(xNum - y.size() + i), 0, static_cast<float>(xNum - 1)),
-                        getPointY(bound, y[i], yMin, yMax));
+        if (startPoint == std::nullopt) {
+//            bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness, bound.getHeight() - thickness);
+            path.startNewSubPath(getPointX(bound, static_cast<float>(xNum - y.size()), 0, static_cast<float>(xNum - 1)),
+                                 getPointY(bound, y[0], yMin, yMax));
+            for (size_t i = 1; i < y.size(); i++) {
+                path.lineTo(getPointX(bound, static_cast<float>(xNum - y.size() + i), 0, static_cast<float>(xNum - 1)),
+                            getPointY(bound, y[i], yMin, yMax));
+            }
+        } else {
+            bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness, bound.getHeight() - thickness);
+            path.startNewSubPath(startPoint->getX(), startPoint->getY());
+            for (size_t i = 0; i < y.size(); i++) {
+                path.lineTo(getPointX(bound, static_cast<float>(i + 1), 0, static_cast<float>(xNum + 1)),
+                            getPointY(bound, y[i], yMin, yMax));
+            }
+
         }
         g.strokePath(path, juce::PathStrokeType(thickness, juce::PathStrokeType::curved));
+        return path.getCurrentPosition();
     }
 
     MonitorPanel::MonitorPanel(PluginProcessor &p) :
@@ -71,21 +82,36 @@ namespace zlpanel {
         tempG.setOpacity(1.0f);
         auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
         auto area = image.getBounds().toFloat();
-        area = area.withTrimmedLeft(deltaX * area.getWidth());
-        auto oldImage = image.getClippedImage(area.toNearestInt());
+        deltaX = deltaX * area.getWidth();
+        auto oldArea = area.withTrimmedLeft(deltaX).toNearestInt();
+        deltaX = area.getWidth() - static_cast<float>(oldArea.getWidth());
+        lastInEndPoint = lastInEndPoint.translated(-deltaX - thickness * 0.1f, 0);
+        lastOutEndPoint = lastOutEndPoint.translated(-deltaX - thickness * 0.1f, 0);
+        lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX - thickness * 0.1f, 0);
+        auto oldImage = image.getClippedImage(oldArea);
         tempG.drawImageAt(oldImage, 0, 0);
+//        tempG.drawImageTransformed(image, juce::AffineTransform::translation(-deltaX * area.getWidth(), 0));
         // draw the new part
         auto tempBound = image.getBounds().toFloat();
         tempBound = tempBound.withTrimmedLeft(
-                juce::jmax((1 - deltaX) * tempBound.getWidth() - upScaling * fontSize * 0.15f,
+                juce::jmax(tempBound.getWidth() - deltaX,// - upScaling * fontSize * 0.075f,
                            0.f));
         tempG.setColour(zlinterface::TextHideColor);
-        plotY(tempG, tempBound, rmsIn, rmsIn.size(), -60.f, 0.f, thickness * upScaling);
+        lastInEndPoint = plotY(tempG, tempBound,
+                               rmsIn,
+                               rmsIn.size(), -60.f, 0.f,
+                               thickness * upScaling, lastInEndPoint);
         tempG.setColour(zlinterface::TextColor);
-        plotY(tempG, tempBound, rmsOut, rmsOut.size(), -60.f, 0.f, thickness * upScaling);
+        lastOutEndPoint = plotY(tempG, tempBound,
+                                rmsOut,
+                                rmsOut.size(), -60.f, 0.f,
+                                thickness * upScaling, lastOutEndPoint);
         tempG.setColour(juce::Colours::darkred);
-        plotY(tempG, tempBound, rmsDiff, rmsDiff.size(), -60.f, 0.f, thickness * upScaling);
-        while (rmsIn.size() > 1) {
+        lastDiffEndPoint = plotY(tempG, tempBound,
+                                 rmsDiff,
+                                 rmsDiff.size(), -60.f, 0.f,
+                                 thickness * upScaling, lastDiffEndPoint);
+        while (rmsIn.size() > 0) {
             rmsIn.pop_front();
             rmsOut.pop_front();
             rmsDiff.pop_front();
@@ -96,38 +122,6 @@ namespace zlpanel {
         // draw image to panel
         g.setOpacity(1.0f);
         g.drawImageAt(image, bound.toNearestInt().getX(), bound.toNearestInt().getY());
-
-
-
-//        auto bound = getLocalBounds().toFloat();
-//        bound = zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {.blurRadius=0.25f});
-//        bound = bound.withTrimmedLeft(
-//                fontSize * largePadding).withTrimmedBottom(
-//                fontSize * largePadding).withTrimmedRight(
-//                fontSize * largePadding).withTrimmedTop(
-//                fontSize * smallPadding);
-//        g.setColour(zlinterface::TextInactiveColor);
-//
-//        auto thickness = fontSize * 0.1f;
-//        g.drawRect(bound, thickness);
-//
-//        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
-//                                            bound.getHeight() - thickness);
-//
-//        thickness = thickness * 0.75f;
-//        g.setColour(zlinterface::TextHideColor);
-//        plotY(g, bound, rmsIn, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
-//        g.setColour(zlinterface::TextColor);
-//        plotY(g, bound, rmsOut, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
-//        g.setColour(juce::Colours::darkred);
-//        plotY(g, bound, rmsDiff, zlinterface::RefreshFreqHz * timeInSeconds, -60.f, 0.f, thickness);
-
-//        juce::Image image = juce::Image(juce::Image::PixelFormat::ARGB, timeInSeconds * callBackHz, 60, true);
-//        for (size_t i = 0; i < rmsIn.size(); ++i) {
-//            image.setPixelAt(callBackHz * timeInSeconds - static_cast<int>(rmsIn.size()) + static_cast<int>(i + 1),
-//                             static_cast<int>(-rmsIn[i]), zlinterface::TextHideColor);
-//        }
-//        g.drawImage(image, bound);
     }
 
     void MonitorPanel::resized() {
@@ -148,7 +142,9 @@ namespace zlpanel {
                                             bound.getHeight() - thickness);
         image = image.rescaled(bound.toNearestInt().getWidth() * upScaling,
                                bound.toNearestInt().getHeight() * upScaling);
-
+        lastInEndPoint = bound.getBottomRight();
+        lastOutEndPoint = bound.getBottomRight();
+        lastDiffEndPoint = bound.getTopRight();
     }
 
     void MonitorPanel::parameterChanged(const juce::String &parameterID, float newValue) {
@@ -159,16 +155,10 @@ namespace zlpanel {
     }
 
     void MonitorPanel::timerCallback() {
-        auto num = meterIn->appendHistory(rmsIn);
-        meterOut->appendHistory(rmsOut, num);
+        auto num = meterIn->appendHistory(rmsIn, inDiscardIndex, discardNum);
+        meterOut->appendHistory(rmsOut, outDiscardIndex, discardNum, num);
         for (size_t i = rmsIn.size() - num; i < rmsIn.size(); ++i) {
             rmsDiff.push_back(rmsOut[i] - rmsIn[i]);
         }
-
-//        auto inV = meterIn->getCurrentMeanPeak(), outV = meterOut->getCurrentMeanPeak();
-//        rmsIn.push_back(inV);
-//        rmsOut.push_back(outV);
-//        rmsDiff.push_back(outV - inV);
-//        repaint();
     }
 } // zlpanel

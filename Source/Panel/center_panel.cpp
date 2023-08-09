@@ -17,7 +17,7 @@ namespace zlpanel {
         processorRef = &p;
         addAndMakeVisible(monitorPanel);
         addAndMakeVisible(plotPanel);
-        startTimerHz(30);
+        startTimerHz(10);
     }
 
     CenterPanel::~CenterPanel() {

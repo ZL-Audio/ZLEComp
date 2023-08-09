@@ -56,16 +56,20 @@ namespace zlmeter {
             }
         }
 
-        size_t appendHistory(boost::circular_buffer<FloatType> &buffer, std::optional<size_t> popNum = std::nullopt) {
+        size_t appendHistory(boost::circular_buffer<FloatType> &buffer, int &discardIndex, int discardNum = 1,
+                             std::optional<size_t> popNum = std::nullopt) {
             const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
             size_t num = 0;
             if (popNum == std::nullopt) {
                 popNum = historyRMS.size();
             }
             while (!historyRMS.empty() && num < popNum) {
-                buffer.push_back(historyRMS.front());
+                if (discardIndex == 0) {
+                    buffer.push_back(historyRMS.front());
+                    num++;
+                }
                 historyRMS.pop_front();
-                num++;
+                discardIndex = (discardIndex + 1) % discardNum;
             }
             return num;
         }
