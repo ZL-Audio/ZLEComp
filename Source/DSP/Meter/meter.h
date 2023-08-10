@@ -5,16 +5,21 @@
 #ifndef ZLECOMP_METER_H
 #define ZLECOMP_METER_H
 
-#include "juce_audio_processors/juce_audio_processors.h"
-#include "juce_dsp/juce_dsp.h"
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_dsp/juce_dsp.h>
 #include <boost/circular_buffer.hpp>
+
+#include "../FixedBuffer/fixed_audio_buffer.h"
 
 namespace zlmeter {
 
     template<typename FloatType>
     class MeterSource {
     public:
-        explicit MeterSource(juce::AudioProcessor &processor) {
+        auto static constexpr subBufferInSecond = 0.01;
+
+        explicit MeterSource(juce::AudioProcessor &processor) :
+                subBuffer() {
             processorRef = &processor;
         }
 
@@ -25,22 +30,24 @@ namespace zlmeter {
             return s;
         }
 
-        template<typename ProcessContext>
-        void process(const ProcessContext &context) noexcept {
-            if (context.usesSeparateInputAndOutputBlocks())
-                context.getOutputBlock().copyFrom(context.getInputBlock());
-            const auto numSamples = context.getInputBlock().getNumSamples();
-            const auto numChannels = context.getInputBlock().getNumChannels();
-            auto block = context.getInputBlock();
-            for (size_t i = 0; i < numChannels; ++i) {
-                currentRMS[i] = juce::Decibels::gainToDecibels(getRMSLevel(block, i, 0, numSamples));
-                currentPeak[i] = juce::Decibels::gainToDecibels(getPeakLevel(block, i, 0, numSamples));
-                bufferRMS[i] = juce::jmax(bufferRMS[i], currentRMS[i]);
-                bufferPeak[i] = juce::jmax(bufferPeak[i], currentPeak[i]);
-                peakMax[i] = juce::jmax(currentPeak[i], peakMax[i]);
+        void process(const juce::dsp::AudioBlock<FloatType> block) noexcept {
+            subBuffer.pushBlock(block);
+            while (subBuffer.isSubReady()) {
+                subBuffer.popSubBuffer();
+                const auto numSamples = static_cast<size_t>(subBuffer.subBuffer.getNumSamples());
+                const auto numChannels = static_cast<size_t>(subBuffer.subBuffer.getNumChannels());
+                for (size_t i = 0; i < numChannels; ++i) {
+                    currentRMS[i] = juce::Decibels::gainToDecibels(getRMSLevel(block, i, 0, numSamples));
+                    currentPeak[i] = juce::Decibels::gainToDecibels(getPeakLevel(block, i, 0, numSamples));
+                    bufferRMS[i] = juce::jmax(bufferRMS[i], currentRMS[i]);
+                    bufferPeak[i] = juce::jmax(bufferPeak[i], currentPeak[i]);
+                    peakMax[i] = juce::jmax(currentPeak[i], peakMax[i]);
+                }
+                historyRMS.push_back(std::accumulate(currentRMS.begin(), currentRMS.end(), FloatType(0)) /
+                                     static_cast<FloatType>(currentRMS.size()));
+                subBuffer.pushSubBuffer();
             }
-            historyRMS.push_back(std::accumulate(currentRMS.begin(), currentRMS.end(), FloatType(0)) /
-                                 static_cast<FloatType>(currentRMS.size()));
+            subBuffer.popBlock(block, false);
         }
 
         void prepare(const juce::dsp::ProcessSpec &spec) {
@@ -54,6 +61,7 @@ namespace zlmeter {
                 displayRMS[i] = static_cast<FloatType>(-100);
                 displayPeak[i] = static_cast<FloatType>(-100);
             }
+            subBuffer.setSubBufferSize(static_cast<int>(spec.sampleRate * subBufferInSecond));
         }
 
         size_t appendHistory(boost::circular_buffer<FloatType> &buffer, int &discardIndex, int discardNum = 1,
@@ -147,11 +155,11 @@ namespace zlmeter {
         std::vector<FloatType> currentRMS, currentPeak;
         std::vector<FloatType> bufferRMS, bufferPeak;
         std::vector<FloatType> displayRMS, displayPeak;
-        std::atomic<bool> lock = false;
         boost::circular_buffer<FloatType> historyRMS;
         juce::AudioProcessor *processorRef;
         float decayRate = 0.12f;
-        bool dataFlag = false;
+        bool dataFlag = false, useSubBuffer = false;
+        fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
 
         template<typename T>
         T getRMSLevel(juce::dsp::AudioBlock<T> block, unsigned long channel, unsigned long startSample,

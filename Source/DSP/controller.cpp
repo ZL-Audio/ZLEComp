@@ -84,7 +84,7 @@ namespace zlcontroller {
         juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
         mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
-        meterIn.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
+        meterIn.process(mainBlock);
         // add dry samples
         mixer.pushDrySamples(mainBlock);
         // apply over-sampling(up)
@@ -126,13 +126,13 @@ namespace zlcontroller {
         // mix wet samples
         mixer.mixWetSamples(allBlock.getSubsetChannelBlock(0, 2));
         // apply out gain
-        juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, false, 0));
+        juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
-        meterOut.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        meterOut.process(outBlock);
         if (!audit.load()) {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(
-                    m_processor->getBusBuffer(allBuffer, true, 1), true);
+                    m_processor->getBusBuffer(allBuffer, true, 0), true);
         }
     }
 

@@ -83,6 +83,14 @@ namespace fixedBuffer {
     }
 
     template<typename FloatType>
+    void FIFOAudioBuffer<FloatType>::pop(int numSamples) {
+        jassert (fifo.getNumReady() >= numSamples);
+        int start1, size1, start2, size2;
+        fifo.prepareToRead(numSamples, start1, size1, start2, size2);
+        fifo.finishedRead(size1 + size2);
+    }
+
+    template<typename FloatType>
     void FIFOAudioBuffer<FloatType>::pop(FloatType **samples, int numSamples) {
         jassert (fifo.getNumReady() >= numSamples);
         int start1, size1, start2, size2;

@@ -38,9 +38,9 @@ namespace fixedBuffer {
 
         void pushSubBuffer();
 
-        void popBuffer(juce::AudioBuffer<FloatType> &buffer);
+        void popBuffer(juce::AudioBuffer<FloatType> &buffer, bool write=true);
 
-        void popBlock(juce::dsp::AudioBlock<FloatType> block);
+        void popBlock(juce::dsp::AudioBlock<FloatType> block, bool write=true);
 
         juce::AudioBuffer<FloatType> getSubBufferChannels(int channelOffset, int numChannels);
 

@@ -12,6 +12,7 @@
 #define ZLECOMP_MONITOR_PANEL_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
+//#include <juce_opengl/juce_opengl.h>
 #include "../PluginProcessor.h"
 #include "../GUI/interface_definitions.h"
 #include "../DSP/Meter/meter.h"
@@ -28,7 +29,7 @@ namespace zlpanel {
     class MonitorPanel : public juce::Component, private juce::Timer,
                          public juce::AudioProcessorValueTreeState::Listener {
     public:
-        auto static constexpr timeInSeconds = 5, callBackHz = 120, upScaling = 1;
+        auto static constexpr timeInSeconds = 5, callBackHz = 120, upScaling = 4;
 
         explicit MonitorPanel(PluginProcessor &p);
 
@@ -56,6 +57,7 @@ namespace zlpanel {
         juce::Time previousTime;
         juce::Point<float> lastInEndPoint, lastOutEndPoint, lastDiffEndPoint;
         int discardNum = 1, inDiscardIndex = 0, outDiscardIndex = 0;
+//        juce::OpenGLContext openGLContext;
     };
 
 } // zlpanel

@@ -30,6 +30,8 @@ namespace fixedBuffer {
 
         void push(juce::dsp::AudioBlock<FloatType> block, int numSamples = -1);
 
+        void pop(int numSamples);
+
         void pop(FloatType **samples, int numSamples);
 
         void pop(juce::AudioBuffer<FloatType> &samples, int numSamples = -1);

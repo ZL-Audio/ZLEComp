@@ -76,13 +76,21 @@ namespace fixedBuffer {
     }
 
     template<typename FloatType>
-    void FixedAudioBuffer<FloatType>::popBuffer(juce::AudioBuffer<FloatType> &buffer) {
-        outputBuffer.pop(buffer);
+    void FixedAudioBuffer<FloatType>::popBuffer(juce::AudioBuffer<FloatType> &buffer, bool write) {
+        if (write) {
+            outputBuffer.pop(buffer);
+        } else {
+            outputBuffer.pop(buffer.getNumSamples());
+        }
     }
 
     template<typename FloatType>
-    void FixedAudioBuffer<FloatType>::popBlock(juce::dsp::AudioBlock<FloatType> block) {
-        outputBuffer.pop(block);
+    void FixedAudioBuffer<FloatType>::popBlock(juce::dsp::AudioBlock<FloatType> block, bool write) {
+        if (write) {
+            outputBuffer.pop(block);
+        } else {
+            outputBuffer.pop(static_cast<int>(block.getNumSamples()));
+        }
     }
 
     template<typename FloatType>

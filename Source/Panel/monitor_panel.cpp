@@ -42,6 +42,7 @@ namespace zlpanel {
 
     MonitorPanel::MonitorPanel(PluginProcessor &p) :
             image(juce::Image::ARGB, 100, 100, true) {
+//        openGLContext.attachTo(*getTopLevelComponent());
         processorRef = &p;
         meterIn = &p.getMeterIn();
         meterOut = &p.getMeterOut();
@@ -49,9 +50,11 @@ namespace zlpanel {
         rmsOut.set_capacity(callBackHz * timeInSeconds * 3);
         rmsDiff.set_capacity(callBackHz * timeInSeconds * 3);
         startTimerHz(callBackHz);
+        setSize(500, 500);
     }
 
     MonitorPanel::~MonitorPanel() {
+//        openGLContext.detach();
         stopTimer();
     }
 
@@ -83,14 +86,14 @@ namespace zlpanel {
         auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
         auto area = image.getBounds().toFloat();
         deltaX = deltaX * area.getWidth();
-        auto oldArea = area.withTrimmedLeft(deltaX).toNearestInt();
-        deltaX = area.getWidth() - static_cast<float>(oldArea.getWidth());
+//        auto oldArea = area.withTrimmedLeft(deltaX).toNearestInt();
+//        deltaX = area.getWidth() - static_cast<float>(oldArea.getWidth());
         lastInEndPoint = lastInEndPoint.translated(-deltaX - thickness * 0.1f, 0);
         lastOutEndPoint = lastOutEndPoint.translated(-deltaX - thickness * 0.1f, 0);
         lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX - thickness * 0.1f, 0);
-        auto oldImage = image.getClippedImage(oldArea);
-        tempG.drawImageAt(oldImage, 0, 0);
-//        tempG.drawImageTransformed(image, juce::AffineTransform::translation(-deltaX * area.getWidth(), 0));
+//        auto oldImage = image.getClippedImage(oldArea);
+//        tempG.drawImageAt(image, -deltaX, 0);
+        tempG.drawImageTransformed(image, juce::AffineTransform::translation(-deltaX, 0));
         // draw the new part
         auto tempBound = image.getBounds().toFloat();
         tempBound = tempBound.withTrimmedLeft(
@@ -121,7 +124,8 @@ namespace zlpanel {
         image.duplicateIfShared();
         // draw image to panel
         g.setOpacity(1.0f);
-        g.drawImageAt(image, bound.toNearestInt().getX(), bound.toNearestInt().getY());
+//        g.drawImageAt(image, bound.toNearestInt().getX(), bound.toNearestInt().getY());
+        g.drawImage(image, bound);
     }
 
     void MonitorPanel::resized() {
