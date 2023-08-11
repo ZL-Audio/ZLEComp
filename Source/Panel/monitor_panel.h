@@ -56,7 +56,6 @@ namespace zlpanel {
         juce::Image image;
         juce::Time previousTime;
         juce::Point<float> lastInEndPoint, lastOutEndPoint, lastDiffEndPoint;
-        int discardNum = 1, inDiscardIndex = 0, outDiscardIndex = 0;
 //        juce::OpenGLContext openGLContext;
     };
 

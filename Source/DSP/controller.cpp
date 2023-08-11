@@ -16,8 +16,6 @@ namespace zlcontroller {
                                       juce::AudioProcessorValueTreeState &parameters) :
             meterIn(processor),
             meterOut(processor) {
-        mainDelay.setMaximumDelayInSamples(48000);
-        mainDelay.setDelay(0);
         m_processor = &processor;
         apvts = &parameters;
 
@@ -32,6 +30,8 @@ namespace zlcontroller {
     template<typename FloatType>
     void Controller<FloatType>::prepare(const juce::dsp::ProcessSpec spec) {
         mainSpec = {spec.sampleRate, spec.maximumBlockSize, spec.numChannels};
+        mainDelay.setMaximumDelayInSamples(static_cast<int>(spec.maximumBlockSize));
+        mainDelay.setDelay(0);
         for (size_t i = 0; i < zldsp::overSample::overSampleNUM; ++i) {
             overSamplers[i] = std::make_unique<juce::dsp::Oversampling<FloatType>>(
                     spec.numChannels * 2, i,
@@ -41,14 +41,13 @@ namespace zlcontroller {
         }
         mixer.prepare(spec);
 
-        meterIn.prepare(spec);
-        meterOut.prepare(spec);
-
         mainDelay.prepare(spec);
         sideGainDSP.prepare(spec);
         sideGainDSP.setRampDurationSeconds(0.1);
         outGainDSP.prepare(spec);
         outGainDSP.setRampDurationSeconds(0.1);
+        meterIn.prepare(spec);
+        meterOut.prepare(spec);
 
         allBuffer.setSize(static_cast<int>(spec.numChannels * 2), static_cast<int>(spec.maximumBlockSize));
         reset();
@@ -69,7 +68,7 @@ namespace zlcontroller {
         // copy buffer into allBuffer
         allBuffer.makeCopyOf(buffer, true);
         // copy side-chain into sideBuffer
-        juce::AudioBuffer<FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
+        juce::AudioBuffer < FloatType > sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
         if (!external.load()) {
             sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, true, 0), true);
         }
@@ -81,17 +80,17 @@ namespace zlcontroller {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(sideBuffer, true);
         }
         // apply lookahead
-        juce::AudioBuffer<FloatType> mainBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
+        juce::AudioBuffer < FloatType > mainBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto mainBlock = juce::dsp::AudioBlock<FloatType>(mainBuffer);
         mainDelay.process(juce::dsp::ProcessContextReplacing<FloatType>(mainBlock));
-        meterIn.process(mainBlock);
         // add dry samples
+        meterIn.process(mainBlock);
         mixer.pushDrySamples(mainBlock);
         // apply over-sampling(up)
         auto allBlock = juce::dsp::AudioBlock<FloatType>(allBuffer);
-        auto overSampledBuffer = overSamplers[idxSampler]->processSamplesUp(allBlock);
+        auto overSampledBlock = overSamplers[idxSampler]->processSamplesUp(allBlock);
         // ---------------- start sub buffer
-        subBuffer.pushBlock(overSampledBuffer);
+        subBuffer.pushBlock(overSampledBlock);
         while (subBuffer.isSubReady()) {
             subBuffer.popSubBuffer();
             // calculate rms value
@@ -119,17 +118,17 @@ namespace zlcontroller {
             rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
             subBuffer.pushSubBuffer();
         }
-        subBuffer.popBlock(overSampledBuffer);
+        subBuffer.popBlock(overSampledBlock);
         // ---------------- end sub buffer
         // apply over-sampling(down)
         overSamplers[idxSampler]->processSamplesDown(allBlock);
-        // mix wet samples
-        mixer.mixWetSamples(allBlock.getSubsetChannelBlock(0, 2));
-        // apply out gain
-        juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
+        juce::AudioBuffer < FloatType > outBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
-        outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
         meterOut.process(outBlock);
+        // mix wet samples
+        mixer.mixWetSamples(outBlock);
+        // apply out gain
+        outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
         if (!audit.load()) {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(
                     m_processor->getBusBuffer(allBuffer, true, 0), true);
@@ -214,7 +213,8 @@ namespace zlcontroller {
         subBuffer.setSubBufferSize(juce::jmax(1, static_cast<int>(v * subBuffer.getMainSpec().sampleRate)));
 
         juce::dsp::ProcessSpec spec = subBuffer.getSubSpec();
-        spec.numChannels = spec.numChannels / 4;
+        spec.numChannels = spec.numChannels / 2;
+        spec.numChannels = spec.numChannels / 2;
         lTracker.prepare(spec);
         rTracker.prepare(spec);
         lDetector.prepare(spec);
@@ -251,10 +251,13 @@ namespace zlcontroller {
     void Controller<FloatType>::setLatency() {
         if (audit.load()) {
             m_processor->setLatencySamples(0);
+            meterIn.setDelay(0);
         } else if (overSamplers[idxSampler.load()]) {
             m_processor->setLatencySamples(
                     static_cast<int>(mainDelay.getDelay() + overSamplers[idxSampler.load()]->getLatencyInSamples()) +
                     static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
+            meterIn.setDelay(static_cast<int>(overSamplers[idxSampler.load()]->getLatencyInSamples()) +
+                             static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
         }
     }
 

@@ -16,14 +16,17 @@ namespace zlmeter {
     template<typename FloatType>
     class MeterSource {
     public:
-        auto static constexpr subBufferInSecond = 0.01;
+        auto static constexpr subBufferInSecond = 0.015;
 
         explicit MeterSource(juce::AudioProcessor &processor) :
                 subBuffer() {
             processorRef = &processor;
         }
 
-        void reset() noexcept {}
+        void reset() noexcept {
+            resetBuffer();
+            resetPeakMax();
+        }
 
         template<typename SampleType>
         SampleType JUCE_VECTOR_CALLTYPE processSample(SampleType s) noexcept {
@@ -31,14 +34,18 @@ namespace zlmeter {
         }
 
         void process(const juce::dsp::AudioBlock<FloatType> block) noexcept {
-            subBuffer.pushBlock(block);
+            block.copyTo(m_buffer);
+            juce::dsp::AudioBlock<FloatType> m_block(m_buffer);
+            delayLine.process(juce::dsp::ProcessContextReplacing<FloatType>(m_block));
+            subBuffer.pushBlock(m_block);
             while (subBuffer.isSubReady()) {
                 subBuffer.popSubBuffer();
                 const auto numSamples = static_cast<size_t>(subBuffer.subBuffer.getNumSamples());
                 const auto numChannels = static_cast<size_t>(subBuffer.subBuffer.getNumChannels());
                 for (size_t i = 0; i < numChannels; ++i) {
-                    currentRMS[i] = juce::Decibels::gainToDecibels(getRMSLevel(block, i, 0, numSamples));
-                    currentPeak[i] = juce::Decibels::gainToDecibels(getPeakLevel(block, i, 0, numSamples));
+                    auto subBlock = juce::dsp::AudioBlock<FloatType>(subBuffer.subBuffer);
+                    currentRMS[i] = juce::Decibels::gainToDecibels(getRMSLevel(subBlock, i, 0, numSamples));
+                    currentPeak[i] = juce::Decibels::gainToDecibels(getPeakLevel(subBlock, i, 0, numSamples));
                     bufferRMS[i] = juce::jmax(bufferRMS[i], currentRMS[i]);
                     bufferPeak[i] = juce::jmax(bufferPeak[i], currentPeak[i]);
                     peakMax[i] = juce::jmax(currentPeak[i], peakMax[i]);
@@ -47,11 +54,11 @@ namespace zlmeter {
                                      static_cast<FloatType>(currentRMS.size()));
                 subBuffer.pushSubBuffer();
             }
-            subBuffer.popBlock(block, false);
+            subBuffer.popBlock(m_block, false);
         }
 
         void prepare(const juce::dsp::ProcessSpec &spec) {
-            historyRMS.set_capacity(static_cast<size_t>(spec.sampleRate / spec.maximumBlockSize));
+            historyRMS.set_capacity(static_cast<size_t>(spec.sampleRate * subBufferInSecond * 10));
             for (auto f: {&currentRMS, &currentPeak, &peakMax, &bufferRMS, &bufferPeak, &displayRMS, &displayPeak}) {
                 (*f).resize(spec.numChannels);
             }
@@ -61,10 +68,13 @@ namespace zlmeter {
                 displayRMS[i] = static_cast<FloatType>(-100);
                 displayPeak[i] = static_cast<FloatType>(-100);
             }
+            m_buffer.setSize(static_cast<int>(spec.numChannels), static_cast<int>(spec.maximumBlockSize));
             subBuffer.setSubBufferSize(static_cast<int>(spec.sampleRate * subBufferInSecond));
+            delayLine.prepare(spec);
+            delayLine.setMaximumDelayInSamples(static_cast<int>(spec.sampleRate) * 2);
         }
 
-        size_t appendHistory(boost::circular_buffer<FloatType> &buffer, int &discardIndex, int discardNum = 1,
+        size_t appendHistory(boost::circular_buffer<FloatType> &buffer,
                              std::optional<size_t> popNum = std::nullopt) {
             const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
             size_t num = 0;
@@ -72,12 +82,9 @@ namespace zlmeter {
                 popNum = historyRMS.size();
             }
             while (!historyRMS.empty() && num < popNum) {
-                if (discardIndex == 0) {
-                    buffer.push_back(historyRMS.front());
-                    num++;
-                }
+                buffer.push_back(historyRMS.front());
+                num++;
                 historyRMS.pop_front();
-                discardIndex = (discardIndex + 1) % discardNum;
             }
             return num;
         }
@@ -142,12 +149,9 @@ namespace zlmeter {
             decayRate = x;
         }
 
-        bool getDataFlag() {
-            return dataFlag;
-        }
-
-        void resetDataFlag() {
-            dataFlag = false;
+        void setDelay(int numSamples) {
+            delayLine.setDelay(static_cast<float>(numSamples));
+            delayLine.reset();
         }
 
     private:
@@ -158,8 +162,10 @@ namespace zlmeter {
         boost::circular_buffer<FloatType> historyRMS;
         juce::AudioProcessor *processorRef;
         float decayRate = 0.12f;
-        bool dataFlag = false, useSubBuffer = false;
+        bool useSubBuffer = false;
         fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
+        juce::AudioBuffer<FloatType> m_buffer;
+        juce::dsp::DelayLine<FloatType> delayLine;
 
         template<typename T>
         T getRMSLevel(juce::dsp::AudioBlock<T> block, unsigned long channel, unsigned long startSample,
