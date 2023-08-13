@@ -147,6 +147,11 @@ namespace zlmeter {
             }
         }
 
+        void resetHistory() {
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
+            historyRMS.clear();
+        }
+
         void setDecayRate(float x) {
             decayRate = x;
         }

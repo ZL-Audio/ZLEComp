@@ -44,7 +44,9 @@ namespace zlpanel {
         processorRef = &p;
 
         meterIn = &p.getMeterIn();
+        meterIn->resetHistory();
         meterOut = &p.getMeterOut();
+        meterOut->resetHistory();
         rmsIn.set_capacity(timeInSeconds * 30);
         rmsOut.set_capacity(timeInSeconds * 30);
         rmsDiff.set_capacity(timeInSeconds * 30);
@@ -143,6 +145,11 @@ namespace zlpanel {
 
     void MonitorSubPanel::setMonitorVisible(bool f) {
         isMonitorVisible.store(f);
+        if (f) {
+            startTimerHz(callBackHz);
+        } else {
+            stopTimer();
+        }
     }
 
     void MonitorSubPanel::timerCallback() {

@@ -69,6 +69,11 @@ namespace zlpanel {
         if (parameterID == zlstate::showMonitor::ID) {
             auto v = static_cast<bool>(newValue);
             isMonitorVisible.store(v);
+            if (v) {
+                startTimerHz(callBackHz);
+            } else {
+                stopTimer();
+            }
             triggerAsyncUpdate();
         }
     }
