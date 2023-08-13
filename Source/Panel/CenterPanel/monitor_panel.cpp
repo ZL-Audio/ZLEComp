@@ -15,9 +15,9 @@ namespace zlpanel {
             monitorSubPanel(p) {
 //        openGLContext.attachTo(*getTopLevelComponent());
         processorRef = &p;
-
         processorRef->states.addParameterListener(zlstate::showMonitor::ID, this);
         isMonitorVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showMonitor::ID)));
+
         monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
         addAndMakeVisible(monitorSubPanel);
 
@@ -66,10 +66,9 @@ namespace zlpanel {
     }
 
     void MonitorPanel::parameterChanged(const juce::String &parameterID, float newValue) {
-        auto v = static_cast<bool>(newValue);
         if (parameterID == zlstate::showMonitor::ID) {
+            auto v = static_cast<bool>(newValue);
             isMonitorVisible.store(v);
-            monitorSubPanel.setMonitorVisible(v);
             triggerAsyncUpdate();
         }
     }
@@ -79,6 +78,7 @@ namespace zlpanel {
     }
 
     void MonitorPanel::handleAsyncUpdate() {
+        monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
         repaint();
     }
 } // zlpanel

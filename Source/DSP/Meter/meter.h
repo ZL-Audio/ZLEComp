@@ -68,7 +68,9 @@ namespace zlmeter {
                 displayRMS[i] = static_cast<FloatType>(-100);
                 displayPeak[i] = static_cast<FloatType>(-100);
             }
+
             m_buffer.setSize(static_cast<int>(spec.numChannels), static_cast<int>(spec.maximumBlockSize));
+            subBuffer.prepare(spec);
             subBuffer.setSubBufferSize(static_cast<int>(spec.sampleRate * subBufferInSecond));
             delayLine.prepare(spec);
             delayLine.setMaximumDelayInSamples(static_cast<int>(spec.sampleRate) * 2);

@@ -18,7 +18,7 @@ namespace zlcontroller {
             meterOut(processor) {
         m_processor = &processor;
         apvts = &parameters;
-
+        mainDelay.setMaximumDelayInSamples(96000);
         mixer.setWetMixProportion(zldsp::mix::formatV(zldsp::mix::defaultV));
     }
 
@@ -41,10 +41,8 @@ namespace zlcontroller {
 
         mainDelay.prepare(spec);
         mainDelay.setMaximumDelayInSamples(static_cast<int>(spec.sampleRate));
-        mainDelay.setDelay(0);
         dryDelay.prepare(spec);
         dryDelay.setMaximumDelayInSamples(static_cast<int>(spec.sampleRate));
-        dryDelay.setDelay(0);
         sideGainDSP.prepare(spec);
         sideGainDSP.setRampDurationSeconds(0.1);
         outGainDSP.prepare(spec);
