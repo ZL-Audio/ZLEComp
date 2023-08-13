@@ -45,9 +45,9 @@ namespace zlpanel {
 
         meterIn = &p.getMeterIn();
         meterOut = &p.getMeterOut();
-        rmsIn.set_capacity(callBackHz * timeInSeconds * 3);
-        rmsOut.set_capacity(callBackHz * timeInSeconds * 3);
-        rmsDiff.set_capacity(callBackHz * timeInSeconds * 3);
+        rmsIn.set_capacity(timeInSeconds * 30);
+        rmsOut.set_capacity(timeInSeconds * 30);
+        rmsDiff.set_capacity(timeInSeconds * 30);
         rmsIn.push_back(-60);
         rmsOut.push_back(-60);
         rmsDiff.push_back(0);
@@ -89,11 +89,13 @@ namespace zlpanel {
             tempG.drawImageTransformed(image, juce::AffineTransform::translation(-deltaX, 0));
             // draw the new part
             if (!rmsIn.empty()) {
+                lock.enter();
                 auto tempBound = image.getBounds().toFloat();
                 tempBound = tempBound.withTrimmedLeft(
                         juce::jmax(tempBound.getWidth() - deltaX,// - upScaling * fontSize * 0.075f,
                                    0.f));
                 tempG.setColour(zlinterface::TextHideColor);
+
                 lastInEndPoint = plotY(tempG, tempBound,
                                        rmsIn,
                                        rmsIn.size(), -60.f, 0.f,
@@ -108,11 +110,10 @@ namespace zlpanel {
                                          rmsDiff,
                                          rmsDiff.size(), -60.f, 0.f,
                                          thickness * upScaling, lastDiffEndPoint);
-                while (rmsIn.size() > 0) {
-                    rmsIn.pop_front();
-                    rmsOut.pop_front();
-                    rmsDiff.pop_front();
-                }
+                rmsIn.clear();
+                rmsOut.clear();
+                rmsDiff.clear();
+                lock.exit();
             }
             // update image
             image = tempImage;
@@ -145,10 +146,12 @@ namespace zlpanel {
     }
 
     void MonitorSubPanel::timerCallback() {
+        lock.enter();
         auto num = meterIn->appendHistory(rmsIn);
         meterOut->appendHistory(rmsOut, num);
         for (size_t i = rmsIn.size() - num; i < rmsIn.size(); ++i) {
             rmsDiff.push_back(rmsOut[i] - rmsIn[i]);
         }
+        lock.exit();
     }
 } // zlpanel
