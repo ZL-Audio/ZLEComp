@@ -14,10 +14,12 @@ namespace zlcontroller {
     template<typename FloatType>
     ControllerAttach<FloatType>::ControllerAttach(juce::AudioProcessor &processor,
                                                   Controller<FloatType> &c,
-                                                  juce::AudioProcessorValueTreeState &parameters) {
+                                                  juce::AudioProcessorValueTreeState &parameters,
+                                                  juce::AudioProcessorValueTreeState &state_parameters) {
         m_processor = &processor;
         controller = &c;
         apvts = &parameters;
+        states = &state_parameters;
     }
 
     template<typename FloatType>
@@ -54,7 +56,7 @@ namespace zlcontroller {
             controller->setRMSSize(zldsp::rms::formatV(v));
         } else if (parameterID == zldsp::lookahead::ID) {
             controller->setLookAhead(zldsp::lookahead::formatV(v));
-            if (m_processor->getCurrentProgram() == zlstate::preset::halfRMS) {
+            if (static_cast<int>(*states->getRawParameterValue(zlstate::programIdx::ID)) == zlstate::preset::halfRMS) {
                 apvts->getParameter(zldsp::rms::ID)->beginChangeGesture();
                 apvts->getParameter(zldsp::rms::ID)
                         ->setValueNotifyingHost(zldsp::rms::range.convertTo0to1(static_cast<float>(v * 2)));

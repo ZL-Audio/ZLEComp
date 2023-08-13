@@ -11,8 +11,8 @@
 #ifndef ZLLMATCH_LOGOPANEL_H
 #define ZLLMATCH_LOGOPANEL_H
 
-#include <BinaryData.h>
-#include <juce_audio_processors/juce_audio_processors.h>
+#include "BinaryData.h"
+#include "juce_audio_processors/juce_audio_processors.h"
 
 namespace zlpanel {
     class LogoPanel : public juce::Component {

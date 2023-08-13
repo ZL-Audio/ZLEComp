@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_BUTTONCOMPONENT_H
-#define ZLINFLATOR_BUTTONCOMPONENT_H
+#ifndef ZL_BUTTON_COMPONENT_H
+#define ZL_BUTTON_COMPONENT_H
 
 #include "button_look_and_feel.h"
 #include "name_look_and_feel.h"
@@ -36,11 +36,11 @@ namespace zlinterface {
         }
 
         void resized() override {
-            auto bounds = getLocalBounds();
-            bounds.removeFromTop(int(0.1 * bounds.getHeight()));
-            button.setBounds(0, (int) (labelHeight * (float) bounds.getHeight()), bounds.getWidth(),
-                             (int) ((float) bounds.getWidth() * buttonRatio));
-            label.setBoundsRelative(0.f, 0.0f, 1.f, labelHeight);
+            auto bound = getLocalBounds().toFloat();
+            auto labelBound = bound.removeFromTop(labelHeight * bound.getHeight());
+            label.setBounds(labelBound.toNearestInt());
+            bound = bound.withSizeKeepingCentre(bound.getWidth(), bound.getWidth() * buttonRatio);
+            button.setBounds(bound.toNearestInt());
         }
 
         void paint(juce::Graphics &g) override {
@@ -74,4 +74,4 @@ namespace zlinterface {
     };
 }
 
-#endif //ZLINFLATOR_BUTTONCOMPONENT_H
+#endif //ZL_BUTTON_COMPONENT_H

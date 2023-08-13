@@ -19,7 +19,7 @@
     <PARAM id="ratio" value="4.0"/>
     <PARAM id="release" value="0.0"/>
     <PARAM id="rms" value="250.0"/>
-    <PARAM id="segment" value="0.0"/>
+    <PARAM id="segment" value="1.0"/>
     <PARAM id="side_gain" value="0.0"/>
     <PARAM id="smooth" value="0.0"/>
     <PARAM id="threshold" value="-18.0"/>

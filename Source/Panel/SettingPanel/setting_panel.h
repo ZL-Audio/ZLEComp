@@ -8,35 +8,33 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLECOMP_MAIN_PANEL_H
-#define ZLECOMP_MAIN_PANEL_H
+#ifndef ZLECOMP_SETTING_PANEL_H
+#define ZLECOMP_SETTING_PANEL_H
 
-#include <juce_audio_processors/juce_audio_processors.h>
-#include "../PluginProcessor.h"
-#include "../GUI/interface_definitions.h"
-#include "StatePanel/state_panel.h"
-#include "CenterPanel/center_panel.h"
-#include "SettingPanel/setting_panel.h"
+#include "global_setting_panel.h"
+#include "computer_setting_panel.h"
+#include "detector_setting_panel.h"
 
 namespace zlpanel {
 
-    class MainPanel : public juce::Component {
+    class SettingPanel : public juce::Component {
     public:
-        explicit MainPanel(PluginProcessor &p);
+        explicit SettingPanel(juce::AudioProcessorValueTreeState &parameters);
 
-        ~MainPanel() override;
+        ~SettingPanel() override;
 
-        void paint(juce::Graphics &g) override;
+        void paint(juce::Graphics &) override;
 
         void resized() override;
 
+        void setFontSize(float fSize);
+
     private:
-        StatePanel statePanel;
-        CenterPanel centerPanel;
-        SettingPanel settingPanel;
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainPanel)
+        GlobalSettingPanel globalSettingPanel;
+        ComputerSettingPanel computerSettingPanel;
+        DetectorSettingPanel detectorSettingPanel;
     };
 
-} // panel
+} // zlpanel
 
-#endif //ZLECOMP_MAIN_PANEL_H
+#endif //ZLECOMP_SETTING_PANEL_H

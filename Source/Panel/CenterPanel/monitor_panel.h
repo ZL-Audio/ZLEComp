@@ -11,25 +11,20 @@
 #ifndef ZLECOMP_MONITOR_PANEL_H
 #define ZLECOMP_MONITOR_PANEL_H
 
-#include <juce_audio_processors/juce_audio_processors.h>
+#include "juce_audio_processors/juce_audio_processors.h"
 //#include <juce_opengl/juce_opengl.h>
-#include "../PluginProcessor.h"
-#include "../GUI/interface_definitions.h"
-#include "../DSP/Meter/meter.h"
+#include "../../PluginProcessor.h"
+#include "../../GUI/interface_definitions.h"
+#include "../../DSP/Meter/meter.h"
 #include "plot_panel.h"
+#include "monitor_sub_panel.h"
 #include <boost/circular_buffer.hpp>
 
 namespace zlpanel {
-
-    inline juce::Point<float> plotY(juce::Graphics &g, juce::Rectangle<float> bound,
-                                    boost::circular_buffer<float> &y,
-                                    size_t xNum, float yMin, float yMax,
-                                    float thickness, std::optional<juce::Point<float>> startPoint = std::nullopt);
-
-    class MonitorPanel : public juce::Component, private juce::Timer,
-                         public juce::AudioProcessorValueTreeState::Listener {
+    class MonitorPanel : public juce::Component, private juce::Timer, private juce::AsyncUpdater,
+    public juce::AudioProcessorValueTreeState::Listener {
     public:
-        auto static constexpr timeInSeconds = 5, callBackHz = 120, upScaling = 4;
+        auto static constexpr callBackHz = 30;
 
         explicit MonitorPanel(PluginProcessor &p);
 
@@ -44,18 +39,14 @@ namespace zlpanel {
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
     private:
+        MonitorSubPanel monitorSubPanel;
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         PluginProcessor *processorRef;
         std::atomic<bool> isMonitorVisible = zlstate::showMonitor::defaultV;
-        zlmeter::MeterSource<float> *meterIn, *meterOut;
         float fontSize = 0.0f;
-        boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;
 
         void timerCallback() override;
-
-        juce::Image image;
-        juce::Time previousTime;
-        juce::Point<float> lastInEndPoint, lastOutEndPoint, lastDiffEndPoint;
+        void handleAsyncUpdate() override;
 //        juce::OpenGLContext openGLContext;
     };
 

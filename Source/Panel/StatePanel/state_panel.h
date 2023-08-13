@@ -8,38 +8,37 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLECOMP_CENTER_PANEL_H
-#define ZLECOMP_CENTER_PANEL_H
+#ifndef ZLECOMP_STATE_PANEL_H
+#define ZLECOMP_STATE_PANEL_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "../PluginProcessor.h"
-#include "../GUI/interface_definitions.h"
-#include "../State/state_definitions.h"
-#include "plot_panel.h"
-#include "monitor_panel.h"
+#include "../../PluginProcessor.h"
+#include "../../GUI/button_component.h"
+#include "../panel_definitions.h"
+#include "logo_panel.h"
 
 namespace zlpanel {
 
-class CenterPanel : public juce::Component, private juce::Timer {
+    class StatePanel : public juce::Component {
     public:
-        explicit CenterPanel(PluginProcessor &p);
+        explicit StatePanel(juce::AudioProcessorValueTreeState &parameters);
 
-        ~CenterPanel() override;
+        ~StatePanel() override;
 
-        void paint(juce::Graphics &g) override;
+        void paint(juce::Graphics &) override;
 
         void resized() override;
 
         void setFontSize(float fSize);
 
     private:
-        PluginProcessor *processorRef;
-        PlotPanel plotPanel;
-        MonitorPanel monitorPanel;
-        float fontSize = 0.0f;
-        void timerCallback() override;
+        LogoPanel logoPanel;
+        std::unique_ptr<zlinterface::ButtonComponent> showCButton, showDButton, showMButton;
+        std::array<std::unique_ptr<zlinterface::ButtonComponent>*, 3> buttonList{&showCButton, &showDButton, &showMButton};
+
+        juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments;
     };
 
 } // zlpanel
 
-#endif //ZLECOMP_CENTER_PANEL_H
+#endif //ZLECOMP_STATE_PANEL_H

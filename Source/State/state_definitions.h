@@ -36,7 +36,7 @@ namespace zlstate {
     class IntParameters {
     public:
         static std::unique_ptr<juce::AudioParameterInt> get(bool automate = true) {
-            auto attributes = juce::AudioParameterIntAttributes().withAutomatable(automate);
+            auto attributes = juce::AudioParameterIntAttributes().withAutomatable(automate).withLabel(T::name);
             return std::make_unique<juce::AudioParameterInt>(juce::ParameterID(T::ID, versionHint), T::name,
                                                              T::minV, T::maxV, T::defaultV, attributes);
         }
@@ -50,7 +50,7 @@ namespace zlstate {
     class FloatParameters {
     public:
         static std::unique_ptr<juce::AudioParameterFloat> get(bool automate = true) {
-            auto attributes = juce::AudioParameterFloatAttributes().withAutomatable(automate);
+            auto attributes = juce::AudioParameterFloatAttributes().withAutomatable(automate).withLabel(T::name);
             return std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(T::ID, versionHint), T::name,
                                                              T::range, T::defaultV, attributes);
         }
@@ -69,42 +69,24 @@ namespace zlstate {
         inline static const int defaultV = 0;
     };
 
-//    class windowW : public IntParameters<windowW> {
-//    public:
-//        auto static constexpr ID = "window_w";
-//        auto static constexpr name = "Window W";
-//        inline static const int minV = 200;
-//        inline static const int maxV = 400;
-//        inline static const int defaultV = 300;
-//    };
-
     class windowW : public FloatParameters<windowW> {
     public:
         auto static constexpr ID = "window_w";
         auto static constexpr name = "NA_Window W";
-        inline static const int minV = 400;
-        inline static const int maxV = 800;
-        inline static const int defaultV = 600;
+        inline static const int minV = 476;
+        inline static const int maxV = 1428;
+        inline static const int defaultV = 476;
         inline auto static const range =
                 juce::NormalisableRange<float>(minV, maxV, 1.f);
     };
-
-//    class windowH : public IntParameters<windowH> {
-//    public:
-//        auto static constexpr ID = "window_h";
-//        auto static constexpr name = "Window H";
-//        inline static const int minV = 200;
-//        inline static const int maxV = 400;
-//        inline static const int defaultV = 300;
-//    };
 
     class windowH : public FloatParameters<windowH> {
     public:
         auto static constexpr ID = "window_h";
         auto static constexpr name = "NA_Window H";
-        inline static const int minV = 200;
-        inline static const int maxV = 400;
-        inline static const int defaultV = 300;
+        inline static const int minV = 443;
+        inline static const int maxV = 1329;
+        inline static const int defaultV = 443;
         inline auto static const range =
                 juce::NormalisableRange<float>(minV, maxV, 1.f);
     };
@@ -114,7 +96,7 @@ namespace zlstate {
     class BoolParameters {
     public:
         static std::unique_ptr<juce::AudioParameterBool> get(bool automate = true) {
-            auto attributes = juce::AudioParameterBoolAttributes().withAutomatable(automate);
+            auto attributes = juce::AudioParameterBoolAttributes().withAutomatable(automate).withLabel(T::name);
             return std::make_unique<juce::AudioParameterBool>(juce::ParameterID(T::ID, versionHint), T::name,
                                                               T::defaultV, attributes);
         }
@@ -129,21 +111,21 @@ namespace zlstate {
     class showComputer : public BoolParameters<showComputer> {
     public:
         auto static constexpr ID = "show_computer";
-        auto static constexpr name = "NA_Show Computer";
+        auto static constexpr name = "NA";
         auto static constexpr defaultV = true;
     };
 
     class showDetector : public BoolParameters<showDetector> {
     public:
         auto static constexpr ID = "show_detector";
-        auto static constexpr name = "NA_Show Detector";
+        auto static constexpr name = "NA";
         auto static constexpr defaultV = false;
     };
 
     class showMonitor : public BoolParameters<showMonitor> {
     public:
         auto static constexpr ID = "show_monitor";
-        auto static constexpr name = "NA_Show Monitor";
+        auto static constexpr name = "NA";
         auto static constexpr defaultV = true;
     };
 
@@ -151,9 +133,9 @@ namespace zlstate {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         layout.add(programIdx::get(false),
                    windowW::get(false), windowH::get(false),
-                   showComputer::get("C", false),
-                   showDetector::get("D", false),
-                   showMonitor::get("M", false));
+                   showComputer::get("Computer", false),
+                   showDetector::get("Detector", false),
+                   showMonitor::get("Monitor", false));
         return layout;
     }
 

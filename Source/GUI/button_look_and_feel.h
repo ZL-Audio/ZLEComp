@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_BUTTONLOOKANDFEEL_H
-#define ZLINFLATOR_BUTTONLOOKANDFEEL_H
+#ifndef ZL_BUTTON_LOOK_AND_FEEL_H
+#define ZL_BUTTON_LOOK_AND_FEEL_H
 
 
 #include "interface_definitions.h"
@@ -82,4 +82,4 @@ namespace zlinterface {
         std::atomic<bool> editable = true;
     };
 }
-#endif //ZLINFLATOR_BUTTONLOOKANDFEEL_H
+#endif //ZL_BUTTON_LOOK_AND_FEEL_H

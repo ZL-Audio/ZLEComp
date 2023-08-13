@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_COMBOBOXLOOKANDFEEL_H
-#define ZLINFLATOR_COMBOBOXLOOKANDFEEL_H
+#ifndef ZL_COMBOBOX_LOOK_AND_FEEL_H
+#define ZL_COMBOBOX_LOOK_AND_FEEL_H
 
 #include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
@@ -26,7 +26,7 @@ namespace zlinterface {
                           juce::ComboBox &box) override {
             juce::ignoreUnused(isButtonDown);
             auto cornerSize = fontSize * 0.5f;
-            auto blurRadius = fontSize * 0.15f;
+//            auto blurRadius = fontSize * 0.15f;
             if (!box.isPopupActive()) {
                 auto boxBounds = juce::Rectangle<float>(0, (float) 0,
                                                         (float) width, (float) height * 1.0f);
@@ -34,7 +34,7 @@ namespace zlinterface {
                 fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, {.blurRadius=0.45f, .flip=true});
             } else {
                 auto boxBounds = juce::Rectangle<float>(0, 0,
-                                                        (float) width * 1.0f, (float) height + cornerSize * 2.f);
+                                                        (float) width * 1.0f, (float) height + cornerSize * 3.f);
                 boxBounds = fillRoundedShadowRectangle(g, boxBounds, cornerSize,
                                                        {.curveBottomLeft=false, .curveBottomRight=false});
                 fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, {.blurRadius=0.45f, .flip=true});
@@ -67,9 +67,8 @@ namespace zlinterface {
 
         void drawPopupMenuBackground(juce::Graphics &g, int width, int height) override {
             auto cornerSize = fontSize * 0.5f;
-            auto blurRadius = fontSize * 0.15f;
-            auto boxBounds = juce::Rectangle<float>(0, -2.f * cornerSize, (float) width,
-                                                    (float) height + 2.f * cornerSize);
+            auto boxBounds = juce::Rectangle<float>(0, -2.f * cornerSize, static_cast<float>(width),
+                                                    static_cast<float>(height) + 2.f * cornerSize);
             boxBounds = fillRoundedShadowRectangle(g, boxBounds, cornerSize,
                                                    {.curveTopLeft=false, .curveTopRight=false});
             fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, {.blurRadius=0.45f, .flip=true});
@@ -132,4 +131,4 @@ namespace zlinterface {
     };
 }
 
-#endif //ZLINFLATOR_COMBOBOXLOOKANDFEEL_H
+#endif //ZL_COMBOBOX_LOOK_AND_FEEL_H

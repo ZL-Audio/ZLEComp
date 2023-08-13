@@ -23,7 +23,7 @@ PluginProcessor::PluginProcessor()
           parameters(*this, nullptr, juce::Identifier("ZLECompParameters"), zldsp::getParameterLayout()),
           states(*this, nullptr, juce::Identifier("ZLECompStates"), zlstate::getParameterLayout()),
           controller(*this, parameters),
-          controllerAttach(*this, controller, parameters),
+          controllerAttach(*this, controller, parameters, states),
           detectorAttach(controller, parameters),
           computerAttach(controller, parameters) {
     controllerAttach.initDefaultVs();

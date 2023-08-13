@@ -74,7 +74,7 @@ namespace zlcontroller {
         std::atomic<bool> audit, external;
         std::atomic<FloatType> link;
         juce::dsp::Gain<FloatType> sideGainDSP, outGainDSP, lGainDSP, rGainDSP;
-        juce::dsp::DelayLine<FloatType> mainDelay;
+        juce::dsp::DelayLine<FloatType> mainDelay, dryDelay;
         juce::dsp::DryWetMixer<FloatType> mixer;
 
         fixedBuffer::FixedAudioBuffer<FloatType> subBuffer;
@@ -86,7 +86,7 @@ namespace zlcontroller {
         juce::AudioProcessor *m_processor;
         juce::AudioProcessorValueTreeState *apvts;
 
-        juce::AudioBuffer<FloatType> allBuffer;
+        juce::AudioBuffer<FloatType> allBuffer, dryBuffer;
 
         void setLatency();
     };

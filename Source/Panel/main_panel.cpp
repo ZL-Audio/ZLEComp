@@ -12,11 +12,10 @@
 
 namespace zlpanel {
     MainPanel::MainPanel(PluginProcessor &p) :
-            logoPanel(), centerPanel(p) {
+            statePanel(p.states), centerPanel(p), settingPanel(p.parameters){
         addAndMakeVisible(centerPanel);
-//        addAndMakeVisible(logoPanel);
-//        addAndMakeVisible(computerPlotPanel);
-//        addAndMakeVisible(detectorPlotPanel);
+        addAndMakeVisible(settingPanel);
+        addAndMakeVisible(statePanel);
     }
 
     MainPanel::~MainPanel() = default;
@@ -24,24 +23,33 @@ namespace zlpanel {
     void MainPanel::paint(juce::Graphics &g) {
         g.fillAll(zlinterface::BackgroundColor);
         auto bound = getLocalBounds().toFloat();
-        float fontSize = bound.getHeight() * 0.0514f;
+        float fontSize = bound.getHeight() * 0.0514f * 0.5f;
         bound = zlinterface::fillRoundedShadowRectangle(g, bound, fontSize * 0.5f, {});
         zlinterface::fillRoundedInnerShadowRectangle(g, bound, fontSize * 0.5f, {.blurRadius=0.45f, .flip=true});
     }
 
     void MainPanel::resized() {
         auto bound = getLocalBounds().toFloat();
-        auto fontSize = bound.getHeight() * 0.0514f;
+        auto fontSize = bound.getHeight() * 0.0514f * 0.45f;
         bound = zlinterface::getRoundedShadowRectangleArea(bound, fontSize * 0.5f, {});
-        auto intBound = bound.toNearestInt();
-
-        logoPanel.setBounds(intBound);
-        centerPanel.setBounds(intBound);
+        bound = zlinterface::getRoundedShadowRectangleArea(bound, fontSize * 0.5f, {});
+        statePanel.setFontSize(static_cast<float> (fontSize));
         centerPanel.setFontSize(static_cast<float> (fontSize));
-//        computerPlotPanel.setBounds(intBound);
-//        computerPlotPanel.setFontSize(static_cast<float> (fontSize));
-//
-//        detectorPlotPanel.setBounds(intBound);
-//        detectorPlotPanel.setFontSize(static_cast<float> (fontSize));
+        settingPanel.setFontSize(static_cast<float> (fontSize));
+
+        juce::Grid grid;
+        using Track = juce::Grid::TrackInfo;
+        using Fr = juce::Grid::Fr;
+
+        grid.templateRows = {Track(Fr(3)), Track(Fr(12)), Track(Fr(16))};
+        grid.templateColumns = {Track(Fr(7))};
+
+        juce::Array<juce::GridItem> items;
+        items.add(statePanel);
+        items.add(settingPanel);
+        items.add(centerPanel);
+        grid.items = items;
+
+        grid.performLayout(bound.toNearestInt());
     }
 } // panel

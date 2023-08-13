@@ -16,6 +16,10 @@ PluginEditor::PluginEditor(PluginProcessor &p) :
         AudioProcessorEditor(&p), processorRef(p),
         mainPanel(p) {
     juce::ignoreUnused(processorRef);
+    // set font
+    auto sourceCodePro = juce::Typeface::createSystemTypefaceFor(BinaryData::OpenSansSemiBold_ttf,
+                                                                 BinaryData::OpenSansSemiBold_ttfSize);
+    juce::LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypeface(sourceCodePro);
 
     addAndMakeVisible(mainPanel);
 
@@ -50,6 +54,6 @@ void PluginEditor::resized() {
     lastUIHeight = getHeight();
 }
 
-void PluginEditor::valueChanged (juce::Value&) {
+void PluginEditor::valueChanged(juce::Value &) {
     setSize(lastUIWidth.getValue(), lastUIHeight.getValue());
 }

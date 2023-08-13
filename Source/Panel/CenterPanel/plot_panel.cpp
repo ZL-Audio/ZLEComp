@@ -68,7 +68,7 @@ namespace zlpanel {
             auto bound = getLocalBounds().toFloat();
 
             g.setColour(zlinterface::TextInactiveColor);
-            g.setFont(fontSize * zlinterface::FontSmall);
+            g.setFont(fontSize * zlinterface::FontNormal);
             g.drawText("0",
                        juce::Rectangle<float>(
                                bound.getX(), bound.getY() + smallPadding * fontSize,
@@ -117,7 +117,7 @@ namespace zlpanel {
             g.setColour(zlinterface::TextColor);
             plotXY(g, bound,
                    x, y, -60.f, 0.f, -60.f, 0.f,
-                   fontSize * 0.1f);
+                   fontSize * 0.125f);
         }
     }
 
@@ -167,7 +167,7 @@ namespace zlpanel {
 
             auto bound = getLocalBounds().toFloat();
             g.setColour(zlinterface::TextInactiveColor);
-            g.setFont(fontSize * zlinterface::FontSmall);
+            g.setFont(fontSize * zlinterface::FontNormal);
             g.drawText("0",
                        juce::Rectangle<float>(
                                bound.getX(), bound.getY() + smallPadding * fontSize,
@@ -223,7 +223,7 @@ namespace zlpanel {
             g.setColour(zlinterface::TextColor);
             plotXY(g, bound,
                    x, y, 0.f, xMax, 0.1f, 1.f,
-                   fontSize * 0.1f);
+                   fontSize * 0.125f);
         }
     }
 

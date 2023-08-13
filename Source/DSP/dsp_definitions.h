@@ -23,7 +23,7 @@ namespace zldsp {
     class FloatParameters {
     public:
         static std::unique_ptr<juce::AudioParameterFloat> get(bool automate = true) {
-            auto attributes = juce::AudioParameterFloatAttributes().withAutomatable(automate);
+            auto attributes = juce::AudioParameterFloatAttributes().withAutomatable(automate).withLabel(T::name);
             return std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(T::ID, versionHint), T::name, T::range,
                                                                T::defaultV, attributes);
         }
@@ -210,7 +210,7 @@ namespace zldsp {
     class BoolParameters {
     public:
         static std::unique_ptr<juce::AudioParameterBool> get(bool automate = true) {
-            auto attributes = juce::AudioParameterBoolAttributes().withAutomatable(automate);
+            auto attributes = juce::AudioParameterBoolAttributes().withAutomatable(automate).withLabel(T::name);
             return std::make_unique<juce::AudioParameterBool>(juce::ParameterID(T::ID, versionHint), T::name,
                                                               T::defaultV, attributes);
         }
@@ -235,7 +235,7 @@ namespace zldsp {
     class ChoiceParameters {
     public:
         static std::unique_ptr<juce::AudioParameterChoice> get(bool automate = true) {
-            auto attributes = juce::AudioParameterChoiceAttributes().withAutomatable(automate);
+            auto attributes = juce::AudioParameterChoiceAttributes().withAutomatable(automate).withLabel(T::name);
             return std::make_unique<juce::AudioParameterChoice>(
                     juce::ParameterID(T::ID, versionHint), T::name, T::choices, T::defaultI, attributes);
         }

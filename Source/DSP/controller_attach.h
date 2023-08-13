@@ -24,7 +24,8 @@ namespace zlcontroller {
     public:
         explicit ControllerAttach(juce::AudioProcessor &processor,
                                   Controller<FloatType> &c,
-                                  juce::AudioProcessorValueTreeState &parameters);
+                                  juce::AudioProcessorValueTreeState &parameters,
+                                  juce::AudioProcessorValueTreeState &state_parameters);
 
         ~ControllerAttach() override;
 
@@ -37,7 +38,7 @@ namespace zlcontroller {
     private:
         juce::AudioProcessor *m_processor;
         Controller<FloatType> *controller;
-        juce::AudioProcessorValueTreeState *apvts;
+        juce::AudioProcessorValueTreeState *apvts, *states;
         constexpr const static std::array IDs{zldsp::outGain::ID, zldsp::mix::ID,
                                               zldsp::overSample::ID,
                                               zldsp::rms::ID, zldsp::lookahead::ID,

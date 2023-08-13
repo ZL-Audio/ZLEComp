@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_INTERFACE_DEFINES_H
-#define ZLINFLATOR_INTERFACE_DEFINES_H
+#ifndef ZL_INTERFACE_DEFINES_H
+#define ZL_INTERFACE_DEFINES_H
 
 #include "juce_gui_basics/juce_gui_basics.h"
 
@@ -244,4 +244,4 @@ namespace zlinterface {
     }
 }
 
-#endif //ZLINFLATOR_INTERFACE_DEFINES_H
+#endif //ZL_INTERFACE_DEFINES_H

@@ -102,6 +102,8 @@ set(SourceFiles
         Source/DSP/Meter/meter.h
 
         Source/GUI/interface_definitions.h
+        Source/GUI/linear_slider_look_and_feel.h
+        Source/GUI/linear_slider_component.h
         Source/GUI/rotary_slider_look_and_feel.h
         Source/GUI/rotary_slider_component.h
         Source/GUI/button_look_and_feel.h
@@ -110,16 +112,32 @@ set(SourceFiles
         Source/GUI/combo_box_component.h
         Source/GUI/name_look_and_feel.h
 
+        Source/Panel/panel_definitions.h
         Source/Panel/main_panel.h
         Source/Panel/main_panel.cpp
-        Source/Panel/center_panel.h
-        Source/Panel/center_panel.cpp
-        Source/Panel/logo_panel.h
-        Source/Panel/logo_panel.cpp
-        Source/Panel/plot_panel.h
-        Source/Panel/plot_panel.cpp
-        Source/Panel/monitor_panel.h
-        Source/Panel/monitor_panel.cpp
+
+        Source/Panel/StatePanel/state_panel.h
+        Source/Panel/StatePanel/state_panel.cpp
+        Source/Panel/StatePanel/logo_panel.h
+        Source/Panel/StatePanel/logo_panel.cpp
+
+        Source/Panel/CenterPanel/center_panel.h
+        Source/Panel/CenterPanel/center_panel.cpp
+        Source/Panel/CenterPanel/plot_panel.h
+        Source/Panel/CenterPanel/plot_panel.cpp
+        Source/Panel/CenterPanel/monitor_panel.h
+        Source/Panel/CenterPanel/monitor_panel.cpp
+        Source/Panel/CenterPanel/monitor_sub_panel.h
+        Source/Panel/CenterPanel/monitor_sub_panel.cpp
+
+        Source/Panel/SettingPanel/setting_panel.h
+        Source/Panel/SettingPanel/setting_panel.cpp
+        Source/Panel/SettingPanel/global_setting_panel.h
+        Source/Panel/SettingPanel/global_setting_panel.cpp
+        Source/Panel/SettingPanel/detector_setting_panel.h
+        Source/Panel/SettingPanel/detector_setting_panel.cpp
+        Source/Panel/SettingPanel/computer_setting_panel.h
+        Source/Panel/SettingPanel/computer_setting_panel.cpp
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 

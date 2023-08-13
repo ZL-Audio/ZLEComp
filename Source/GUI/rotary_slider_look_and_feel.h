@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_ROTARYSLIDERLOOKANDFEEL_H
-#define ZLINFLATOR_ROTARYSLIDERLOOKANDFEEL_H
+#ifndef ZL_ROTARY_SLIDER_LOOK_AND_FEEL_H
+#define ZL_ROTARY_SLIDER_LOOK_AND_FEEL_H
 
 #include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
@@ -77,10 +77,8 @@ namespace zlinterface {
         juce::Slider::SliderLayout getSliderLayout(juce::Slider &slider) override {
             auto localBounds = slider.getLocalBounds().toFloat();
             juce::Slider::SliderLayout layout;
-            auto textBounds = juce::Rectangle<float>(localBounds.getX() + 0.15f * localBounds.getWidth(),
-                                                     localBounds.getY() + 0.15f * localBounds.getHeight(),
-                                                     localBounds.getWidth() * 0.7f,
-                                                     localBounds.getHeight() * 0.7f);
+            auto textBounds = localBounds.withSizeKeepingCentre(localBounds.getWidth() * 0.7f,
+                                                                localBounds.getHeight() * 0.7f);
             layout.textBoxBounds = textBounds.toNearestInt();
             layout.sliderBounds = slider.getLocalBounds();
             return layout;
@@ -99,7 +97,11 @@ namespace zlinterface {
             } else {
                 g.setFont(labelArea.getHeight() * 0.6f);
             }
-            g.drawSingleLineText(juce::String(label.getText()),
+            juce::String labelToDisplay = juce::String(label.getText()).substring(0, 4);
+            if (labelToDisplay.contains(".")) {
+                labelToDisplay = juce::String(label.getText()).substring(0, 5);
+            }
+            g.drawSingleLineText(labelToDisplay,
                                  juce::roundToInt(center.x + g.getCurrentFont().getHorizontalScale()),
                                  juce::roundToInt(center.y + g.getCurrentFont().getDescent()),
                                  juce::Justification::horizontallyCentred);
@@ -118,4 +120,4 @@ namespace zlinterface {
         std::atomic<bool> editable = true;
     };
 }
-#endif //ZLINFLATOR_ROTARYSLIDERLOOKANDFEEL_H
+#endif //ZL_ROTARY_SLIDER_LOOK_AND_FEEL_H

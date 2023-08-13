@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_NAMELOOKANDFEEL_H
-#define ZLINFLATOR_NAMELOOKANDFEEL_H
+#ifndef ZL_NAME_LOOK_AND_FEEL_H
+#define ZL_NAME_LOOK_AND_FEEL_H
 
 #include "interface_definitions.h"
 #include "juce_gui_basics/juce_gui_basics.h"
@@ -49,4 +49,4 @@ namespace zlinterface {
     };
 }
 
-#endif // ZLINFLATOR_NAMELOOKANDFEEL_H
+#endif //ZL_NAME_LOOK_AND_FEEL_H

@@ -14,12 +14,12 @@
 //#include <iostream>
 //#include <fstream>
 #include <span>
-#include <juce_audio_processors/juce_audio_processors.h>
-#include "../PluginProcessor.h"
-#include "../GUI/interface_definitions.h"
-#include "../DSP/dsp_definitions.h"
-#include "../DSP/computer_attach.h"
-#include "../DSP/detector_attach.h"
+#include "juce_audio_processors/juce_audio_processors.h"
+#include "../../PluginProcessor.h"
+#include "../../GUI/interface_definitions.h"
+#include "../../DSP/dsp_definitions.h"
+#include "../../DSP/computer_attach.h"
+#include "../../DSP/detector_attach.h"
 
 namespace zlpanel {
     float getPointX(juce::Rectangle<float> bound, float x, float xMin, float xMax);

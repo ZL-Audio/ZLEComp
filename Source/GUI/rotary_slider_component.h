@@ -8,8 +8,8 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLINFLATOR_ROTARYSLIDERCOMPONENT_H
-#define ZLINFLATOR_ROTARYSLIDERCOMPONENT_H
+#ifndef ZL_ROTARY_SLIDER_COMPONENT_H
+#define ZL_ROTARY_SLIDER_COMPONENT_H
 
 #include "name_look_and_feel.h"
 #include "rotary_slider_look_and_feel.h"
@@ -80,4 +80,4 @@ namespace zlinterface {
         constexpr static float labelHeight = 1.f - sliderHeight;
     };
 }
-#endif //ZLINFLATOR_ROTARYSLIDERCOMPONENT_H
+#endif //ZL_ROTARY_SLIDER_COMPONENT_H
