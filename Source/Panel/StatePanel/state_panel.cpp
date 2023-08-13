@@ -11,35 +11,46 @@
 #include "state_panel.h"
 
 namespace zlpanel {
-
     StatePanel::StatePanel(juce::AudioProcessorValueTreeState &parameters) : logoPanel() {
         addAndMakeVisible(logoPanel);
-        std::array<std::string, 3> buttonID{zlstate::showComputer::ID, zlstate::showDetector::ID, zlstate::showMonitor::ID};
+        std::array<std::string, 3> buttonID{zlstate::showComputer::ID, zlstate::showDetector::ID,
+                                            zlstate::showMonitor::ID};
         attachButtons<zlinterface::ButtonComponent, 3>(*this, buttonList, buttonAttachments, buttonID, parameters);
     }
 
     StatePanel::~StatePanel() = default;
 
-    void StatePanel::paint(juce::Graphics &) {}
+    void StatePanel::paint(juce::Graphics &g) {
+        auto bound = getLocalBounds().toFloat();
+        bound = bound.withTrimmedLeft(bound.getWidth() * float (8) / float(14));
+        zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {
+                .blurRadius=0.25f, .mainColour=zlinterface::BackgroundColor});
+    }
 
     void StatePanel::resized() {
+        auto bound = getLocalBounds().toFloat();
+        logoPanel.setBounds(bound.removeFromLeft(bound.getWidth() * float(3) / float(14)).toNearestInt());
+        bound = bound.withTrimmedLeft(bound.getWidth() * float(5) / float(11));
+        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+
         juce::Grid grid;
         using Track = juce::Grid::TrackInfo;
         using Fr = juce::Grid::Fr;
 
         grid.templateRows = {Track(Fr(1))};
-        grid.templateColumns = {Track(Fr(3)), Track(Fr(5)), Track(Fr(2)), Track(Fr(2)), Track(Fr(2))};
-        grid.items = {
-                juce::GridItem(logoPanel).withArea(1, 1),
-                juce::GridItem(*showCButton).withArea(1, 3),
-                juce::GridItem(*showDButton).withArea(1, 4),
-                juce::GridItem(*showMButton).withArea(1, 5)
-        };
+        grid.templateColumns = {Track(Fr(1)), Track(Fr(1)), Track(Fr(1))};
 
-        grid.performLayout(getLocalBounds());
+        juce::Array<juce::GridItem> items;
+        items.add(*showCButton);
+        items.add(*showDButton);
+        items.add(*showMButton);
+        grid.items = items;
+
+        grid.performLayout(bound.toNearestInt());
     }
 
     void StatePanel::setFontSize(float fSize) {
+        fontSize = fSize;
         for (auto const &b: buttonList) {
             (*b)->setFontSize(fSize);
         }

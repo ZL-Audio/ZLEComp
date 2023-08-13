@@ -46,7 +46,7 @@ namespace zlinterface {
         }
 
         void paint(juce::Graphics &g) override {
-            g.fillAll(BackgroundColor);
+            juce::ignoreUnused(g);
         }
 
         juce::ComboBox &getComboBox() { return comboBox; }

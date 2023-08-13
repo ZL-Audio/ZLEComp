@@ -25,7 +25,7 @@ namespace zlpanel {
 
         ~StatePanel() override;
 
-        void paint(juce::Graphics &) override;
+        void paint(juce::Graphics &g) override;
 
         void resized() override;
 
@@ -34,9 +34,12 @@ namespace zlpanel {
     private:
         LogoPanel logoPanel;
         std::unique_ptr<zlinterface::ButtonComponent> showCButton, showDButton, showMButton;
-        std::array<std::unique_ptr<zlinterface::ButtonComponent>*, 3> buttonList{&showCButton, &showDButton, &showMButton};
+        std::array<std::unique_ptr<zlinterface::ButtonComponent> *, 3> buttonList{&showCButton, &showDButton,
+                                                                                  &showMButton};
 
         juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments;
+
+        float fontSize = 0.f;
     };
 
 } // zlpanel

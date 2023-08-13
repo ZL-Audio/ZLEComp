@@ -68,7 +68,7 @@ namespace zlpanel {
             auto bound = getLocalBounds().toFloat();
 
             g.setColour(zlinterface::TextInactiveColor);
-            g.setFont(fontSize * zlinterface::FontNormal);
+            g.setFont(fontSize * zlinterface::FontLarge);
             g.drawText("0",
                        juce::Rectangle<float>(
                                bound.getX(), bound.getY() + smallPadding * fontSize,
@@ -167,7 +167,7 @@ namespace zlpanel {
 
             auto bound = getLocalBounds().toFloat();
             g.setColour(zlinterface::TextInactiveColor);
-            g.setFont(fontSize * zlinterface::FontNormal);
+            g.setFont(fontSize * zlinterface::FontLarge);
             g.drawText("0",
                        juce::Rectangle<float>(
                                bound.getX(), bound.getY() + smallPadding * fontSize,

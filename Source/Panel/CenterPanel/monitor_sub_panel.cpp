@@ -96,7 +96,7 @@ namespace zlpanel {
                 tempBound = tempBound.withTrimmedLeft(
                         juce::jmax(tempBound.getWidth() - deltaX,// - upScaling * fontSize * 0.075f,
                                    0.f));
-                tempG.setColour(zlinterface::TextHideColor);
+                tempG.setColour(zlinterface::TextInactiveColor);
 
                 lastInEndPoint = plotY(tempG, tempBound,
                                        rmsIn,

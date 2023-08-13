@@ -13,7 +13,6 @@
 namespace zlpanel {
     MonitorPanel::MonitorPanel(PluginProcessor &p) :
             monitorSubPanel(p) {
-//        openGLContext.attachTo(*getTopLevelComponent());
         processorRef = &p;
         processorRef->states.addParameterListener(zlstate::showMonitor::ID, this);
         isMonitorVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showMonitor::ID)));
@@ -25,7 +24,6 @@ namespace zlpanel {
     }
 
     MonitorPanel::~MonitorPanel() {
-//        openGLContext.detach();
         stopTimer();
     }
 
@@ -42,11 +40,45 @@ namespace zlpanel {
             g.setColour(zlinterface::TextInactiveColor);
             auto thickness = fontSize * 0.1f;
             g.drawRect(bound, thickness);
+            g.setFont(fontSize * zlinterface::FontLarge);
+
+            g.setColour(zlinterface::TextInactiveColor);
+            g.drawText("0",
+                       juce::Rectangle<float>(
+                               bound.getX() + bound.getWidth() + 0.125f * fontSize,
+                               bound.getY(),
+                               largePadding * fontSize, fontSize),
+                       juce::Justification::centredLeft);
+
+            g.drawText("-60",
+                       juce::Rectangle<float>(
+                               bound.getX() + bound.getWidth() + 0.1f * fontSize,
+                               bound.getY() + bound.getHeight() - fontSize,
+                               largePadding * fontSize, fontSize),
+                       juce::Justification::centredLeft);
+
+            float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
+            for (int i = 1; i < 6; ++i) {
+                auto value = zlinterface::formatFloat(-static_cast<float>(i) * 10, 0);
+                auto initialY = bound.getY() + static_cast<float>(i) / 6.f * bound.getHeight();
+                g.setColour(zlinterface::TextInactiveColor);
+                g.drawText(value,
+                           juce::Rectangle<float>(
+                                   bound.getX() + bound.getWidth() + 0.1f * fontSize,
+                                   initialY - 0.5f * fontSize,
+                                   largePadding * fontSize, fontSize),
+                           juce::Justification::centredLeft);
+                g.setColour(zlinterface::TextHideColor);
+                g.drawDashedLine(juce::Line<float>(bound.getX(),
+                                                   initialY,
+                                                   bound.getX() + bound.getWidth(),
+                                                   initialY),
+                                 dashLengths, 2, fontSize * 0.1f);
+            }
         }
     }
 
     void MonitorPanel::resized() {
-//        image = image.rescaled(getWidth() * upScaling, getHeight() * upScaling);
         auto bound = getLocalBounds().toFloat();
         bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
         bound = bound.withTrimmedLeft(

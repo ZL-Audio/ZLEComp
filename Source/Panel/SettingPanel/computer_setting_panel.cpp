@@ -16,12 +16,13 @@ namespace zlpanel {
         attachSliders<zlinterface::RotarySliderComponent, 2>(*this, rotarySliderList, sliderAttachments, rotarySliderID,
                                                              parameters);
 
-        std::array<std::string, 4> linearSliderID{zldsp::kneeW::ID, zldsp::kneeS::ID, zldsp::kneeD::ID, zldsp::bound::ID};
+        std::array<std::string, 4> linearSliderID{zldsp::kneeW::ID, zldsp::kneeS::ID, zldsp::kneeD::ID,
+                                                  zldsp::bound::ID};
         attachSliders<zlinterface::LinearSliderComponent, 4>(*this, linearSliderList, sliderAttachments, linearSliderID,
                                                              parameters);
     }
 
-    ComputerSettingPanel::~ComputerSettingPanel()  = default;
+    ComputerSettingPanel::~ComputerSettingPanel() = default;
 
     void ComputerSettingPanel::paint(juce::Graphics &g) {
         auto bound = getLocalBounds().toFloat();

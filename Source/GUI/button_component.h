@@ -44,7 +44,7 @@ namespace zlinterface {
         }
 
         void paint(juce::Graphics &g) override {
-            g.fillAll(BackgroundColor);
+            juce::ignoreUnused(g);
         }
 
         juce::ToggleButton &getButton() { return button; }

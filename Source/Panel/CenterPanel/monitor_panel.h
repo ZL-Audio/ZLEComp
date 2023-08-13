@@ -47,7 +47,6 @@ namespace zlpanel {
 
         void timerCallback() override;
         void handleAsyncUpdate() override;
-//        juce::OpenGLContext openGLContext;
     };
 
 } // zlpanel

@@ -51,7 +51,9 @@ namespace zlinterface {
             slider.setBounds(buttonBounds.toNearestInt());
         }
 
-        void paint(juce::Graphics &g) override { juce::ignoreUnused(g); }
+        void paint(juce::Graphics &g) override {
+            juce::ignoreUnused(g);
+        }
 
         juce::Slider &getSlider() { return slider; }
 
