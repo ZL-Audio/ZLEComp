@@ -90,8 +90,8 @@ namespace zlpanel {
                 fontSize * largePadding).withTrimmedTop(
                 fontSize * smallPadding);
         auto thickness = fontSize * 0.1f;
-        bound = bound.withSizeKeepingCentre(bound.getWidth() - 2 * thickness,
-                                            bound.getHeight() - 2 * thickness);
+        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
+                                            bound.getHeight() - thickness);
         monitorSubPanel.setBounds(bound.toNearestInt());
     }
 

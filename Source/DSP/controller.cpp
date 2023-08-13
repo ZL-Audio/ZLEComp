@@ -228,7 +228,7 @@ namespace zlcontroller {
         lGainDSP.prepare(spec);
         rGainDSP.prepare(spec);
 
-        auto rampSeconds = double(spec.maximumBlockSize - 1) / 4 / spec.sampleRate;
+        auto rampSeconds = double(spec.maximumBlockSize) / 4 / spec.sampleRate;
         lGainDSP.setRampDurationSeconds(rampSeconds);
         rGainDSP.setRampDurationSeconds(rampSeconds);
 

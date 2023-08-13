@@ -42,7 +42,7 @@ namespace zldetector {
         inline void setAttack(FloatType v) {
             v = juce::jmax(v, FloatType(0.0001));
             attack.store(v);
-            aPara.store(juce::jmin(getScale(smooth.load(), aStyle.load()) / v * deltaT.load(), FloatType(1)));
+            aPara.store(juce::jmin(getScale(smooth.load(), aStyle.load()) / v * deltaT.load(), FloatType(0.5)));
         }
 
         inline FloatType getAttack() const { return attack.load(); }
@@ -50,7 +50,7 @@ namespace zldetector {
         inline void setRelease(FloatType v) {
             v = juce::jmax(v, FloatType(0.0001));
             release.store(v);
-            rPara.store(juce::jmin(getScale(smooth.load(), rStyle.load()) / v * deltaT.load(), FloatType(1)));
+            rPara.store(juce::jmin(getScale(smooth.load(), rStyle.load()) / v * deltaT.load(), FloatType(0.5)));
         }
 
         inline FloatType getRelease() const { return release.load(); }

@@ -54,7 +54,7 @@ namespace zlpanel {
         rmsOut.push_back(-60);
         rmsDiff.push_back(0);
         startTimerHz(callBackHz);
-        setSize(500, 500);
+//        setSize(500, 500);
     }
 
     MonitorSubPanel::~MonitorSubPanel() {
@@ -82,12 +82,12 @@ namespace zlpanel {
             auto area = image.getBounds().toFloat();
             deltaX = deltaX * area.getWidth();
             deltaX = static_cast<float>(juce::roundToInt(deltaX));
-        auto oldArea = area.withTrimmedLeft(deltaX - thickness).toNearestInt();
-            lastInEndPoint = lastInEndPoint.translated(-deltaX - thickness * 0.1f, 0);
-            lastOutEndPoint = lastOutEndPoint.translated(-deltaX - thickness * 0.1f, 0);
-            lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX - thickness * 0.1f, 0);
-        auto oldImage = image.getClippedImage(oldArea);
-        tempG.drawImageAt(image, static_cast<int>(-deltaX), 0);
+//            auto oldArea = area.withTrimmedLeft(deltaX - thickness).toNearestInt();
+            lastInEndPoint = lastInEndPoint.translated(-deltaX, 0);
+            lastOutEndPoint = lastOutEndPoint.translated(-deltaX, 0);
+            lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX, 0);
+//            auto oldImage = image.getClippedImage(oldArea);
+            tempG.drawImageAt(image, juce::roundToInt(-deltaX + thickness * 0.5f), 0);
             // draw the new part
             if (!rmsIn.empty()) {
                 lock.enter();
