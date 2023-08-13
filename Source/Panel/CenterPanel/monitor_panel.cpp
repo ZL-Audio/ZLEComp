@@ -25,6 +25,7 @@ namespace zlpanel {
 
     MonitorPanel::~MonitorPanel() {
         stopTimer();
+        processorRef->states.removeParameterListener(zlstate::showMonitor::ID, this);
     }
 
     void MonitorPanel::paint(juce::Graphics &g) {
