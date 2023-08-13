@@ -15,14 +15,19 @@ namespace zlpanel {
     CenterPanel::CenterPanel(PluginProcessor &p) :
             plotPanel(p), monitorPanel(p) {
         processorRef = &p;
+        openGLContext.attachTo(*getTopLevelComponent());
+
         addAndMakeVisible(monitorPanel);
         addAndMakeVisible(plotPanel);
     }
 
-    CenterPanel::~CenterPanel() = default;
+    CenterPanel::~CenterPanel() {
+        openGLContext.detach();
+    }
 
     void CenterPanel::paint(juce::Graphics &g) {
-        juce::ignoreUnused(g);
+        g.setColour(zlinterface::BackgroundColor);
+        g.fillRect(getLocalBounds());
     }
 
     void CenterPanel::resized() {

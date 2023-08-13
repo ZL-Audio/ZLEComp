@@ -198,7 +198,7 @@ target_link_libraries("${PROJECT_NAME}"
         juce::juce_audio_utils
         juce::juce_dsp
         juce::juce_audio_processors
-#        juce::juce_opengl
+        juce::juce_opengl
         Boost::boost
         PUBLIC
         juce::juce_recommended_config_flags

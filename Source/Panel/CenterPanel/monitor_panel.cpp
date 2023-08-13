@@ -28,6 +28,8 @@ namespace zlpanel {
     }
 
     void MonitorPanel::paint(juce::Graphics &g) {
+        g.setColour(zlinterface::BackgroundColor);
+        g.fillRect(getLocalBounds());
         if (isMonitorVisible.load()) {
             // draw boundary
             auto bound = getLocalBounds().toFloat();
@@ -87,8 +89,8 @@ namespace zlpanel {
                 fontSize * largePadding).withTrimmedTop(
                 fontSize * smallPadding);
         auto thickness = fontSize * 0.1f;
-        bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
-                                            bound.getHeight() - thickness);
+        bound = bound.withSizeKeepingCentre(bound.getWidth() - 2 * thickness,
+                                            bound.getHeight() - 2 * thickness);
         monitorSubPanel.setBounds(bound.toNearestInt());
     }
 
@@ -99,13 +101,7 @@ namespace zlpanel {
 
     void MonitorPanel::parameterChanged(const juce::String &parameterID, float newValue) {
         if (parameterID == zlstate::showMonitor::ID) {
-            auto v = static_cast<bool>(newValue);
-            isMonitorVisible.store(v);
-            if (v) {
-                startTimerHz(callBackHz);
-            } else {
-                stopTimer();
-            }
+            isMonitorVisible.store(static_cast<bool>(newValue));
             triggerAsyncUpdate();
         }
     }
@@ -116,6 +112,12 @@ namespace zlpanel {
 
     void MonitorPanel::handleAsyncUpdate() {
         monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
-        repaint();
+        if (isMonitorVisible.load()) {
+            repaint();
+            startTimerHz(callBackHz);
+        } else {
+            stopTimer();
+            repaint();
+        }
     }
 } // zlpanel

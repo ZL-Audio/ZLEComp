@@ -63,10 +63,10 @@ namespace zlpanel {
     }
 
     void MonitorSubPanel::paint(juce::Graphics &g) {
+
         if (isMonitorVisible.load()) {
-            // draw boundary
             auto bound = getLocalBounds().toFloat();
-            auto thickness = fontSize * 0.125f;
+            auto thickness = fontSize * 0.175f;
             // calculate time difference
             auto currentTime = juce::Time::getCurrentTime();
             auto relativeTime = currentTime - previousTime;
@@ -81,14 +81,14 @@ namespace zlpanel {
             auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
             auto area = image.getBounds().toFloat();
             deltaX = deltaX * area.getWidth();
-//        auto oldArea = area.withTrimmedLeft(deltaX).toNearestInt();
-//        deltaX = area.getWidth() - static_cast<float>(oldArea.getWidth());
+            deltaX = juce::roundToInt(deltaX);
+        auto oldArea = area.withTrimmedLeft(deltaX - thickness).toNearestInt();
             lastInEndPoint = lastInEndPoint.translated(-deltaX - thickness * 0.1f, 0);
             lastOutEndPoint = lastOutEndPoint.translated(-deltaX - thickness * 0.1f, 0);
             lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX - thickness * 0.1f, 0);
-//        auto oldImage = image.getClippedImage(oldArea);
-//        tempG.drawImageAt(image, -deltaX, 0);
-            tempG.drawImageTransformed(image, juce::AffineTransform::translation(-deltaX, 0));
+        auto oldImage = image.getClippedImage(oldArea);
+        tempG.drawImageAt(image, static_cast<int>(-deltaX), 0);
+//            tempG.drawImageTransformed(image, juce::AffineTransform::translation(-deltaX, 0));
             // draw the new part
             if (!rmsIn.empty()) {
                 lock.enter();
