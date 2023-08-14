@@ -7,7 +7,7 @@
 
 ZLEComp is a compressor plugin.
 
-<img src="Docs/screenshot.png" width=92.55%>
+<img src="Docs/screenshot.png" width=94%>
 
 ## Usage
 
@@ -42,3 +42,9 @@ JUCE framework from [JUCE](https://github.com/juce-framework/JUCE)
 JUCE template from [pamplejuce](https://github.com/sudara/pamplejuce)
 
 Font from CMU Open Sans, Font Awesome and MiSans.
+
+[REAPER Forums](https://forums.cockos.com/showthread.php?t=205452)
+
+Reiss, J. D., & McPherson, A. (2014). Audio effects: theory, implementation and application. CRC Press.
+
+Giannoulis, D., Massberg, M., & Reiss, J. D. (2012). Digital dynamic range compressor design—A tutorial and analysis. Journal of the Audio Engineering Society, 60(6), 399-408.
