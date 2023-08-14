@@ -7,7 +7,7 @@
 
 ZLEComp is a compressor plugin.
 
-<!-- <img src="Docs/screenshot.png" width=66.11%> -->
+<img src="Docs/screenshot.png" width=92.55%>
 
 ## Usage
 
