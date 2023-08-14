@@ -78,16 +78,14 @@ namespace zlpanel {
             auto tempImage = juce::Image(juce::Image::ARGB, image.getWidth(), image.getHeight(), true);
             auto tempG = juce::Graphics(tempImage);
             tempG.setOpacity(1.0f);
-            auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
             auto area = image.getBounds().toFloat();
+            auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
             deltaX = deltaX * area.getWidth();
             deltaX = static_cast<float>(juce::roundToInt(deltaX));
-//            auto oldArea = area.withTrimmedLeft(deltaX - thickness).toNearestInt();
             lastInEndPoint = lastInEndPoint.translated(-deltaX, 0);
             lastOutEndPoint = lastOutEndPoint.translated(-deltaX, 0);
             lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX, 0);
-//            auto oldImage = image.getClippedImage(oldArea);
-            tempG.drawImageAt(image, juce::roundToInt(-deltaX + thickness * 0.5f), 0);
+            tempG.drawImageAt(image, juce::roundToInt(-deltaX), 0);
             // draw the new part
             if (!rmsIn.empty()) {
                 lock.enter();
@@ -95,17 +93,18 @@ namespace zlpanel {
                 tempBound = tempBound.withTrimmedLeft(
                         juce::jmax(tempBound.getWidth() - deltaX,// - upScaling * fontSize * 0.075f,
                                    0.f));
+                tempBound = tempBound.withTrimmedRight(thickness);
                 tempG.setColour(zlinterface::TextInactiveColor);
 
                 lastInEndPoint = plotY(tempG, tempBound,
                                        rmsIn,
                                        rmsIn.size(), -60.f, 0.f,
-                                       thickness * upScaling * 0.6f, lastInEndPoint);
+                                       thickness * upScaling * 0.65f, lastInEndPoint);
                 tempG.setColour(zlinterface::TextColor);
                 lastOutEndPoint = plotY(tempG, tempBound,
                                         rmsOut,
                                         rmsOut.size(), -60.f, 0.f,
-                                        thickness * upScaling * 0.6f, lastOutEndPoint);
+                                        thickness * upScaling * 0.65f, lastOutEndPoint);
                 tempG.setColour(juce::Colours::darkred);
                 lastDiffEndPoint = plotY(tempG, tempBound,
                                          rmsDiff,
