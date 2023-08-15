@@ -42,7 +42,6 @@ namespace zlpanel {
         MonitorSubPanel monitorSubPanel;
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         PluginProcessor *processorRef;
-        std::atomic<bool> isMonitorVisible = zlstate::showMonitor::defaultV;
         std::atomic<int> monitorSetting = zlstate::monitorSetting::defaultI;
         float fontSize = 0.0f;
 

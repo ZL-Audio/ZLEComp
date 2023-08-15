@@ -17,10 +17,12 @@ namespace zlpanel {
         processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
         monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
 
-        monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
-        addAndMakeVisible(monitorSubPanel);
 
-        startTimerHz(callBackHz);
+        addAndMakeVisible(monitorSubPanel);
+        triggerAsyncUpdate();
+//        monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
+//
+//        startTimerHz(callBackHz);
     }
 
     MonitorPanel::~MonitorPanel() {

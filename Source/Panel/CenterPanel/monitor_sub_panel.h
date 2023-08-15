@@ -45,7 +45,7 @@ namespace zlpanel {
 
     private:
         PluginProcessor *processorRef;
-        std::atomic<bool> isMonitorVisible = zlstate::showMonitor::defaultV;
+        std::atomic<bool> isMonitorVisible = true;
         zlmeter::MeterSource<float> *meterIn, *meterOut;
         float fontSize = 0.0f;
         boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;

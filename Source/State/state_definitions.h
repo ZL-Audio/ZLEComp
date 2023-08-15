@@ -122,12 +122,12 @@ namespace zlstate {
         auto static constexpr defaultV = false;
     };
 
-    class showMonitor : public BoolParameters<showMonitor> {
-    public:
-        auto static constexpr ID = "show_monitor";
-        auto static constexpr name = "NA";
-        auto static constexpr defaultV = true;
-    };
+//    class showMonitor : public BoolParameters<showMonitor> {
+//    public:
+//        auto static constexpr ID = "show_monitor";
+//        auto static constexpr name = "NA";
+//        auto static constexpr defaultV = true;
+//    };
 
     // choice
     template<class T>
@@ -163,7 +163,6 @@ namespace zlstate {
                    windowW::get(false), windowH::get(false),
                    showComputer::get("Computer", false),
                    showDetector::get("Detector", false),
-                   showMonitor::get("Monitor", false),
                    monitorSetting::get("Monitor", false));
         return layout;
     }
