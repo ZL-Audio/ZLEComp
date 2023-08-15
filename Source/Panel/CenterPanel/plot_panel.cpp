@@ -267,7 +267,7 @@ namespace zlpanel {
             auto bound = getLocalBounds().toFloat();
             bound = bound.withWidth(bound.getHeight());
             zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {
-                    .blurRadius=0.25f, .mainColour=zlinterface::BackgroundInactiveColor});
+                    .blurRadius=0.25f, .mainColour=zlinterface::BackgroundHideColor});
         }
     }
 

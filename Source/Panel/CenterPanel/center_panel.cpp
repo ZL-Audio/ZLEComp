@@ -17,12 +17,16 @@ namespace zlpanel {
         processorRef = &p;
         openGLContext.attachTo(*getTopLevelComponent());
 
+        processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
+        monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
+
         addAndMakeVisible(monitorPanel);
         addAndMakeVisible(plotPanel);
     }
 
     CenterPanel::~CenterPanel() {
         openGLContext.detach();
+        processorRef->states.removeParameterListener(zlstate::monitorSetting::ID, this);
     }
 
     void CenterPanel::paint(juce::Graphics &g) {
@@ -32,7 +36,12 @@ namespace zlpanel {
 
     void CenterPanel::resized() {
         auto bound = getLocalBounds().toFloat();
-        monitorPanel.setBounds(bound.toNearestInt());
+        if (monitorSetting.load() == zlstate::monitorSetting::hz30m ||
+            monitorSetting.load() == zlstate::monitorSetting::hz60m) {
+            monitorPanel.setBounds(bound.withTrimmedLeft(bound.getHeight()).toNearestInt());
+        } else {
+            monitorPanel.setBounds(bound.toNearestInt());
+        }
         bound = bound.withWidth(bound.getHeight());
         plotPanel.setBounds(bound.toNearestInt());
     }
@@ -41,5 +50,16 @@ namespace zlpanel {
         fontSize = fSize;
         plotPanel.setFontSize(fSize);
         monitorPanel.setFontSize(fSize);
+    }
+
+    void CenterPanel::parameterChanged(const juce::String &parameterID, float newValue) {
+        if (parameterID == zlstate::monitorSetting::ID) {
+            monitorSetting.store(static_cast<int>(newValue));
+            triggerAsyncUpdate();
+        }
+    }
+
+    void CenterPanel::handleAsyncUpdate() {
+        resized();
     }
 } // zlpanel

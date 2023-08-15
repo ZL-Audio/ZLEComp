@@ -29,6 +29,7 @@ namespace zlpanel {
     class MonitorSubPanel : public juce::Component, private juce::Timer {
     public:
         auto static constexpr timeInSeconds = 5, callBackHz = 120, upScaling = 2;
+        auto static constexpr dummySize = 2;
 
         explicit MonitorSubPanel(PluginProcessor &p);
 

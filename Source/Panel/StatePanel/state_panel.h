@@ -14,6 +14,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../../PluginProcessor.h"
 #include "../../GUI/button_component.h"
+#include "../../GUI/combo_box_component.h"
 #include "../panel_definitions.h"
 #include "logo_panel.h"
 
@@ -34,10 +35,14 @@ namespace zlpanel {
     private:
         LogoPanel logoPanel;
         std::unique_ptr<zlinterface::ButtonComponent> showCButton, showDButton, showMButton;
-        std::array<std::unique_ptr<zlinterface::ButtonComponent> *, 3> buttonList{&showCButton, &showDButton,
-                                                                                  &showMButton};
+        std::array<std::unique_ptr<zlinterface::ButtonComponent> *, 2> buttonList{&showCButton, &showDButton};
 
         juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments;
+
+        std::unique_ptr<zlinterface::ComboboxComponent> monitorBox;
+        std::array<std::unique_ptr<zlinterface::ComboboxComponent>*, 1> boxList{&monitorBox};
+
+        juce::OwnedArray<juce::AudioProcessorValueTreeState::ComboBoxAttachment> boxAttachments;
 
         float fontSize = 0.f;
     };

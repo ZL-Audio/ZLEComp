@@ -21,7 +21,8 @@
 
 namespace zlpanel {
 
-class CenterPanel : public juce::Component {
+    class CenterPanel : public juce::Component, private juce::AsyncUpdater,
+                        public juce::AudioProcessorValueTreeState::Listener {
     public:
         explicit CenterPanel(PluginProcessor &p);
 
@@ -33,13 +34,18 @@ class CenterPanel : public juce::Component {
 
         void setFontSize(float fSize);
 
+        void parameterChanged(const juce::String &parameterID, float newValue) override;
+
     private:
         PluginProcessor *processorRef;
         PlotPanel plotPanel;
         MonitorPanel monitorPanel;
         float fontSize = 0.0f;
+        std::atomic<int> monitorSetting = zlstate::monitorSetting::defaultI;
 
         juce::OpenGLContext openGLContext;
+
+        void handleAsyncUpdate() override;
     };
 
 } // zlpanel

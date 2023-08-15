@@ -129,13 +129,42 @@ namespace zlstate {
         auto static constexpr defaultV = true;
     };
 
+    // choice
+    template<class T>
+    class ChoiceParameters {
+    public:
+        static std::unique_ptr<juce::AudioParameterChoice> get(bool automate = true) {
+            auto attributes = juce::AudioParameterChoiceAttributes().withAutomatable(automate).withLabel(T::name);
+            return std::make_unique<juce::AudioParameterChoice>(
+                    juce::ParameterID(T::ID, versionHint), T::name, T::choices, T::defaultI, attributes);
+        }
+
+        static std::unique_ptr<juce::AudioParameterChoice> get(juce::String label, bool automate = true) {
+            auto attributes = juce::AudioParameterChoiceAttributes().withAutomatable(automate).withLabel(label);
+            return std::make_unique<juce::AudioParameterChoice>(
+                    juce::ParameterID(T::ID, versionHint), T::name, T::choices, T::defaultI, attributes);
+        }
+    };
+
+    class monitorSetting : public ChoiceParameters<monitorSetting> {
+    public:
+        auto static constexpr ID = "monitor_setting";
+        auto static constexpr name = "NA";
+        inline auto static const choices = juce::StringArray{"OFF", "30Hz M", "30Hz L", "60Hz M", "60Hz L"};
+        int static constexpr defaultI = 1;
+        enum {
+            off, hz30m, hz30l, hz60m, hz60l, settingNUM
+        };
+    };
+
     inline juce::AudioProcessorValueTreeState::ParameterLayout getParameterLayout() {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         layout.add(programIdx::get(false),
                    windowW::get(false), windowH::get(false),
                    showComputer::get("Computer", false),
                    showDetector::get("Detector", false),
-                   showMonitor::get("Monitor", false));
+                   showMonitor::get("Monitor", false),
+                   monitorSetting::get("Monitor", false));
         return layout;
     }
 

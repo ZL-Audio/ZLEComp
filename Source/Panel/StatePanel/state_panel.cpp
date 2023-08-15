@@ -13,9 +13,11 @@
 namespace zlpanel {
     StatePanel::StatePanel(juce::AudioProcessorValueTreeState &parameters) : logoPanel() {
         addAndMakeVisible(logoPanel);
-        std::array<std::string, 3> buttonID{zlstate::showComputer::ID, zlstate::showDetector::ID,
-                                            zlstate::showMonitor::ID};
-        attachButtons<zlinterface::ButtonComponent, 3>(*this, buttonList, buttonAttachments, buttonID, parameters);
+        std::array<std::string, 2> buttonID{zlstate::showComputer::ID, zlstate::showDetector::ID};
+        attachButtons<zlinterface::ButtonComponent, 2>(*this, buttonList, buttonAttachments, buttonID, parameters);
+
+        std::array<std::string, 1> boxID{zlstate::monitorSetting::ID};
+        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, parameters);
     }
 
     StatePanel::~StatePanel() = default;
@@ -43,7 +45,7 @@ namespace zlpanel {
         juce::Array<juce::GridItem> items;
         items.add(*showCButton);
         items.add(*showDButton);
-        items.add(*showMButton);
+        items.add(*monitorBox);
         grid.items = items;
 
         grid.performLayout(bound.toNearestInt());
@@ -53,6 +55,9 @@ namespace zlpanel {
         fontSize = fSize;
         for (auto const &b: buttonList) {
             (*b)->setFontSize(fSize);
+        }
+        for (auto const &c: boxList) {
+            (*c)->setFontSize(fSize);
         }
     }
 

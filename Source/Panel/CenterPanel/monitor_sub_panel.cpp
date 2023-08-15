@@ -80,7 +80,7 @@ namespace zlpanel {
             tempG.setOpacity(1.0f);
             auto area = image.getBounds().toFloat();
             auto deltaX = static_cast<float>(relativeTime.inSeconds() / timeInSeconds);
-            deltaX = deltaX * area.getWidth();
+            deltaX = deltaX * (area.getWidth() - dummySize);
             deltaX = static_cast<float>(juce::roundToInt(deltaX));
             lastInEndPoint = lastInEndPoint.translated(-deltaX, 0);
             lastOutEndPoint = lastOutEndPoint.translated(-deltaX, 0);
@@ -91,9 +91,8 @@ namespace zlpanel {
                 lock.enter();
                 auto tempBound = image.getBounds().toFloat();
                 tempBound = tempBound.withTrimmedLeft(
-                        juce::jmax(tempBound.getWidth() - deltaX,// - upScaling * fontSize * 0.075f,
-                                   0.f));
-                tempBound = tempBound.withTrimmedRight(thickness);
+                        juce::jmax(tempBound.getWidth() - deltaX,0.f));
+                tempBound = tempBound.withTrimmedRight(dummySize);
                 tempG.setColour(zlinterface::TextInactiveColor);
 
                 lastInEndPoint = plotY(tempG, tempBound,
@@ -118,16 +117,17 @@ namespace zlpanel {
             // update image
             image = tempImage;
             image.duplicateIfShared();
+            auto imageToDraw = image.getClippedImage(image.getBounds().withTrimmedRight(dummySize));
             // draw image to panel
             g.setOpacity(1.0f);
-            g.drawImage(image, bound);
+            g.drawImage(imageToDraw, bound);
         }
     }
 
     void MonitorSubPanel::resized() {
         auto bound = getLocalBounds().toFloat();
         bound = bound.withSize(bound.getWidth() * upScaling, bound.getHeight() * upScaling);
-        image = image.rescaled(bound.toNearestInt().getWidth(),
+        image = image.rescaled(bound.toNearestInt().getWidth() + dummySize,
                                bound.toNearestInt().getHeight());
         bound = juce::Rectangle<float>(bound.getWidth(), bound.getHeight());
         lastInEndPoint = bound.getBottomRight();

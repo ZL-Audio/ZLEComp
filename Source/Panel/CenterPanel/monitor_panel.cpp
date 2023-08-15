@@ -14,8 +14,8 @@ namespace zlpanel {
     MonitorPanel::MonitorPanel(PluginProcessor &p) :
             monitorSubPanel(p) {
         processorRef = &p;
-        processorRef->states.addParameterListener(zlstate::showMonitor::ID, this);
-        isMonitorVisible.store(static_cast<bool>(*p.states.getRawParameterValue(zlstate::showMonitor::ID)));
+        processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
+        monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
 
         monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
         addAndMakeVisible(monitorSubPanel);
@@ -25,13 +25,13 @@ namespace zlpanel {
 
     MonitorPanel::~MonitorPanel() {
         stopTimer();
-        processorRef->states.removeParameterListener(zlstate::showMonitor::ID, this);
+        processorRef->states.removeParameterListener(zlstate::monitorSetting::ID, this);
     }
 
     void MonitorPanel::paint(juce::Graphics &g) {
         g.setColour(zlinterface::BackgroundColor);
         g.fillRect(getLocalBounds());
-        if (isMonitorVisible.load()) {
+        if (monitorSetting.load() != zlstate::monitorSetting::off) {
             // draw boundary
             auto bound = getLocalBounds().toFloat();
             bound = zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {.blurRadius=0.25f});
@@ -101,8 +101,8 @@ namespace zlpanel {
     }
 
     void MonitorPanel::parameterChanged(const juce::String &parameterID, float newValue) {
-        if (parameterID == zlstate::showMonitor::ID) {
-            isMonitorVisible.store(static_cast<bool>(newValue));
+        if (parameterID == zlstate::monitorSetting::ID) {
+            monitorSetting.store(static_cast<int>(newValue));
             triggerAsyncUpdate();
         }
     }
@@ -112,13 +112,19 @@ namespace zlpanel {
     }
 
     void MonitorPanel::handleAsyncUpdate() {
-        monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
-        if (isMonitorVisible.load()) {
-            repaint();
-            startTimerHz(callBackHz);
-        } else {
+        auto idx = monitorSetting.load();
+        if (idx == zlstate::monitorSetting::off) {
+            monitorSubPanel.setMonitorVisible(false);
             stopTimer();
             repaint();
+        } else {
+            monitorSubPanel.setMonitorVisible(true);
+            repaint();
+            if (idx == zlstate::monitorSetting::hz30m || idx == zlstate::monitorSetting::hz30l) {
+                startTimerHz(30);
+            } else {
+                startTimerHz(60);
+            }
         }
     }
 } // zlpanel
