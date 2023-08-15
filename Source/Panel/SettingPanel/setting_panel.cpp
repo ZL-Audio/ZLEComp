@@ -30,7 +30,7 @@ namespace zlpanel {
         using Fr = juce::Grid::Fr;
 
         grid.templateRows = {Track(Fr(1))};
-        grid.templateColumns = {Track(Fr(2)), Track(Fr(2)), Track(Fr(3))};
+        grid.templateColumns = {Track(Fr(20)), Track(Fr(20)), Track(Fr(29))};
 
         juce::Array<juce::GridItem> items;
         items.add(globalSettingPanel);

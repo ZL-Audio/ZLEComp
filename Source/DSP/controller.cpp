@@ -262,14 +262,10 @@ namespace zlcontroller {
             m_processor->setLatencySamples(
                     static_cast<int>(overSamplers[idxSampler.load()]->getLatencyInSamples()) +
                     static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
-//            meterIn.setDelay(static_cast<int>(overSamplers[idxSampler.load()]->getLatencyInSamples()) +
-//                             static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
         } else {
             m_processor->setLatencySamples(
                     static_cast<int>(mainDelay.getDelay() + overSamplers[idxSampler.load()]->getLatencyInSamples()) +
                     static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
-//            meterIn.setDelay(static_cast<int>(overSamplers[idxSampler.load()]->getLatencyInSamples()) +
-//                             static_cast<int>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
         }
         dryDelay.setDelay(static_cast<float>(overSamplers[idxSampler.load()]->getLatencyInSamples()) +
                           static_cast<float>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));

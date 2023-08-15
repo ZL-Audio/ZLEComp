@@ -20,9 +20,6 @@ namespace zlpanel {
 
         addAndMakeVisible(monitorSubPanel);
         triggerAsyncUpdate();
-//        monitorSubPanel.setMonitorVisible(isMonitorVisible.load());
-//
-//        startTimerHz(callBackHz);
     }
 
     MonitorPanel::~MonitorPanel() {

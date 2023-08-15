@@ -20,6 +20,7 @@ namespace zldetector {
     template<typename FloatType>
     void RMSTracker<FloatType>::prepare(const juce::dsp::ProcessSpec &spec) {
         secondPerBuffer = static_cast<FloatType>(spec.maximumBlockSize) / static_cast<FloatType>(spec.sampleRate);
+        reset();
     }
 
     template<typename FloatType>
