@@ -17,6 +17,8 @@ namespace zlinterface {
     auto inline const TextColor = juce::Colour(87, 96, 110);
     auto inline const TextInactiveColor = TextColor.withAlpha(0.5f);
     auto inline const TextHideColor = TextColor.withAlpha(0.25f);
+    auto inline const TextInactiveOpaqueColor = TextColor.withMultipliedBrightness(1.5f);
+
     auto inline const BackgroundColor = juce::Colour(214, 223, 236);
     auto inline const BackgroundInactiveColor = BackgroundColor.withAlpha(0.8f);
     auto inline const BackgroundHideColor = BackgroundColor.withAlpha(0.5f);

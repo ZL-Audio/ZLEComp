@@ -143,10 +143,10 @@ namespace zlstate {
     public:
         auto static constexpr ID = "monitor_setting";
         auto static constexpr name = "NA";
-        inline auto static const choices = juce::StringArray{"OFF", "30Hz M", "30Hz L", "60Hz L"};
+        inline auto static const choices = juce::StringArray{"OFF", "30Hz M", "60Hz M", "30Hz L", "60Hz L"};
         int static constexpr defaultI = 1;
         enum {
-            off, hz30m, hz30l, hz60l, settingNUM
+            off, hz30m, hz60m, hz30l, hz60l, settingNUM
         };
     };
 

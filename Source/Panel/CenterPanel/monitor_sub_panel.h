@@ -28,8 +28,8 @@ namespace zlpanel {
 
     class MonitorSubPanel : public juce::Component, private juce::Timer {
     public:
-        auto static constexpr timeInSeconds = 5, callBackHz = 120, upScaling = 2;
-        auto static constexpr dummySize = 2;
+        auto static constexpr timeInSeconds = 5, callBackHz = 180, upScaling = 2;
+        auto static constexpr dummySize = 20;
 
         explicit MonitorSubPanel(PluginProcessor &p);
 
@@ -47,16 +47,16 @@ namespace zlpanel {
         PluginProcessor *processorRef;
         std::atomic<bool> isMonitorVisible = true;
         zlmeter::MeterSource<float> *meterIn, *meterOut;
-        float fontSize = 0.0f;
+        float fontSize = 0.f;
         boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;
+        float totalDeltaX = 0.f;
 
         void timerCallback() override;
 
         juce::Image image;
         juce::Time previousTime;
         juce::Point<float> lastInEndPoint, lastOutEndPoint, lastDiffEndPoint;
-        juce::SpinLock lock;
-//        juce::OpenGLContext openGLContext;
+        juce::CriticalSection lock;
     };
 
 } // zlpanel

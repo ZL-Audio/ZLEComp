@@ -36,7 +36,8 @@ namespace zlpanel {
 
     void CenterPanel::resized() {
         auto bound = getLocalBounds().toFloat();
-        if (monitorSetting.load() == zlstate::monitorSetting::hz30m) {
+        if (monitorSetting.load() == zlstate::monitorSetting::hz30m ||
+            monitorSetting.load() == zlstate::monitorSetting::hz60m) {
             monitorPanel.setBounds(bound.withTrimmedLeft(bound.getHeight()).toNearestInt());
         } else {
             monitorPanel.setBounds(bound.toNearestInt());

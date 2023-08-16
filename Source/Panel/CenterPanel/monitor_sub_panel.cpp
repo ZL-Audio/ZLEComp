@@ -34,7 +34,8 @@ namespace zlpanel {
             }
 
         }
-        g.strokePath(path, juce::PathStrokeType(thickness, juce::PathStrokeType::curved));
+        g.strokePath(path, juce::PathStrokeType(thickness, juce::PathStrokeType::beveled,
+                                                juce::PathStrokeType::rounded));
         return path.getCurrentPosition();
     }
 
@@ -47,14 +48,13 @@ namespace zlpanel {
         meterIn->resetHistory();
         meterOut = &p.getMeterOut();
         meterOut->resetHistory();
-        rmsIn.set_capacity(timeInSeconds * 30);
-        rmsOut.set_capacity(timeInSeconds * 30);
-        rmsDiff.set_capacity(timeInSeconds * 30);
+        rmsIn.set_capacity(timeInSeconds * 50);
+        rmsOut.set_capacity(timeInSeconds * 50);
+        rmsDiff.set_capacity(timeInSeconds * 50);
         rmsIn.push_back(-60);
         rmsOut.push_back(-60);
         rmsDiff.push_back(0);
         startTimerHz(callBackHz);
-//        setSize(500, 500);
     }
 
     MonitorSubPanel::~MonitorSubPanel() {
@@ -65,7 +65,6 @@ namespace zlpanel {
     void MonitorSubPanel::paint(juce::Graphics &g) {
 
         if (isMonitorVisible.load()) {
-            auto bound = getLocalBounds().toFloat();
             auto thickness = fontSize * 0.175f;
             // calculate time difference
             auto currentTime = juce::Time::getCurrentTime();
@@ -86,15 +85,17 @@ namespace zlpanel {
             lastOutEndPoint = lastOutEndPoint.translated(-deltaX, 0);
             lastDiffEndPoint = lastDiffEndPoint.translated(-deltaX, 0);
             tempG.drawImageAt(image, juce::roundToInt(-deltaX), 0);
+            totalDeltaX += deltaX;
             // draw the new part
             if (!rmsIn.empty()) {
-                lock.enter();
                 auto tempBound = image.getBounds().toFloat();
-                tempBound = tempBound.withTrimmedLeft(
-                        juce::jmax(tempBound.getWidth() - deltaX,0.f));
-                tempBound = tempBound.withTrimmedRight(dummySize);
-                tempG.setColour(zlinterface::TextInactiveColor);
 
+                tempBound = tempBound.withTrimmedLeft(
+                        juce::jmax(tempBound.getWidth() - dummySize - totalDeltaX, 0.f));
+                totalDeltaX = 0.f;
+                tempBound = tempBound.withTrimmedRight(dummySize);
+                const juce::GenericScopedLock<juce::CriticalSection> myScopedLock (lock);
+                tempG.setColour(zlinterface::TextInactiveColor);
                 lastInEndPoint = plotY(tempG, tempBound,
                                        rmsIn,
                                        rmsIn.size(), -60.f, 0.f,
@@ -112,7 +113,6 @@ namespace zlpanel {
                 rmsIn.clear();
                 rmsOut.clear();
                 rmsDiff.clear();
-                lock.exit();
             }
             // update image
             image = tempImage;
@@ -120,7 +120,7 @@ namespace zlpanel {
             auto imageToDraw = image.getClippedImage(image.getBounds().withTrimmedRight(dummySize));
             // draw image to panel
             g.setOpacity(1.0f);
-            g.drawImage(imageToDraw, bound);
+            g.drawImage(imageToDraw, getLocalBounds().toFloat());
         }
     }
 
@@ -129,7 +129,6 @@ namespace zlpanel {
         bound = bound.withSize(bound.getWidth() * upScaling, bound.getHeight() * upScaling);
         image = image.rescaled(bound.toNearestInt().getWidth() + dummySize,
                                bound.toNearestInt().getHeight());
-        bound = juce::Rectangle<float>(bound.getWidth(), bound.getHeight());
         lastInEndPoint = bound.getBottomRight();
         lastOutEndPoint = bound.getBottomRight();
         lastDiffEndPoint = bound.getTopRight();
@@ -149,12 +148,11 @@ namespace zlpanel {
     }
 
     void MonitorSubPanel::timerCallback() {
-        lock.enter();
+        const juce::GenericScopedLock<juce::CriticalSection> myScopedLock (lock);
         auto num = meterIn->appendHistory(rmsIn);
         meterOut->appendHistory(rmsOut, num);
         for (size_t i = rmsIn.size() - num; i < rmsIn.size(); ++i) {
             rmsDiff.push_back(rmsOut[i] - rmsIn[i]);
         }
-        lock.exit();
     }
 } // zlpanel
