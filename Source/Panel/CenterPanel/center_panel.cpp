@@ -22,6 +22,8 @@ namespace zlpanel {
 
         addAndMakeVisible(monitorPanel);
         addAndMakeVisible(plotPanel);
+        
+        setSize(200, 100);
     }
 
     CenterPanel::~CenterPanel() {
