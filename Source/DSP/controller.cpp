@@ -193,6 +193,8 @@ namespace zlcontroller {
         auto mSize = static_cast<size_t>(subBuffer.getSubSpec().sampleRate * v /
                                          subBuffer.getSubSpec().maximumBlockSize);
         mSize = juce::jmax(size_t(1), mSize);
+        lTracker.reset();
+        rTracker.reset();
         lTracker.setMomentarySize(mSize);
         rTracker.setMomentarySize(mSize);
     }
