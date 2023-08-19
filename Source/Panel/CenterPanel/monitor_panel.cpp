@@ -119,11 +119,17 @@ namespace zlpanel {
         } else {
             monitorSubPanel.setMonitorVisible(true);
             repaint();
+            if (idx == zlstate::monitorSetting::hz30m || idx == zlstate::monitorSetting::hz60m) {
+                monitorSubPanel.setTimeInSecond(4.f);
+            } else {
+                monitorSubPanel.setTimeInSecond(8.f);
+            }
             if (idx == zlstate::monitorSetting::hz30m || idx == zlstate::monitorSetting::hz30l) {
                 startTimerHz(30);
             } else {
                 startTimerHz(60);
             }
+
         }
     }
 } // zlpanel

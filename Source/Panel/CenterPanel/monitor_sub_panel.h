@@ -28,7 +28,7 @@ namespace zlpanel {
 
     class MonitorSubPanel : public juce::Component, private juce::Timer {
     public:
-        auto static constexpr timeInSeconds = 5, callBackHz = 180, upScaling = 2;
+        auto static constexpr callBackHz = 180, upScaling = 2;
         auto static constexpr dummySize = 20;
 
         explicit MonitorSubPanel(PluginProcessor &p);
@@ -43,6 +43,8 @@ namespace zlpanel {
 
         void setMonitorVisible(bool f);
 
+        void setTimeInSecond(float v);
+
     private:
         PluginProcessor *processorRef;
         std::atomic<bool> isMonitorVisible = true;
@@ -50,6 +52,7 @@ namespace zlpanel {
         float fontSize = 0.f;
         boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;
         float totalDeltaX = 0.f;
+        std::atomic<float> timeInSeconds = 7;
 
         void timerCallback() override;
 

@@ -48,9 +48,9 @@ namespace zlpanel {
         meterIn->resetHistory();
         meterOut = &p.getMeterOut();
         meterOut->resetHistory();
-        rmsIn.set_capacity(timeInSeconds * 50);
-        rmsOut.set_capacity(timeInSeconds * 50);
-        rmsDiff.set_capacity(timeInSeconds * 50);
+        rmsIn.set_capacity(10 * 50);
+        rmsOut.set_capacity(10 * 50);
+        rmsDiff.set_capacity(10 * 50);
         rmsIn.push_back(-60);
         rmsOut.push_back(-60);
         rmsDiff.push_back(0);
@@ -145,6 +145,10 @@ namespace zlpanel {
         } else {
             stopTimer();
         }
+    }
+
+    void MonitorSubPanel::setTimeInSecond(float v) {
+        timeInSeconds.store(v);
     }
 
     void MonitorSubPanel::timerCallback() {

@@ -16,7 +16,7 @@ namespace zlmeter {
     template<typename FloatType>
     class MeterSource {
     public:
-        auto static constexpr subBufferInSecond = 0.015;
+        auto static constexpr subBufferInSecond = 0.0135;
 
         explicit MeterSource(juce::AudioProcessor &processor) :
                 subBuffer() {
