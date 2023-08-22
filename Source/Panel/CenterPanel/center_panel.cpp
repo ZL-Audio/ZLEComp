@@ -15,7 +15,7 @@ namespace zlpanel {
     CenterPanel::CenterPanel(PluginProcessor &p) :
             plotPanel(p), monitorPanel(p) {
         processorRef = &p;
-        // openGLContext.attachTo(*getTopLevelComponent());
+        openGLContext.attachTo(*getTopLevelComponent());
 
         processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
         monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
@@ -27,7 +27,7 @@ namespace zlpanel {
     }
 
     CenterPanel::~CenterPanel() {
-        // openGLContext.detach();
+        openGLContext.detach();
         processorRef->states.removeParameterListener(zlstate::monitorSetting::ID, this);
     }
 
