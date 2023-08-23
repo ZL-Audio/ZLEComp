@@ -40,14 +40,16 @@ namespace fixedBuffer {
         outputBuffer.setSize(static_cast<int>(mainSpec.numChannels),
                              static_cast<int>(mainSpec.maximumBlockSize) + subBufferSize);
         // put latency samples
-        juce::AudioBuffer<FloatType> zeroBuffer(inputBuffer.getNumChannels(), subBufferSize);
-        for (int channel = 0; channel < zeroBuffer.getNumChannels(); ++channel) {
-            auto *channelData = zeroBuffer.getWritePointer(channel);
-            for (int index = 0; index < subBufferSize; ++index) {
-                channelData[index] = 0;
+        if (subBufferSize > 1) {
+            juce::AudioBuffer<FloatType> zeroBuffer(inputBuffer.getNumChannels(), subBufferSize);
+            for (int channel = 0; channel < zeroBuffer.getNumChannels(); ++channel) {
+                auto *channelData = zeroBuffer.getWritePointer(channel);
+                for (int index = 0; index < subBufferSize; ++index) {
+                    channelData[index] = 0;
+                }
             }
+            inputBuffer.push(zeroBuffer, subBufferSize);
         }
-        inputBuffer.push(zeroBuffer, subBufferSize);
     }
 
     template<typename FloatType>

@@ -38,9 +38,9 @@ namespace fixedBuffer {
 
         void pushSubBuffer();
 
-        void popBuffer(juce::AudioBuffer<FloatType> &buffer, bool write=true);
+        void popBuffer(juce::AudioBuffer<FloatType> &buffer, bool write = true);
 
-        void popBlock(juce::dsp::AudioBlock<FloatType> block, bool write=true);
+        void popBlock(juce::dsp::AudioBlock<FloatType> block, bool write = true);
 
         juce::AudioBuffer<FloatType> getSubBufferChannels(int channelOffset, int numChannels);
 
@@ -54,7 +54,13 @@ namespace fixedBuffer {
 
         inline auto getSubSpec() { return subSpec; }
 
-        inline auto getLatencySamples() { return subSpec.maximumBlockSize; }
+        inline juce::uint32 getLatencySamples() {
+            if (subSpec.maximumBlockSize > 1) {
+                return subSpec.maximumBlockSize;
+            } else {
+                return juce::uint32(0);
+            }
+        }
 
     private:
         FIFOAudioBuffer<FloatType> inputBuffer, outputBuffer;

@@ -145,7 +145,6 @@ bool PluginProcessor::hasEditor() const {
 
 juce::AudioProcessorEditor *PluginProcessor::createEditor() {
     return new PluginEditor(*this);
-//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -155,8 +154,8 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
     tempTree.appendChild(states.copyState(), nullptr);
     std::unique_ptr<juce::XmlElement> xml(tempTree.createXml());
     copyXmlToBinary(*xml, destData);
-    const auto presetFile = "/Volumes/Ramdisk/nothing.xml";
-    xml->writeTo(juce::File(presetFile));
+//    const auto presetFile = "/Volumes/Ramdisk/nothing.xml";
+//    xml->writeTo(juce::File(presetFile));
 }
 
 void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
