@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PROJECT_NAME: "ZLEComp"
-  PRODUCT_NAME: "ZL E Compressor"
+  PROJECT_NAME: "ZLTest"
+  PRODUCT_NAME: "ZL Test"
   BUILD_TYPE: Release
   BUILD_DIR: Builds
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,18 +43,42 @@ jobs:
 
     steps:
 
+    - name: Upgrade to Linux lunar
+      run: |
+        sudo apt update && sudo apt dist-upgrade
+        sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ lunar main restricted universe multiverse"
+        sudo apt update && sudo apt upgrade
+
     # This is just easier than debugging different compilers on different platforms
     - name: Set up Clang
-      if: ${{ matrix.name != 'macOS' }}
       uses: egor-tensin/setup-clang@v1
 
     # This also starts up our "fake" display Xvfb, needed for pluginval
     - name: Install JUCE's Linux Deps
-      if: runner.os == 'Linux'
       # Thanks to McMartin & co https://forum.juce.com/t/list-of-juce-dependencies-under-linux/15121/44
       run: |
-        sudo apt-get update && sudo apt install libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.0-dev libglu1-mesa-dev xvfb ninja-build
+        sudo apt update
+        sudo apt-get install libasound2-dev libjack-jackd2-dev \
+                        ladspa-sdk \
+                        libcurl4-openssl-dev  \
+                        libfreetype6-dev \
+                        libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+                        libwebkit2gtk-4.0-dev \
+                        libglu1-mesa-dev mesa-common-dev \
+                        xvfb ninja-build
         sudo /usr/bin/Xvfb $DISPLAY &
+
+    - name: Check JUCE's Linux Deps
+      run: |
+        sudo apt-get -y install apt-show-versions
+        apt-show-versions libasound2-dev libjack-jackd2-dev \
+                        ladspa-sdk \
+                        libcurl4-openssl-dev  \
+                        libfreetype6-dev \
+                        libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+                        libwebkit2gtk-4.0-dev \
+                        libglu1-mesa-dev mesa-common-dev \
+                        xvfb ninja-build
 
     - name: Checkout code
       uses: actions/checkout@v3
@@ -99,6 +123,15 @@ jobs:
       run: |
         curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
         7z x pluginval_${{ matrix.name }}.zip
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
+
+    - name: Pluginval extra validations
+      working-directory: ${{ env.BUILD_DIR }}
+      shell: bash
+      run: |
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
         ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
 
     - name: Zip
