@@ -92,7 +92,7 @@ namespace zldsp {
         auto static constexpr ID = "side_gain";
         auto static constexpr name = "Side Gain (dB)";
         inline auto static const range =
-                juce::NormalisableRange<float>(-9.f, 9.f, .1f);
+                juce::NormalisableRange<float>(-16.f, 16.f, .01f, 0.5, true);
         auto static constexpr defaultV = 0.f;
     };
 
@@ -162,7 +162,7 @@ namespace zldsp {
         auto static constexpr ID = "out_gain";
         auto static constexpr name = "Out Gain (dB)";
         inline auto static const range =
-                juce::NormalisableRange<float>(-6.f, 12.f, .1f);
+                juce::NormalisableRange<float>(-16.f, 16.f, .01f, 0.5, true);
         auto static constexpr defaultV = 0.f;
     };
 
