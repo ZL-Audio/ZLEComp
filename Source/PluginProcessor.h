@@ -89,6 +89,10 @@ public:
         return controller.meterOut;
     }
 
+    inline zlmeter::MeterSource<float> &getMeterEnd() {
+        return controller.meterEnd;
+    }
+
 private:
     zlcontroller::Controller<float> controller;
     zlcontroller::ControllerAttach<float> controllerAttach;

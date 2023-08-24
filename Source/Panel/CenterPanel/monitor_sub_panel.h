@@ -48,9 +48,9 @@ namespace zlpanel {
     private:
         PluginProcessor *processorRef;
         std::atomic<bool> isMonitorVisible = true;
-        zlmeter::MeterSource<float> *meterIn, *meterOut;
+        zlmeter::MeterSource<float> *meterIn, *meterOut, *meterEnd;
         float fontSize = 0.f;
-        boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff;
+        boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff, rmsEnd;
         float totalDeltaX = 0.f;
         std::atomic<float> timeInSeconds = 7;
 

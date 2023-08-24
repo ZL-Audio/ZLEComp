@@ -41,24 +41,29 @@ namespace zlpanel {
 
     MonitorSubPanel::MonitorSubPanel(PluginProcessor &p) :
             image(juce::Image::ARGB, 100, 100, true) {
-//        openGLContext.attachTo(*getTopLevelComponent());
         processorRef = &p;
 
+        const juce::GenericScopedLock<juce::CriticalSection> myScopedLock(p.getCallbackLock());
         meterIn = &p.getMeterIn();
         meterIn->resetHistory();
         meterOut = &p.getMeterOut();
         meterOut->resetHistory();
+        meterEnd = &p.getMeterEnd();
+        meterEnd->resetHistory();
+        const juce::GenericScopedUnlock<juce::CriticalSection> myScopedUnlock(p.getCallbackLock());
+
         rmsIn.set_capacity(10 * 50);
         rmsOut.set_capacity(10 * 50);
         rmsDiff.set_capacity(10 * 50);
+        rmsEnd.set_capacity(10 * 50);
         rmsIn.push_back(-60);
         rmsOut.push_back(-60);
         rmsDiff.push_back(0);
+        rmsEnd.push_back(-60);
         startTimerHz(callBackHz);
     }
 
     MonitorSubPanel::~MonitorSubPanel() {
-//        openGLContext.detach();
         stopTimer();
     }
 
@@ -102,8 +107,8 @@ namespace zlpanel {
                                        thickness * upScaling * 0.65f, lastInEndPoint);
                 tempG.setColour(zlinterface::TextColor);
                 lastOutEndPoint = plotY(tempG, tempBound,
-                                        rmsOut,
-                                        rmsOut.size(), -60.f, 0.f,
+                                        rmsEnd,
+                                        rmsEnd.size(), -60.f, 0.f,
                                         thickness * upScaling * 0.65f, lastOutEndPoint);
                 tempG.setColour(juce::Colours::darkred);
                 lastDiffEndPoint = plotY(tempG, tempBound,
@@ -113,6 +118,7 @@ namespace zlpanel {
                 rmsIn.clear();
                 rmsOut.clear();
                 rmsDiff.clear();
+                rmsEnd.clear();
             }
             // update image
             image = tempImage;
@@ -155,6 +161,7 @@ namespace zlpanel {
         const juce::GenericScopedLock<juce::CriticalSection> myScopedLock (lock);
         auto num = meterIn->appendHistory(rmsIn);
         meterOut->appendHistory(rmsOut, num);
+        meterEnd->appendHistory(rmsEnd, num);
         for (size_t i = rmsIn.size() - num; i < rmsIn.size(); ++i) {
             rmsDiff.push_back(rmsOut[i] - rmsIn[i]);
         }

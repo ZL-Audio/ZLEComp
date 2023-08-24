@@ -27,7 +27,7 @@ namespace zlcontroller {
         zldetector::Detector<FloatType> lDetector, rDetector;
         zldetector::RMSTracker<FloatType> lTracker, rTracker;
         zlcomputer::Computer<FloatType> lrComputer;
-        zlmeter::MeterSource<FloatType> meterIn, meterOut;
+        zlmeter::MeterSource<FloatType> meterIn, meterOut, meterEnd;
 
         explicit Controller(juce::AudioProcessor &processor,
                             juce::AudioProcessorValueTreeState &parameters);

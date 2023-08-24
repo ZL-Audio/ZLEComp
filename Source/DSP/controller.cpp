@@ -14,8 +14,7 @@ namespace zlcontroller {
     template<typename FloatType>
     Controller<FloatType>::Controller(juce::AudioProcessor &processor,
                                       juce::AudioProcessorValueTreeState &parameters) :
-            meterIn(processor),
-            meterOut(processor) {
+            meterIn(processor), meterOut(processor), meterEnd(processor) {
         m_processor = &processor;
         apvts = &parameters;
         mainDelay.setMaximumDelayInSamples(96000);
@@ -49,6 +48,7 @@ namespace zlcontroller {
         outGainDSP.setRampDurationSeconds(0.1);
         meterIn.prepare(spec);
         meterOut.prepare(spec);
+        meterEnd.prepare(spec);
 
         allBuffer.setSize(static_cast<int>(spec.numChannels * 2), static_cast<int>(spec.maximumBlockSize));
         dryBuffer.setSize(static_cast<int>(spec.numChannels), static_cast<int>(spec.maximumBlockSize));
@@ -70,7 +70,7 @@ namespace zlcontroller {
         // copy buffer into allBuffer
         allBuffer.makeCopyOf(buffer, true);
         // copy side-chain into sideBuffer
-        juce::AudioBuffer < FloatType > sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
+        juce::AudioBuffer<FloatType> sideBuffer(m_processor->getBusBuffer(allBuffer, true, 1));
         if (!external.load()) {
             sideBuffer.makeCopyOf(m_processor->getBusBuffer(buffer, true, 0), true);
         }
@@ -124,13 +124,14 @@ namespace zlcontroller {
         // ---------------- end sub buffer
         // apply over-sampling(down)
         overSamplers[idxSampler]->processSamplesDown(allBlock);
-        juce::AudioBuffer < FloatType > outBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
+        juce::AudioBuffer<FloatType> outBuffer(m_processor->getBusBuffer(allBuffer, true, 0));
         auto outBlock = juce::dsp::AudioBlock<FloatType>(outBuffer);
         // mix wet samples
-        mixer.mixWetSamples(outBlock);
         meterOut.process(outBlock);
+        mixer.mixWetSamples(outBlock);
         // apply out gain
         outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        meterEnd.process(outBlock);
         // check audit mode
         if (audit.load()) {
             m_processor->getBusBuffer(buffer, false, 0).makeCopyOf(
