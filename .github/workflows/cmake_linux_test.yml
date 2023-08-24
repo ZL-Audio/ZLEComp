@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PROJECT_NAME: "ZLTest"
-  PRODUCT_NAME: "ZL Test"
+  PROJECT_NAME: "ZLEComp"
+  PRODUCT_NAME: "ZL E Compressor"
   BUILD_TYPE: Release
   BUILD_DIR: Builds
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
