@@ -8,37 +8,32 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLECOMP_MAIN_PANEL_H
-#define ZLECOMP_MAIN_PANEL_H
+#ifndef ZLECOMP_METER_PANEL_H
+#define ZLECOMP_METER_PANEL_H
 
-#include <juce_audio_processors/juce_audio_processors.h>
-#include "../PluginProcessor.h"
-#include "../GUI/interface_definitions.h"
-#include "StatePanel/state_panel.h"
-#include "CenterPanel/center_panel.h"
-#include "SettingPanel/setting_panel.h"
-// #include "MeterPanel/meter_panel.h"
+#include "../../DSP/Meter/meter.h"
+#include "../../GUI/meter_component.h"
+#include "../../GUI/interface_definitions.h"
 
 namespace zlpanel {
 
-    class MainPanel : public juce::Component {
+    class MeterPanel : public juce::Component {
     public:
-        explicit MainPanel(PluginProcessor &p);
+        explicit MeterPanel(zlmeter::MeterSource<float> *input,
+                            zlmeter::MeterSource<float> *output);
 
-        ~MainPanel() override;
+        ~MeterPanel() override;
 
-        void paint(juce::Graphics &g) override;
+        void paint(juce::Graphics &) override;
 
         void resized() override;
 
+        void setFontSize(float size);
+
     private:
-        StatePanel statePanel;
-        CenterPanel centerPanel;
-        SettingPanel settingPanel;
-//        MeterPanel meterPanel;
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainPanel)
+        zlinterface::MeterComponent inputMeter, outputMeter;
     };
 
-} // panel
+} // zlpanel
 
-#endif //ZLECOMP_MAIN_PANEL_H
+#endif //ZLECOMP_METER_PANEL_H

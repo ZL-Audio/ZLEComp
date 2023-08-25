@@ -12,10 +12,12 @@
 
 namespace zlpanel {
     MainPanel::MainPanel(PluginProcessor &p) :
-            statePanel(p.states), centerPanel(p), settingPanel(p.parameters){
+            statePanel(p.states), centerPanel(p), settingPanel(p.parameters) {
+//            meterPanel(&p.getMeterIn(), &p.getMeterEnd()) {
         addAndMakeVisible(centerPanel);
         addAndMakeVisible(settingPanel);
         addAndMakeVisible(statePanel);
+//        addAndMakeVisible(meterPanel);
     }
 
     MainPanel::~MainPanel() = default;
@@ -36,19 +38,20 @@ namespace zlpanel {
         statePanel.setFontSize(static_cast<float> (fontSize));
         centerPanel.setFontSize(static_cast<float> (fontSize));
         settingPanel.setFontSize(static_cast<float> (fontSize));
-
+//        meterPanel.setFontSize(static_cast<float> (fontSize));
         juce::Grid grid;
         using Track = juce::Grid::TrackInfo;
         using Fr = juce::Grid::Fr;
 
         grid.templateRows = {Track(Fr(7)), Track(Fr(24)), Track(Fr(31))};
-        grid.templateColumns = {Track(Fr(7))};
+        grid.templateColumns = {Track(Fr(14)), Track(Fr(3))};
 
-        juce::Array<juce::GridItem> items;
-        items.add(statePanel);
-        items.add(settingPanel);
-        items.add(centerPanel);
-        grid.items = items;
+        grid.items = {
+                juce::GridItem(statePanel).withArea(1, 1, 2, 3),
+                juce::GridItem(settingPanel).withArea(2, 1, 3, 3),
+                juce::GridItem(centerPanel).withArea(3, 1, 4, 3),
+//                juce::GridItem(meterPanel).withArea(3, 2, 4, 3),
+        };
 
         grid.performLayout(bound.toNearestInt());
     }

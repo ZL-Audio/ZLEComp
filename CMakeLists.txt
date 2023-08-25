@@ -111,6 +111,8 @@ set(SourceFiles
         Source/GUI/combobox_look_and_feel.h
         Source/GUI/combo_box_component.h
         Source/GUI/name_look_and_feel.h
+        Source/GUI/meter_look_and_feel.h
+        Source/GUI/meter_component.h
 
         Source/Panel/panel_definitions.h
         Source/Panel/main_panel.h
@@ -138,6 +140,9 @@ set(SourceFiles
         Source/Panel/SettingPanel/detector_setting_panel.cpp
         Source/Panel/SettingPanel/computer_setting_panel.h
         Source/Panel/SettingPanel/computer_setting_panel.cpp
+
+        Source/Panel/MeterPanel/meter_panel.h
+        Source/Panel/MeterPanel/meter_panel.cpp
         )
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 
