@@ -11,21 +11,24 @@
 #include "state_panel.h"
 
 namespace zlpanel {
-    StatePanel::StatePanel(juce::AudioProcessorValueTreeState &parameters) : logoPanel() {
+    StatePanel::StatePanel(juce::AudioProcessorValueTreeState &parameters,
+                           zlinterface::UIBase &base) : logoPanel(base) {
         addAndMakeVisible(logoPanel);
         std::array<std::string, 2> buttonID{zlstate::showComputer::ID, zlstate::showDetector::ID};
-        attachButtons<zlinterface::ButtonComponent, 2>(*this, buttonList, buttonAttachments, buttonID, parameters);
+        attachButtons<zlinterface::ButtonComponent, 2>(*this, buttonList, buttonAttachments, buttonID, parameters, base);
 
         std::array<std::string, 1> boxID{zlstate::monitorSetting::ID};
-        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, parameters);
+        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, parameters, base);
+
+        uiBase = &base;
     }
 
     StatePanel::~StatePanel() = default;
 
     void StatePanel::paint(juce::Graphics &g) {
         auto bound = getLocalBounds().toFloat();
-        bound = bound.withTrimmedLeft(bound.getWidth() * float (8) / float(14));
-        zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {
+        bound = bound.withTrimmedLeft(bound.getWidth() * float(8) / float(14));
+        uiBase->fillRoundedShadowRectangle(g, bound, 0.5f * uiBase->getFontSize(), {
                 .blurRadius=0.25f, .mainColour=zlinterface::BackgroundColor});
     }
 
@@ -33,7 +36,7 @@ namespace zlpanel {
         auto bound = getLocalBounds().toFloat();
         logoPanel.setBounds(bound.removeFromLeft(bound.getWidth() * float(3) / float(14)).toNearestInt());
         bound = bound.withTrimmedLeft(bound.getWidth() * float(5) / float(11));
-        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+        bound = uiBase->getRoundedShadowRectangleArea(bound, 0.5f * uiBase->getFontSize(), {.blurRadius=0.25f});
 
         juce::Grid grid;
         using Track = juce::Grid::TrackInfo;
@@ -49,16 +52,6 @@ namespace zlpanel {
         grid.items = items;
 
         grid.performLayout(bound.toNearestInt());
-    }
-
-    void StatePanel::setFontSize(float fSize) {
-        fontSize = fSize;
-        for (auto const &b: buttonList) {
-            (*b)->setFontSize(fSize);
-        }
-        for (auto const &c: boxList) {
-            (*c)->setFontSize(fSize);
-        }
     }
 
 } // zlpanel

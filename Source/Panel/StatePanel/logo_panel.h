@@ -13,11 +13,12 @@
 
 #include "BinaryData.h"
 #include "juce_audio_processors/juce_audio_processors.h"
+#include "../../GUI/interface_definitions.h"
 
 namespace zlpanel {
     class LogoPanel : public juce::Component {
     public:
-        explicit LogoPanel();
+        explicit LogoPanel(zlinterface::UIBase &base);
 
         ~LogoPanel() override;
 
@@ -25,6 +26,7 @@ namespace zlpanel {
 
     private:
         const std::unique_ptr<juce::Drawable> brandDrawable, logoDrawable;
+        zlinterface::UIBase *uiBase;
     };
 }
 #endif //ZLLMATCH_LOGOPANEL_H

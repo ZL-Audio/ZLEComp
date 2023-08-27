@@ -13,9 +13,10 @@
 namespace zlpanel {
 
     MeterPanel::MeterPanel(zlmeter::MeterSource<float> *input,
-                           zlmeter::MeterSource<float> *output) :
-            inputMeter("IN", input, -40.0f, 0.0f),
-            outputMeter("OUT", output, -40.0f, 0.0f) {
+                           zlmeter::MeterSource<float> *output,
+                           zlinterface::UIBase &base) :
+            inputMeter("IN", input, -40.0f, 0.0f, base),
+            outputMeter("OUT", output, -40.0f, 0.0f, base) {
         addAndMakeVisible(inputMeter);
         addAndMakeVisible(outputMeter);
     }
@@ -29,11 +30,6 @@ namespace zlpanel {
         auto inputBound = bound.removeFromLeft(bound.getWidth() * 0.5f);
         inputMeter.setBounds(inputBound.toNearestInt());
         outputMeter.setBounds(bound.toNearestInt());
-    }
-
-    void MeterPanel::setFontSize(float size) {
-        inputMeter.setFontSize(size);
-        outputMeter.setFontSize(size);
     }
 
 } // zlpanel

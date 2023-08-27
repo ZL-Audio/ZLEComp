@@ -23,15 +23,13 @@ namespace zlpanel {
 
     class GlobalSettingPanel : public juce::Component {
     public:
-        explicit GlobalSettingPanel(juce::AudioProcessorValueTreeState &parameters);
+        explicit GlobalSettingPanel(juce::AudioProcessorValueTreeState &parameters, zlinterface::UIBase &base);
 
         ~GlobalSettingPanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
-
-        void setFontSize(float fSize);
 
     private:
         std::unique_ptr<zlinterface::RotarySliderComponent> gainSlider, mixSlider;
@@ -47,7 +45,7 @@ namespace zlpanel {
 
         juce::OwnedArray<juce::AudioProcessorValueTreeState::ComboBoxAttachment> boxAttachments;
 
-        float fontSize;
+        zlinterface::UIBase *uiBase;
     };
 
 } // zlpanel

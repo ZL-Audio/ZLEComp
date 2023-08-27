@@ -17,16 +17,20 @@
 namespace zlinterface {
     class NameLookAndFeel : public juce::LookAndFeel_V4 {
     public:
+        explicit NameLookAndFeel(UIBase &base) {
+            uiBase = &base;
+        }
+
         void drawLabel(juce::Graphics &g, juce::Label &label) override {
             if (editable) {
-                g.setColour(TextColor);
+                g.setColour(uiBase->getTextColor());
             } else {
-                g.setColour(TextInactiveColor);
+                g.setColour(uiBase->getTextInactiveColor());
             }
             auto labelArea{label.getLocalBounds().toFloat()};
             auto center = labelArea.getCentre();
-            if (fontSize > 0) {
-                g.setFont(fontSize);
+            if (uiBase->getFontSize() > 0) {
+                g.setFont(uiBase->getFontSize());
             } else {
                 g.setFont(labelArea.getHeight() * 0.6f);
             }
@@ -37,15 +41,14 @@ namespace zlinterface {
                     juce::Justification::horizontallyCentred);
         }
 
-        void setFontSize(float size) { fontSize = size; }
-
         void setEditable(bool f) {
             editable.store(f);
         }
 
     private:
-        std::atomic<float> fontSize = 0.0f;
         std::atomic<bool> editable = true;
+
+        UIBase *uiBase;
     };
 }
 

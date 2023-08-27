@@ -17,7 +17,9 @@
 namespace zlinterface {
     class RotarySliderLookAndFeel : public juce::LookAndFeel_V4 {
     public:
-        explicit RotarySliderLookAndFeel() = default;
+        explicit RotarySliderLookAndFeel(UIBase &base) {
+            uiBase = &base;
+        }
 
         void drawRotarySlider(juce::Graphics &g, int x, int y, int width, int height, float sliderPos,
                               const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider &slider) override {
@@ -28,9 +30,9 @@ namespace zlinterface {
             auto diameter = juce::jmin(bounds.getWidth(), bounds.getHeight());
             bounds = bounds.withSizeKeepingCentre(diameter, diameter);
             // draw knob
-            auto oldBounds = drawInnerShadowEllipse(g, bounds, fontSize * 0.5f, {});
-            auto newBounds = drawShadowEllipse(g, oldBounds, fontSize * 0.5f, {});
-            drawInnerShadowEllipse(g, newBounds, fontSize * 0.15f, {.flip=true});
+            auto oldBounds = uiBase->drawInnerShadowEllipse(g, bounds, uiBase->getFontSize() * 0.5f, {});
+            auto newBounds = uiBase->drawShadowEllipse(g, oldBounds, uiBase->getFontSize() * 0.5f, {});
+            uiBase->drawInnerShadowEllipse(g, newBounds, uiBase->getFontSize() * 0.15f, {.flip=true});
             // draw arrow
             auto arrowUnit = (diameter - newBounds.getWidth()) * 0.5f;
             auto arrowBound = juce::Rectangle<float>(
@@ -51,19 +53,19 @@ namespace zlinterface {
             mask.addEllipse(newBounds);
             g.saveState();
             g.reduceClipRegion(mask);
-            drawShadowEllipse(g, arrowBound, fontSize * 0.5f,
-                              {.fit=false, .drawBright=false, .drawDark=true});
-            drawShadowEllipse(g, arrowStartBound, fontSize * 0.5f,
-                              {.fit=false, .drawBright=false, .drawDark=true, .mainColour=TextHideColor});
+            uiBase->drawShadowEllipse(g, arrowBound, uiBase->getFontSize() * 0.5f,
+                                      {.fit=false, .drawBright=false, .drawDark=true});
+            uiBase->drawShadowEllipse(g, arrowStartBound, uiBase->getFontSize() * 0.5f,
+                                      {.fit=false, .drawBright=false, .drawDark=true, .mainColour=TextHideColor});
 
             juce::Path filling;
             filling.addPieSegment(bounds, rotaryStartAngle, rotationAngle, 0);
             filling.setUsingNonZeroWinding(false);
             filling.addPieSegment(arrowStartBound, rotaryStartAngle, rotaryStartAngle + juce::MathConstants<float>::pi,
                                   0);
-            g.setColour(TextHideColor);
+            g.setColour(uiBase->getTextHideColor());
             g.fillPath(filling);
-            drawInnerShadowEllipse(g, arrowBound, fontSize * 0.15f, {.flip=true});
+            uiBase->drawInnerShadowEllipse(g, arrowBound, uiBase->getFontSize() * 0.15f, {.flip=true});
             g.restoreState();
         }
 
@@ -86,14 +88,14 @@ namespace zlinterface {
 
         void drawLabel(juce::Graphics &g, juce::Label &label) override {
             if (editable.load()) {
-                g.setColour(TextColor);
+                g.setColour(uiBase->getTextColor());
             } else {
-                g.setColour(TextInactiveColor);
+                g.setColour(uiBase->getTextInactiveColor());
             }
             auto labelArea{label.getLocalBounds().toFloat()};
             auto center = labelArea.getCentre();
-            if (fontSize > 0) {
-                g.setFont(fontSize * FontHuge);
+            if (uiBase->getFontSize() > 0) {
+                g.setFont(uiBase->getFontSize() * FontHuge);
             } else {
                 g.setFont(labelArea.getHeight() * 0.6f);
             }
@@ -107,17 +109,14 @@ namespace zlinterface {
                                  juce::Justification::horizontallyCentred);
         }
 
-        void setFontSize(float size) {
-            fontSize = size;
-        }
-
         void setEditable(bool f) {
             editable.store(f);
         }
 
     private:
-        std::atomic<float> fontSize = 0.0f;
         std::atomic<bool> editable = true;
+
+        UIBase *uiBase;
     };
 }
 #endif //ZL_ROTARY_SLIDER_LOOK_AND_FEEL_H

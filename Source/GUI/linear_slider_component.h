@@ -19,7 +19,9 @@
 namespace zlinterface {
     class LinearSliderComponent : public juce::Component {
     public:
-        explicit LinearSliderComponent(const juce::String &labelText) : myLookAndFeel() {
+        explicit LinearSliderComponent(const juce::String &labelText, UIBase &base) :
+                myLookAndFeel(base), nameLookAndFeel(base) {
+            uiBase = &base;
             // setup slider
             slider.setSliderStyle(juce::Slider::LinearHorizontal);
             slider.setTextBoxIsEditable(false);
@@ -56,12 +58,6 @@ namespace zlinterface {
 
         juce::Label &getLabel() { return label; }
 
-        void setFontSize(float size) {
-            fontSize = size;
-            myLookAndFeel.setFontSize(size);
-            nameLookAndFeel.setFontSize(size);
-        }
-
         void setEditable(bool f) {
             myLookAndFeel.setEditable(f);
             nameLookAndFeel.setEditable(f);
@@ -73,11 +69,12 @@ namespace zlinterface {
         NameLookAndFeel nameLookAndFeel;
         juce::Slider slider;
         juce::Label label;
-        float fontSize = 0;
 
         constexpr static float sliderHeight = 0.7f;
         constexpr static float labelHeight = 1.f - sliderHeight;
         constexpr static float sliderRatio = 0.45f;
+
+        UIBase *uiBase;
     };
 }
 

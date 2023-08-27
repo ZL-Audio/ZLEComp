@@ -39,9 +39,10 @@ namespace zlpanel {
         return path.getCurrentPosition();
     }
 
-    MonitorSubPanel::MonitorSubPanel(PluginProcessor &p) :
+    MonitorSubPanel::MonitorSubPanel(PluginProcessor &p, zlinterface::UIBase &base) :
             image(juce::Image::ARGB, 100, 100, true) {
         processorRef = &p;
+        uiBase = &base;
 
         const juce::GenericScopedLock<juce::CriticalSection> myScopedLock(p.getCallbackLock());
         meterIn = &p.getMeterIn();
@@ -70,7 +71,7 @@ namespace zlpanel {
     void MonitorSubPanel::paint(juce::Graphics &g) {
 
         if (isMonitorVisible.load()) {
-            auto thickness = fontSize * 0.175f;
+            auto thickness = uiBase->getFontSize() * 0.175f;
             // calculate time difference
             auto currentTime = juce::Time::getCurrentTime();
             auto relativeTime = currentTime - previousTime;
@@ -100,17 +101,17 @@ namespace zlpanel {
                 totalDeltaX = 0.f;
                 tempBound = tempBound.withTrimmedRight(dummySize);
                 const juce::GenericScopedLock<juce::CriticalSection> myScopedLock (lock);
-                tempG.setColour(zlinterface::TextInactiveColor);
+                tempG.setColour(uiBase->getTextInactiveColor());
                 lastInEndPoint = plotY(tempG, tempBound,
                                        rmsIn,
                                        rmsIn.size(), -60.f, 0.f,
                                        thickness * upScaling * 0.65f, lastInEndPoint);
-                tempG.setColour(zlinterface::TextColor);
+                tempG.setColour(uiBase->getTextColor());
                 lastOutEndPoint = plotY(tempG, tempBound,
                                         rmsEnd,
                                         rmsEnd.size(), -60.f, 0.f,
                                         thickness * upScaling * 0.65f, lastOutEndPoint);
-                tempG.setColour(juce::Colours::darkred);
+                tempG.setColour(uiBase->getLineColor1());
                 lastDiffEndPoint = plotY(tempG, tempBound,
                                          rmsDiff,
                                          rmsDiff.size(), -60.f, 0.f,
@@ -138,10 +139,6 @@ namespace zlpanel {
         lastInEndPoint = bound.getBottomRight();
         lastOutEndPoint = bound.getBottomRight();
         lastDiffEndPoint = bound.getTopRight();
-    }
-
-    void MonitorSubPanel::setFontSize(float fSize) {
-        fontSize = fSize;
     }
 
     void MonitorSubPanel::setMonitorVisible(bool f) {

@@ -32,6 +32,8 @@ namespace zlpanel {
         void resized() override;
 
     private:
+        zlinterface::UIBase uiBase;
+
         StatePanel statePanel;
         CenterPanel centerPanel;
         SettingPanel settingPanel;

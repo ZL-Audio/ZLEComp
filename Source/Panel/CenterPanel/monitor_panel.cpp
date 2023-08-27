@@ -11,12 +11,13 @@
 #include "monitor_panel.h"
 
 namespace zlpanel {
-    MonitorPanel::MonitorPanel(PluginProcessor &p) :
-            monitorSubPanel(p) {
+    MonitorPanel::MonitorPanel(PluginProcessor &p, zlinterface::UIBase &base) :
+            monitorSubPanel(p, base) {
         processorRef = &p;
         processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
         monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
 
+        uiBase = &base;
 
         addAndMakeVisible(monitorSubPanel);
         triggerAsyncUpdate();
@@ -28,75 +29,71 @@ namespace zlpanel {
     }
 
     void MonitorPanel::paint(juce::Graphics &g) {
-        g.setColour(zlinterface::BackgroundColor);
+        g.setColour(uiBase->getBackgroundColor());
         g.fillRect(getLocalBounds());
         if (monitorSetting.load() != zlstate::monitorSetting::off) {
             // draw boundary
             auto bound = getLocalBounds().toFloat();
-            bound = zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {.blurRadius=0.25f});
+            bound = uiBase->fillRoundedShadowRectangle(g, bound, 0.5f * uiBase->getFontSize(),
+                                                            {.blurRadius=0.25f});
             bound = bound.withTrimmedLeft(
-                    fontSize * largePadding).withTrimmedBottom(
-                    fontSize * largePadding).withTrimmedRight(
-                    fontSize * largePadding).withTrimmedTop(
-                    fontSize * smallPadding);
-            g.setColour(zlinterface::TextInactiveColor);
-            auto thickness = fontSize * 0.1f;
+                    uiBase->getFontSize() * largePadding).withTrimmedBottom(
+                    uiBase->getFontSize() * largePadding).withTrimmedRight(
+                    uiBase->getFontSize() * largePadding).withTrimmedTop(
+                    uiBase->getFontSize() * smallPadding);
+            g.setColour(uiBase->getTextInactiveColor());
+            auto thickness = uiBase->getFontSize() * 0.1f;
             g.drawRect(bound, thickness);
-            g.setFont(fontSize * zlinterface::FontLarge);
+            g.setFont(uiBase->getFontSize() * zlinterface::FontLarge);
 
-            g.setColour(zlinterface::TextInactiveColor);
+            g.setColour(uiBase->getTextInactiveColor());
             g.drawText("0",
                        juce::Rectangle<float>(
-                               bound.getX() + bound.getWidth() + 0.125f * fontSize,
+                               bound.getX() + bound.getWidth() + 0.125f * uiBase->getFontSize(),
                                bound.getY(),
-                               largePadding * fontSize, fontSize),
+                               largePadding * uiBase->getFontSize(), uiBase->getFontSize()),
                        juce::Justification::centredLeft);
 
             g.drawText("-60",
                        juce::Rectangle<float>(
-                               bound.getX() + bound.getWidth() + 0.1f * fontSize,
-                               bound.getY() + bound.getHeight() - fontSize,
-                               largePadding * fontSize, fontSize),
+                               bound.getX() + bound.getWidth() + 0.1f * uiBase->getFontSize(),
+                               bound.getY() + bound.getHeight() - uiBase->getFontSize(),
+                               largePadding * uiBase->getFontSize(), uiBase->getFontSize()),
                        juce::Justification::centredLeft);
 
-            float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
+            float dashLengths[2] = {uiBase->getFontSize() * .5f, uiBase->getFontSize() * .5f};
             for (int i = 1; i < 6; ++i) {
                 auto value = zlinterface::formatFloat(-static_cast<float>(i) * 10, 0);
                 auto initialY = bound.getY() + static_cast<float>(i) / 6.f * bound.getHeight();
-                g.setColour(zlinterface::TextInactiveColor);
+                g.setColour(uiBase->getTextInactiveColor());
                 g.drawText(value,
                            juce::Rectangle<float>(
-                                   bound.getX() + bound.getWidth() + 0.1f * fontSize,
-                                   initialY - 0.5f * fontSize,
-                                   largePadding * fontSize, fontSize),
+                                   bound.getX() + bound.getWidth() + 0.1f * uiBase->getFontSize(),
+                                   initialY - 0.5f * uiBase->getFontSize(),
+                                   largePadding * uiBase->getFontSize(), uiBase->getFontSize()),
                            juce::Justification::centredLeft);
-                g.setColour(zlinterface::TextHideColor);
+                g.setColour(uiBase->getTextHideColor());
                 g.drawDashedLine(juce::Line<float>(bound.getX(),
                                                    initialY,
                                                    bound.getX() + bound.getWidth(),
                                                    initialY),
-                                 dashLengths, 2, fontSize * 0.1f);
+                                 dashLengths, 2, uiBase->getFontSize() * 0.1f);
             }
         }
     }
 
     void MonitorPanel::resized() {
         auto bound = getLocalBounds().toFloat();
-        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+        bound = uiBase->getRoundedShadowRectangleArea(bound, 0.5f * uiBase->getFontSize(), {.blurRadius=0.25f});
         bound = bound.withTrimmedLeft(
-                fontSize * largePadding).withTrimmedBottom(
-                fontSize * largePadding).withTrimmedRight(
-                fontSize * largePadding).withTrimmedTop(
-                fontSize * smallPadding);
-        auto thickness = fontSize * 0.1f;
+                uiBase->getFontSize() * largePadding).withTrimmedBottom(
+                uiBase->getFontSize() * largePadding).withTrimmedRight(
+                uiBase->getFontSize() * largePadding).withTrimmedTop(
+                uiBase->getFontSize() * smallPadding);
+        auto thickness = uiBase->getFontSize() * 0.1f;
         bound = bound.withSizeKeepingCentre(bound.getWidth() - thickness,
                                             bound.getHeight() - thickness);
         monitorSubPanel.setBounds(bound.toNearestInt());
-    }
-
-    void MonitorPanel::setFontSize(float fSize) {
-        fontSize = fSize;
-        monitorSubPanel.setFontSize(fSize);
     }
 
     void MonitorPanel::parameterChanged(const juce::String &parameterID, float newValue) {
@@ -129,7 +126,6 @@ namespace zlpanel {
             } else {
                 startTimerHz(60);
             }
-
         }
     }
 } // zlpanel

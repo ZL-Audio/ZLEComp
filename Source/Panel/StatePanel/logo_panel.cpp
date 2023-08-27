@@ -11,14 +11,17 @@
 #include "logo_panel.h"
 
 namespace zlpanel {
-    LogoPanel::LogoPanel() :
+    LogoPanel::LogoPanel(zlinterface::UIBase &base) :
             brandDrawable(juce::Drawable::createFromImageData(BinaryData::zlaudio_svg, BinaryData::zlaudio_svgSize)),
             logoDrawable(juce::Drawable::createFromImageData(BinaryData::logo_svg, BinaryData::logo_svgSize)) {
+        uiBase = &base;
     }
 
     LogoPanel::~LogoPanel() = default;
 
     void LogoPanel::paint(juce::Graphics &g) {
+        brandDrawable->replaceColour(juce::Colour(87, 96, 110), uiBase->getTextColor());
+        logoDrawable->replaceColour(juce::Colour(87, 96, 110), uiBase->getTextColor());
         auto bound = getLocalBounds().toFloat();
         auto padding = juce::jmin(bound.getWidth() * 0.1f, bound.getHeight() * 0.1f);
         bound = bound.withSizeKeepingCentre(bound.getWidth() - padding, bound.getHeight() - padding);

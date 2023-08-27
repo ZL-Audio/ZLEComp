@@ -22,15 +22,13 @@ namespace zlpanel {
 
     class ComputerSettingPanel : public juce::Component {
     public:
-        explicit ComputerSettingPanel(juce::AudioProcessorValueTreeState &parameters);
+        explicit ComputerSettingPanel(juce::AudioProcessorValueTreeState &parameters, zlinterface::UIBase &base);
 
         ~ComputerSettingPanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
-
-        void setFontSize(float fSize);
 
     private:
         std::unique_ptr<zlinterface::RotarySliderComponent> thresholdSlider, ratioSlider;
@@ -41,7 +39,7 @@ namespace zlpanel {
 
         juce::OwnedArray<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachments;
 
-        float fontSize = 0.0f;
+        zlinterface::UIBase *uiBase;
     };
 
 } // zlpanel

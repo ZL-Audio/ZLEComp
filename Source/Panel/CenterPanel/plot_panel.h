@@ -34,20 +34,18 @@ namespace zlpanel {
     class ComputerPlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
                               private juce::AsyncUpdater {
     public:
-        explicit ComputerPlotPanel(PluginProcessor &p);
+        explicit ComputerPlotPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~ComputerPlotPanel() override;
 
         void paint(juce::Graphics &g) override;
-
-        void setFontSize(float fSize);
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::ComputerAttach<float> *computerAttach;
-        float fontSize = 0.0f;
+        zlinterface::UIBase *uiBase;
         PluginProcessor *processorRef;
         std::array<juce::String, 6> isComputerChangedParaIDs{zldsp::threshold::ID, zldsp::ratio::ID,
                                                              zldsp::kneeW::ID, zldsp::kneeD::ID,
@@ -62,20 +60,18 @@ namespace zlpanel {
     class DetectorPlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
                               private juce::AsyncUpdater {
     public:
-        explicit DetectorPlotPanel(PluginProcessor &p);
+        explicit DetectorPlotPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~DetectorPlotPanel() override;
 
         void paint(juce::Graphics &g) override;
-
-        void setFontSize(float fSize);
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::DetectorAttach<float> *detectorAttach;
-        float fontSize = 0.0f;
+        zlinterface::UIBase *uiBase;
         PluginProcessor *processorRef;
         std::array<juce::String, 5> isDetectorChangedParaIDs{zldsp::attack::ID, zldsp::release::ID,
                                                              zldsp::aStyle::ID, zldsp::rStyle::ID,
@@ -89,7 +85,7 @@ namespace zlpanel {
     class PlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
                       private juce::AsyncUpdater {
     public:
-        explicit PlotPanel(PluginProcessor &p);
+        explicit PlotPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~PlotPanel() override;
 
@@ -99,8 +95,6 @@ namespace zlpanel {
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
-        void setFontSize(float fSize);
-
     private:
         PluginProcessor *processorRef;
         std::atomic<bool> isComputerVisible, isDetectorVisible;
@@ -108,7 +102,8 @@ namespace zlpanel {
                                                              zlstate::showDetector::ID};
         ComputerPlotPanel computerPlotPanel;
         DetectorPlotPanel detectorPlotPanel;
-        std::atomic<float> fontSize = 0.0f;
+
+        zlinterface::UIBase *uiBase;
 
         void handleAsyncUpdate() override;
     };

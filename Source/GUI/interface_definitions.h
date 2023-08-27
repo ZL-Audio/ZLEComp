@@ -14,15 +14,36 @@
 #include "juce_gui_basics/juce_gui_basics.h"
 
 namespace zlinterface {
+
+    struct UIColors {
+        juce::Colour TextColor = juce::Colour(87, 96, 110);
+        juce::Colour BackgroundColor = juce::Colour(214, 223, 236);
+        juce::Colour DarkShadowColor = juce::Colour(168, 172, 178);
+        juce::Colour BrightShadowColor = juce::Colour(237, 246, 255);
+        juce::Colour LineColor1 = juce::Colour(139, 0, 0);
+    };
+
+    inline const std::array<UIColors, 2> styleColors{
+            {
+                    {},
+                    {.TextColor = juce::Colour(255 - 8, 255 - 9, 255 - 11),
+                            .BackgroundColor = juce::Colour(255 - 214, 255 - 223, 255 - 236),
+                            .DarkShadowColor = juce::Colour(255 - 237, 255 - 246, 255 - 255),
+                            .BrightShadowColor = juce::Colour(255 - 168, 255 - 172, 255 - 178),
+                            .LineColor1 = juce::Colour(255 - 139, 255, 255)
+                    }
+            }
+    };
+
     auto inline const TextColor = juce::Colour(87, 96, 110);
     auto inline const TextInactiveColor = TextColor.withAlpha(0.5f);
     auto inline const TextHideColor = TextColor.withAlpha(0.25f);
-    auto inline const TextInactiveOpaqueColor = TextColor.withMultipliedBrightness(1.5f);
 
     auto inline const BackgroundColor = juce::Colour(214, 223, 236);
     auto inline const BackgroundInactiveColor = BackgroundColor.withAlpha(0.8f);
     auto inline const BackgroundHideColor = BackgroundColor.withAlpha(0.5f);
     auto inline const BackgroundInvisibleColor = BackgroundColor.withAlpha(0.25f);
+
     auto inline const DarkShadowColor = juce::Colour(168, 172, 178);
     auto inline const BrightShadowColor = juce::Colour(237, 246, 255);
 
@@ -42,6 +63,8 @@ namespace zlinterface {
         bool fit = true, flip = false;
         bool drawBright = true, drawDark = true, drawMain = true;
         juce::Colour mainColour = BackgroundColor;
+        juce::Colour darkShadowColor = DarkShadowColor;
+        juce::Colour brightShadowColor = BrightShadowColor;
     };
 
     inline juce::Rectangle<float> getRoundedShadowRectangleArea(juce::Rectangle<float> boxBounds,
@@ -77,12 +100,12 @@ namespace zlinterface {
         g.saveState();
         g.reduceClipRegion(mask);
         if (args.drawBright) {
-            juce::DropShadow brightShadow(BrightShadowColor, radius,
+            juce::DropShadow brightShadow(args.brightShadowColor, radius,
                                           {-offset, -offset});
             brightShadow.drawForPath(g, path);
         }
         if (args.drawDark) {
-            juce::DropShadow darkShadow(DarkShadowColor, radius,
+            juce::DropShadow darkShadow(args.darkShadowColor, radius,
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
@@ -112,17 +135,17 @@ namespace zlinterface {
         auto offset = static_cast<int>(cornerSize * args.blurRadius);
         auto radius = juce::jmax(juce::roundToInt(cornerSize * args.blurRadius * 1.5f), 1);
         if (!args.flip) {
-            juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(args.darkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
-            juce::DropShadow brightShadow(BrightShadowColor, radius,
+            juce::DropShadow brightShadow(args.brightShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
         } else {
-            juce::DropShadow brightShadow(DarkShadowColor, radius,
+            juce::DropShadow brightShadow(args.darkShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
-            juce::DropShadow darkShadow(BrightShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(args.brightShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
         }
@@ -136,7 +159,7 @@ namespace zlinterface {
                                  args.curveTopLeft, args.curveTopRight,
                                  args.curveBottomLeft, args.curveBottomRight);
 
-        juce::DropShadow backShadow(BackgroundColor, radius,
+        juce::DropShadow backShadow(args.mainColour, radius,
                                     {0, 0});
         backShadow.drawForPath(g, path);
         g.restoreState();
@@ -148,6 +171,8 @@ namespace zlinterface {
         bool fit = true, flip = false;
         bool drawBright = true, drawDark = true;
         juce::Colour mainColour = BackgroundColor;
+        juce::Colour darkShadowColor = DarkShadowColor;
+        juce::Colour brightShadowColor = BrightShadowColor;
     };
 
     inline juce::Rectangle<float> drawShadowEllipse(juce::Graphics &g,
@@ -170,12 +195,12 @@ namespace zlinterface {
         g.saveState();
         g.reduceClipRegion(mask);
         if (args.drawDark) {
-            juce::DropShadow darkShadow(DarkShadowColor, radius,
+            juce::DropShadow darkShadow(args.darkShadowColor, radius,
                                         {offset, offset});
             darkShadow.drawForPath(g, path);
         }
         if (args.drawBright) {
-            juce::DropShadow brightShadow(BrightShadowColor, radius,
+            juce::DropShadow brightShadow(args.brightShadowColor, radius,
                                           {-offset, -offset});
             brightShadow.drawForPath(g, path);
         }
@@ -193,21 +218,21 @@ namespace zlinterface {
         mask.addEllipse(boxBounds);
         g.saveState();
         g.reduceClipRegion(mask);
-        g.fillAll(BackgroundColor);
+        g.fillAll(args.mainColour);
         auto radius = juce::jmax(juce::roundToInt(cornerSize * 1.5f), 1);
         auto offset = static_cast<int>(cornerSize * args.blurRadius);
         if (!args.flip) {
-            juce::DropShadow darkShadow(DarkShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(args.darkShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
-            juce::DropShadow brightShadow(BrightShadowColor, radius,
+            juce::DropShadow brightShadow(args.brightShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
         } else {
-            juce::DropShadow brightShadow(DarkShadowColor, radius,
+            juce::DropShadow brightShadow(args.darkShadowColor, radius,
                                           {offset, offset});
             brightShadow.drawForPath(g, mask);
-            juce::DropShadow darkShadow(BrightShadowColor.withAlpha(0.75f), radius,
+            juce::DropShadow darkShadow(args.brightShadowColor.withAlpha(0.75f), radius,
                                         {-offset, -offset});
             darkShadow.drawForPath(g, mask);
         }
@@ -217,7 +242,7 @@ namespace zlinterface {
         juce::Path path;
         path.addEllipse(boxBounds);
 
-        juce::DropShadow backShadow(BackgroundColor, radius,
+        juce::DropShadow backShadow(args.mainColour, radius,
                                     {0, 0});
         backShadow.drawForPath(g, path);
         g.restoreState();
@@ -245,6 +270,92 @@ namespace zlinterface {
             return formatFloat(x, length - 5);
         }
     }
+
+    class UIBase {
+    public:
+        UIBase() {
+            fontSize.store(0.0f);
+            styleID.store(size_t(0));
+        }
+
+        void setFontSize(float fSize) { fontSize.store(fSize); }
+
+        inline float getFontSize() { return fontSize.load(); }
+
+        void setStyle(size_t idx) { styleID.store(idx); }
+
+        inline juce::Colour getTextColor() { return styleColors[styleID.load()].TextColor; }
+
+        inline juce::Colour getTextInactiveColor() { return getTextColor().withAlpha(0.5f); }
+
+        inline juce::Colour getTextHideColor() { return getTextColor().withAlpha(0.25f); }
+
+        inline juce::Colour getBackgroundColor() { return styleColors[styleID.load()].BackgroundColor; }
+
+        inline juce::Colour getBackgroundInactiveColor() { return getBackgroundColor().withAlpha(0.8f); }
+
+        inline juce::Colour getBackgroundHideColor() { return getBackgroundColor().withAlpha(0.5f); }
+
+        inline juce::Colour getDarkShadowColor() { return styleColors[styleID.load()].DarkShadowColor; }
+
+        inline juce::Colour getBrightShadowColor() { return styleColors[styleID.load()].BrightShadowColor; }
+
+        inline juce::Colour getLineColor1() { return styleColors[styleID.load()].LineColor1; }
+
+        juce::Rectangle<float> getRoundedShadowRectangleArea(juce::Rectangle<float> boxBounds,
+                                                             float cornerSize,
+                                                             const fillRoundedShadowRectangleArgs &args) {
+            return zlinterface::getRoundedShadowRectangleArea(boxBounds, cornerSize, args);
+        }
+
+        juce::Rectangle<float> fillRoundedShadowRectangle(juce::Graphics &g,
+                                                          juce::Rectangle<float> boxBounds,
+                                                          float cornerSize,
+                                                          const fillRoundedShadowRectangleArgs &args) {
+            auto mArgs = args;
+            mArgs.mainColour = getBackgroundColor();
+            mArgs.darkShadowColor = getDarkShadowColor();
+            mArgs.brightShadowColor = getBrightShadowColor();
+            return zlinterface::fillRoundedShadowRectangle(g, boxBounds, cornerSize, mArgs);
+        }
+
+        juce::Rectangle<float> fillRoundedInnerShadowRectangle(juce::Graphics &g,
+                                                               juce::Rectangle<float> boxBounds,
+                                                               float cornerSize,
+                                                               const fillRoundedShadowRectangleArgs &args) {
+            auto mArgs = args;
+            mArgs.mainColour = getBackgroundColor();
+            mArgs.darkShadowColor = getDarkShadowColor();
+            mArgs.brightShadowColor = getBrightShadowColor();
+            return zlinterface::fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, mArgs);
+        }
+
+        juce::Rectangle<float> drawShadowEllipse(juce::Graphics &g,
+                                                 juce::Rectangle<float> boxBounds,
+                                                 float cornerSize,
+                                                 const fillShadowEllipseArgs &args) {
+            auto mArgs = args;
+            mArgs.mainColour = getBackgroundColor();
+            mArgs.darkShadowColor = getDarkShadowColor();
+            mArgs.brightShadowColor = getBrightShadowColor();
+            return zlinterface::drawShadowEllipse(g, boxBounds, cornerSize, mArgs);
+        }
+
+        juce::Rectangle<float> drawInnerShadowEllipse(juce::Graphics &g,
+                                                      juce::Rectangle<float> boxBounds,
+                                                      float cornerSize,
+                                                      const fillShadowEllipseArgs &args) {
+            auto mArgs = args;
+            mArgs.mainColour = getBackgroundColor();
+            mArgs.darkShadowColor = getDarkShadowColor();
+            mArgs.brightShadowColor = getBrightShadowColor();
+            return zlinterface::drawInnerShadowEllipse(g, boxBounds, cornerSize, mArgs);
+        }
+
+    private:
+        std::atomic<float> fontSize;
+        std::atomic<size_t> styleID;
+    };
 }
 
 #endif //ZL_INTERFACE_DEFINES_H

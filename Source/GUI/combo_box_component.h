@@ -20,7 +20,9 @@
 namespace zlinterface {
     class ComboboxComponent : public juce::Component {
     public:
-        explicit ComboboxComponent(const juce::String &labelText, const juce::StringArray &choices) : myLookAndFeel() {
+        explicit ComboboxComponent(const juce::String &labelText, const juce::StringArray &choices, UIBase &base) :
+                myLookAndFeel(base), nameLookAndFeel(base) {
+            uiBase = &base;
             setLookAndFeel(&myLookAndFeel);
             comboBox.addItemList(choices, 1);
             comboBox.setLookAndFeel(&myLookAndFeel);
@@ -29,6 +31,8 @@ namespace zlinterface {
             label.setText(labelText, juce::dontSendNotification);
             label.setLookAndFeel(&nameLookAndFeel);
             addAndMakeVisible(label);
+
+            uiBase = &base;
         }
 
         ~ComboboxComponent() override {
@@ -53,11 +57,6 @@ namespace zlinterface {
 
         juce::Label &getLabel() { return label; }
 
-        void setFontSize(float size) {
-            myLookAndFeel.setFontSize(size);
-            nameLookAndFeel.setFontSize(size);
-        }
-
         void setEditable(bool f) {
             myLookAndFeel.setEditable(f);
             nameLookAndFeel.setEditable(f);
@@ -73,6 +72,8 @@ namespace zlinterface {
         constexpr static float boxHeight = 0.7f;
         constexpr static float labelHeight = 1.f - boxHeight;
         constexpr static float boxRatio = 0.45f;
+
+        UIBase *uiBase;
     };
 }
 #endif //ZL_COMBOBOX_COMPONENT_H

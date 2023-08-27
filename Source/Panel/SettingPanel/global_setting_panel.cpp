@@ -11,30 +11,32 @@
 #include "global_setting_panel.h"
 
 namespace zlpanel {
-    GlobalSettingPanel::GlobalSettingPanel(juce::AudioProcessorValueTreeState & parameters) {
+    GlobalSettingPanel::GlobalSettingPanel(juce::AudioProcessorValueTreeState & parameters, zlinterface::UIBase &base) {
+        uiBase = &base;
+
         std::array<std::string, 2> rotarySliderID{zldsp::outGain::ID, zldsp::mix::ID};
         attachSliders<zlinterface::RotarySliderComponent, 2>(*this, rotarySliderList, sliderAttachments, rotarySliderID,
-                                                             parameters);
+                                                             parameters, base);
 
         std::array<std::string, 3> linearSliderID{zldsp::rms::ID, zldsp::lookahead::ID, zldsp::segment::ID};
         attachSliders<zlinterface::LinearSliderComponent, 3>(*this, linearSliderList, sliderAttachments, linearSliderID,
-                                                             parameters);
+                                                             parameters, base);
 
         std::array<std::string, 1> boxID{zldsp::overSample::ID};
-        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, parameters);
+        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, parameters, base);
     }
 
     GlobalSettingPanel::~GlobalSettingPanel()  = default;
 
     void GlobalSettingPanel::paint(juce::Graphics &g) {
         auto bound = getLocalBounds().toFloat();
-        zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {
-                .blurRadius=0.25f, .mainColour=zlinterface::BackgroundColor});
+        uiBase->fillRoundedShadowRectangle(g, bound, 0.5f * uiBase->getFontSize(),
+                                           {.blurRadius=0.25f});
     }
 
     void GlobalSettingPanel::resized() {
         auto bound = getLocalBounds().toFloat();
-        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+        bound = uiBase->getRoundedShadowRectangleArea(bound, 0.5f * uiBase->getFontSize(), {.blurRadius=0.25f});
 
         juce::Grid grid;
         using Track = juce::Grid::TrackInfo;
@@ -53,18 +55,5 @@ namespace zlpanel {
         grid.items = items;
 
         grid.performLayout(bound.toNearestInt());
-    }
-
-    void GlobalSettingPanel::setFontSize(float fSize) {
-        fontSize = fSize;
-        for (auto const &s: rotarySliderList) {
-            (*s)->setFontSize(fSize);
-        }
-        for (auto const &s: linearSliderList) {
-            (*s)->setFontSize(fSize);
-        }
-        for (auto const &c: boxList) {
-            (*c)->setFontSize(fSize);
-        }
     }
 } // zlpanel

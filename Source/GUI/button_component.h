@@ -19,7 +19,10 @@
 namespace zlinterface {
     class ButtonComponent : public juce::Component {
     public:
-        explicit ButtonComponent(const juce::String &labelText) {
+        explicit ButtonComponent(const juce::String &labelText, UIBase &base) :
+                myLookAndFeel(base), nameLookAndFeel(base) {
+            uiBase = &base;
+
             setLookAndFeel(&myLookAndFeel);
             button.setClickingTogglesState(true);
             button.setLookAndFeel(&myLookAndFeel);
@@ -51,11 +54,6 @@ namespace zlinterface {
 
         juce::Label &getLabel() { return label; }
 
-        void setFontSize(float size) {
-            myLookAndFeel.setFontSize(size);
-            nameLookAndFeel.setFontSize(size);
-        }
-
         void setEditable(bool f) {
             myLookAndFeel.setEditable(f);
             nameLookAndFeel.setEditable(f);
@@ -71,6 +69,8 @@ namespace zlinterface {
         constexpr static float buttonHeight = 0.7f;
         constexpr static float labelHeight = 1.f - buttonHeight;
         constexpr static float buttonRatio = 0.45f;
+
+        UIBase *uiBase;
     };
 }
 

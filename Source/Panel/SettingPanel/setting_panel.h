@@ -19,7 +19,8 @@ namespace zlpanel {
 
     class SettingPanel : public juce::Component {
     public:
-        explicit SettingPanel(juce::AudioProcessorValueTreeState &parameters);
+        explicit SettingPanel(juce::AudioProcessorValueTreeState &parameters,
+                              zlinterface::UIBase &base);
 
         ~SettingPanel() override;
 
@@ -27,12 +28,12 @@ namespace zlpanel {
 
         void resized() override;
 
-        void setFontSize(float fSize);
-
     private:
         GlobalSettingPanel globalSettingPanel;
         ComputerSettingPanel computerSettingPanel;
         DetectorSettingPanel detectorSettingPanel;
+
+        zlinterface::UIBase *uiBase;
     };
 
 } // zlpanel

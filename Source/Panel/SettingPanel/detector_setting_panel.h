@@ -24,15 +24,13 @@ namespace zlpanel {
 
     class DetectorSettingPanel : public juce::Component {
     public:
-        explicit DetectorSettingPanel(juce::AudioProcessorValueTreeState &parameters);
+        explicit DetectorSettingPanel(juce::AudioProcessorValueTreeState &parameters, zlinterface::UIBase &base);
 
         ~DetectorSettingPanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
-
-        void setFontSize(float fSize);
 
     private:
         std::unique_ptr<zlinterface::RotarySliderComponent> gainSlider, attackSlider, releaseSlider;
@@ -53,7 +51,7 @@ namespace zlpanel {
 
         juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments;
 
-        float fontSize;
+        zlinterface::UIBase *uiBase;
     };
 
 } // zlpanel

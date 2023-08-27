@@ -12,10 +12,12 @@
 
 namespace zlpanel {
 
-    CenterPanel::CenterPanel(PluginProcessor &p) :
-            plotPanel(p), monitorPanel(p) {
+    CenterPanel::CenterPanel(PluginProcessor &p, zlinterface::UIBase &base) :
+            plotPanel(p, base), monitorPanel(p, base) {
         processorRef = &p;
         openGLContext.attachTo(*this);
+
+        uiBase = &base;
 
         processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
         monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
@@ -32,7 +34,7 @@ namespace zlpanel {
     }
 
     void CenterPanel::paint(juce::Graphics &g) {
-        g.setColour(zlinterface::BackgroundColor);
+        g.setColour(uiBase->getBackgroundColor());
         g.fillRect(getLocalBounds());
     }
 
@@ -46,12 +48,6 @@ namespace zlpanel {
         }
         bound = bound.withWidth(bound.getHeight());
         plotPanel.setBounds(bound.toNearestInt());
-    }
-
-    void CenterPanel::setFontSize(float fSize) {
-        fontSize = fSize;
-        plotPanel.setFontSize(fSize);
-        monitorPanel.setFontSize(fSize);
     }
 
     void CenterPanel::parameterChanged(const juce::String &parameterID, float newValue) {

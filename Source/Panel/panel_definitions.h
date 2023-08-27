@@ -12,6 +12,7 @@
 #define ZL_PANEL_DEFINITIONS_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "../GUI/interface_definitions.h"
 
 namespace zlpanel {
     template<class T1, size_t N>
@@ -19,10 +20,11 @@ namespace zlpanel {
                               std::array<std::unique_ptr<T1> *, N> components,
                               juce::OwnedArray<juce::AudioProcessorValueTreeState::SliderAttachment> &attachments,
                               std::array<std::string, N> &ids,
-                              juce::AudioProcessorValueTreeState &parameters) {
+                              juce::AudioProcessorValueTreeState &parameters,
+                              zlinterface::UIBase &base) {
         for (size_t i = 0; i < N; ++i) {
             *components[i] = std::make_unique<T1>(
-                    parameters.getParameter(ids[i])->label);
+                    parameters.getParameter(ids[i])->label, base);
             mainComponent.addAndMakeVisible(*(*components[i]));
             attachments.add(
                     std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
@@ -35,11 +37,13 @@ namespace zlpanel {
                             std::array<std::unique_ptr<T1> *, N> components,
                             juce::OwnedArray<juce::AudioProcessorValueTreeState::ComboBoxAttachment> &attachments,
                             std::array<std::string, N> &ids,
-                            juce::AudioProcessorValueTreeState &parameters) {
+                            juce::AudioProcessorValueTreeState &parameters,
+                            zlinterface::UIBase &base) {
         for (size_t i = 0; i < N; ++i) {
             *components[i] = std::make_unique<T1>(
                     parameters.getParameter(ids[i])->label,
-                    parameters.getParameter(ids[i])->getAllValueStrings());
+                    parameters.getParameter(ids[i])->getAllValueStrings(),
+                    base);
             mainComponent.addAndMakeVisible(*(*components[i]));
             attachments.add(
                     std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
@@ -52,9 +56,10 @@ namespace zlpanel {
                               std::array<std::unique_ptr<T1> *, N> components,
                               juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> &attachments,
                               std::array<std::string, N> &ids,
-                              juce::AudioProcessorValueTreeState &parameters) {
+                              juce::AudioProcessorValueTreeState &parameters,
+                              zlinterface::UIBase &base) {
         for (size_t i = 0; i < N; ++i) {
-            *components[i] = std::make_unique<T1>(parameters.getParameter(ids[i])->label);
+            *components[i] = std::make_unique<T1>(parameters.getParameter(ids[i])->label, base);
             mainComponent.addAndMakeVisible(*(*components[i]));
             attachments.add(
                     std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(

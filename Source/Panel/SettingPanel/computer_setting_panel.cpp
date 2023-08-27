@@ -11,28 +11,32 @@
 #include "computer_setting_panel.h"
 
 namespace zlpanel {
-    ComputerSettingPanel::ComputerSettingPanel(juce::AudioProcessorValueTreeState &parameters) {
+    ComputerSettingPanel::ComputerSettingPanel(juce::AudioProcessorValueTreeState &parameters,
+                                               zlinterface::UIBase &base) {
+        uiBase = &base;
         std::array<std::string, 2> rotarySliderID{zldsp::threshold::ID, zldsp::ratio::ID};
         attachSliders<zlinterface::RotarySliderComponent, 2>(*this, rotarySliderList, sliderAttachments, rotarySliderID,
-                                                             parameters);
+                                                             parameters, base);
 
         std::array<std::string, 4> linearSliderID{zldsp::kneeW::ID, zldsp::kneeS::ID, zldsp::kneeD::ID,
                                                   zldsp::bound::ID};
         attachSliders<zlinterface::LinearSliderComponent, 4>(*this, linearSliderList, sliderAttachments, linearSliderID,
-                                                             parameters);
+                                                             parameters, base);
+
+        uiBase = &base;
     }
 
     ComputerSettingPanel::~ComputerSettingPanel() = default;
 
     void ComputerSettingPanel::paint(juce::Graphics &g) {
         auto bound = getLocalBounds().toFloat();
-        zlinterface::fillRoundedShadowRectangle(g, bound, 0.5f * fontSize, {
-                .blurRadius=0.25f, .mainColour=zlinterface::BackgroundColor});
+        uiBase->fillRoundedShadowRectangle(g, bound, 0.5f * uiBase->getFontSize(), {
+                .blurRadius=0.25f, .mainColour=uiBase->getBackgroundColor()});
     }
 
     void ComputerSettingPanel::resized() {
         auto bound = getLocalBounds().toFloat();
-        bound = zlinterface::getRoundedShadowRectangleArea(bound, 0.5f * fontSize, {.blurRadius=0.25f});
+        bound = uiBase->getRoundedShadowRectangleArea(bound, 0.5f * uiBase->getFontSize(), {.blurRadius=0.25f});
 
         juce::Grid grid;
         using Track = juce::Grid::TrackInfo;
@@ -51,15 +55,5 @@ namespace zlpanel {
         grid.items = items;
 
         grid.performLayout(bound.toNearestInt());
-    }
-
-    void ComputerSettingPanel::setFontSize(float fSize) {
-        fontSize = fSize;
-        for (auto const &s: rotarySliderList) {
-            (*s)->setFontSize(fSize);
-        }
-        for (auto const &s: linearSliderList) {
-            (*s)->setFontSize(fSize);
-        }
     }
 } // zlpanel

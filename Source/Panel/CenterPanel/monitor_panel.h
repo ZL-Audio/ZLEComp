@@ -26,15 +26,13 @@ namespace zlpanel {
     public:
         auto static constexpr callBackHz = 30;
 
-        explicit MonitorPanel(PluginProcessor &p);
+        explicit MonitorPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~MonitorPanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
-
-        void setFontSize(float fSize);
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
@@ -43,7 +41,7 @@ namespace zlpanel {
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         PluginProcessor *processorRef;
         std::atomic<int> monitorSetting = zlstate::monitorSetting::defaultI;
-        float fontSize = 0.0f;
+        zlinterface::UIBase *uiBase;
 
         void timerCallback() override;
         void handleAsyncUpdate() override;

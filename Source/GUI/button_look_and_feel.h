@@ -18,23 +18,25 @@
 namespace zlinterface {
     class ButtonLookAndFeel : public juce::LookAndFeel_V4 {
     public:
-        explicit ButtonLookAndFeel() = default;
+        explicit ButtonLookAndFeel(UIBase &base) {
+            uiBase = &base;
+        }
 
         void drawToggleButton(juce::Graphics &g, juce::ToggleButton &button, bool shouldDrawButtonAsHighlighted,
                               bool shouldDrawButtonAsDown) override {
             juce::ignoreUnused(shouldDrawButtonAsDown);
             auto bounds = button.getLocalBounds().toFloat();
             // draw button
-            bounds = fillRoundedShadowRectangle(g, bounds, fontSize * 0.5f, {});
-            fillRoundedInnerShadowRectangle(g, bounds, fontSize * 0.5f, {.blurRadius=0.3f, .flip=true});
+            bounds = uiBase->fillRoundedShadowRectangle(g, bounds, uiBase->getFontSize() * 0.5f, {});
+            uiBase->fillRoundedInnerShadowRectangle(g, bounds, uiBase->getFontSize() * 0.5f, {.blurRadius=0.3f, .flip=true});
             // draw ON/OFF
             if (editable.load()) {
-                g.setColour(TextColor);
+                g.setColour(uiBase->getTextColor());
             } else {
-                g.setColour(TextInactiveColor);
+                g.setColour(uiBase->getTextInactiveColor());
             }
-            if (fontSize > 0) {
-                g.setFont(fontSize * FontLarge);
+            if (uiBase->getFontSize() > 0) {
+                g.setFont(uiBase->getFontSize() * FontLarge);
             } else {
                 g.setFont(bounds.getHeight() * 0.35f);
             }
@@ -68,18 +70,14 @@ namespace zlinterface {
                 }
             }
         }
-
-        void setFontSize(float size) {
-            fontSize = size;
-        }
-
         void setEditable(bool f) {
             editable.store(f);
         }
 
     private:
-        std::atomic<float> fontSize = 0.0f;
         std::atomic<bool> editable = true;
+
+        UIBase *uiBase;
     };
 }
 #endif //ZL_BUTTON_LOOK_AND_FEEL_H

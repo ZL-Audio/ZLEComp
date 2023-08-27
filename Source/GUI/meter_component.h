@@ -23,8 +23,9 @@ namespace zlinterface {
     public:
         explicit MeterComponent(const juce::String &labelText,
                                 zlmeter::MeterSource<float> *meterSource,
-                                float minV, float maxV) :
-                myLookAndFeel() {
+                                float minV, float maxV,
+                                UIBase &base) :
+                myLookAndFeel(base), nameLookAndFeel(base) {
             // set meter
             source = meterSource;
             source->setDecayRate(27.f / zlinterface::RefreshFreqHz);
@@ -61,11 +62,6 @@ namespace zlinterface {
             source->resetPeakMax();
         }
 
-        void setFontSize(float size) {
-            myLookAndFeel.setFontSize(size);
-            nameLookAndFeel.setFontSize(size);
-        }
-
         void setRMSRange(float minV, float maxV) {
             myLookAndFeel.setRMSRange(minV, maxV);
         }
@@ -79,6 +75,8 @@ namespace zlinterface {
         juce::Label label;
         MeterLookAndFeel myLookAndFeel;
         NameLookAndFeel nameLookAndFeel;
+
+        UIBase *uiBase;
     };
 }
 

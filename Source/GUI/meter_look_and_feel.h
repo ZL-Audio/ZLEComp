@@ -18,11 +18,8 @@ namespace zlinterface {
 
     class MeterLookAndFeel : public juce::LookAndFeel_V4 {
     public:
-        explicit MeterLookAndFeel() = default;
-
-        void setFontSize(float size) {
-            fontSize = size;
-            cornerSize = fontSize * 0.5f;
+        explicit MeterLookAndFeel(UIBase &base) {
+            uiBase = &base;
         }
 
         void drawMeters(juce::Graphics &g, const juce::Rectangle<float> &bounds,
@@ -31,8 +28,10 @@ namespace zlinterface {
                         const std::vector<float> &peakMax) {
 
             auto bound = bounds.toFloat();
-            bound = fillRoundedShadowRectangle(g, bound, fontSize * .5f, {});
-            fillRoundedInnerShadowRectangle(g, bound, fontSize * .5f, {.blurRadius=.3f, .flip=true});
+            bound = uiBase->fillRoundedShadowRectangle(g, bound,
+                                                       uiBase->getFontSize() * .5f, {});
+            uiBase->fillRoundedInnerShadowRectangle(g, bound, uiBase->getFontSize() * .5f,
+                                                    {.blurRadius=.3f, .flip=true});
             auto numberBound = bound;
 
             auto meterWidth = bound.getWidth() / static_cast<float>(rms.size());
@@ -52,10 +51,10 @@ namespace zlinterface {
                 } else if (i == peakMax.size() - 1) {
                     curveBR = true;
                 }
-                g.setColour(TextHideColor);
+                g.setColour(uiBase->getTextHideColor());
                 drawMeterValue(g, peak[i], localBound, curveTL, curveTR, curveBL, curveBR);
 
-                g.setColour(TextHideColor);
+                g.setColour(uiBase->getTextHideColor());
                 drawMeterValue(g, rms[i], localBound, curveTL, curveTR, curveBL, curveBR);
             }
         }
@@ -67,17 +66,18 @@ namespace zlinterface {
 
     private:
         const static int numNumbers = 5;
-        float fontSize = 0.0f, minRMS = -24.0f, maxRMS = 0.0f;
-        float cornerSize = 0.0f;
+        float minRMS = -24.0f, maxRMS = 0.0f;
+
+        UIBase *uiBase;
 
         void drawMeterPeakMax(juce::Graphics &g, float peakMax, const juce::Rectangle<float> &bound) {
             if (peakMax > 0) {
-                g.setColour(TextColor);
+                g.setColour(uiBase->getTextColor());
             } else {
-                g.setColour(TextInactiveColor);
+                g.setColour(uiBase->getTextInactiveColor());
             }
-            if (fontSize > 0) {
-                g.setFont(fontSize * FontTiny);
+            if (uiBase->getFontSize() > 0) {
+                g.setFont(uiBase->getFontSize() * FontTiny);
             } else {
                 g.setFont(bound.getHeight() * 0.6f);
             }
@@ -103,7 +103,7 @@ namespace zlinterface {
             juce::Path path;
             path.addRoundedRectangle(valueBound.getX(), valueBound.getY(),
                                      valueBound.getWidth(), valueBound.getHeight(),
-                                     cornerSize, cornerSize,
+                                     uiBase->getFontSize() * .5f, uiBase->getFontSize() * .5f,
                                      curveTL, curveTR, curveBL, curveBR);
             g.fillPath(path);
         }
@@ -113,8 +113,8 @@ namespace zlinterface {
             auto localNumber = maxRMS;
             auto numberBound = bound;
             g.setColour(TextColor);
-            if (fontSize > 0) {
-                g.setFont(fontSize * FontNormal);
+            if (uiBase->getFontSize() > 0) {
+                g.setFont(uiBase->getFontSize() * FontNormal);
             } else {
                 g.setFont(bound.getHeight() * 0.6f);
             }

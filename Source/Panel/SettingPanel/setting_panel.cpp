@@ -11,13 +11,16 @@
 #include "setting_panel.h"
 
 namespace zlpanel {
-    SettingPanel::SettingPanel(juce::AudioProcessorValueTreeState & parameters) :
-    globalSettingPanel (parameters),
-    computerSettingPanel(parameters),
-    detectorSettingPanel(parameters) {
+    SettingPanel::SettingPanel(juce::AudioProcessorValueTreeState &parameters,
+                               zlinterface::UIBase &base) :
+            globalSettingPanel(parameters, base),
+            computerSettingPanel(parameters, base),
+            detectorSettingPanel(parameters, base) {
         addAndMakeVisible(globalSettingPanel);
         addAndMakeVisible(computerSettingPanel);
         addAndMakeVisible(detectorSettingPanel);
+
+        uiBase = &base;
     }
 
     SettingPanel::~SettingPanel() = default;
@@ -39,11 +42,5 @@ namespace zlpanel {
         grid.items = items;
 
         grid.performLayout(getLocalBounds());
-    }
-
-    void SettingPanel::setFontSize(float fSize) {
-        globalSettingPanel.setFontSize(fSize);
-        computerSettingPanel.setFontSize(fSize);
-        detectorSettingPanel.setFontSize(fSize);
     }
 } // zlpanel

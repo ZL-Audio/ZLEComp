@@ -24,7 +24,7 @@ namespace zlpanel {
     class CenterPanel : public juce::Component, private juce::AsyncUpdater,
                         public juce::AudioProcessorValueTreeState::Listener {
     public:
-        explicit CenterPanel(PluginProcessor &p);
+        explicit CenterPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~CenterPanel() override;
 
@@ -40,7 +40,7 @@ namespace zlpanel {
         PluginProcessor *processorRef;
         PlotPanel plotPanel;
         MonitorPanel monitorPanel;
-        float fontSize = 0.0f;
+        zlinterface::UIBase *uiBase;
         std::atomic<int> monitorSetting = zlstate::monitorSetting::defaultI;
 
         juce::OpenGLContext openGLContext;

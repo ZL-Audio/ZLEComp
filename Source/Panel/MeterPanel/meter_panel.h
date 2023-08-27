@@ -20,15 +20,14 @@ namespace zlpanel {
     class MeterPanel : public juce::Component {
     public:
         explicit MeterPanel(zlmeter::MeterSource<float> *input,
-                            zlmeter::MeterSource<float> *output);
+                            zlmeter::MeterSource<float> *output,
+                            zlinterface::UIBase &base);
 
         ~MeterPanel() override;
 
         void paint(juce::Graphics &) override;
 
         void resized() override;
-
-        void setFontSize(float size);
 
     private:
         zlinterface::MeterComponent inputMeter, outputMeter;

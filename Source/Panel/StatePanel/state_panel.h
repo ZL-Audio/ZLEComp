@@ -22,15 +22,13 @@ namespace zlpanel {
 
     class StatePanel : public juce::Component {
     public:
-        explicit StatePanel(juce::AudioProcessorValueTreeState &parameters);
+        explicit StatePanel(juce::AudioProcessorValueTreeState &parameters, zlinterface::UIBase &base);
 
         ~StatePanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
-
-        void setFontSize(float fSize);
 
     private:
         LogoPanel logoPanel;
@@ -44,7 +42,7 @@ namespace zlpanel {
 
         juce::OwnedArray<juce::AudioProcessorValueTreeState::ComboBoxAttachment> boxAttachments;
 
-        float fontSize = 0.f;
+        zlinterface::UIBase *uiBase;
     };
 
 } // zlpanel
