@@ -15,17 +15,23 @@ namespace zlpanel {
     CenterPanel::CenterPanel(PluginProcessor &p, zlinterface::UIBase &base) :
             plotPanel(p, base), monitorPanel(p, base) {
         processorRef = &p;
-        openGLContext.attachTo(*this);
-
         uiBase = &base;
 
         processorRef->states.addParameterListener(zlstate::monitorSetting::ID, this);
         monitorSetting.store(static_cast<int>(*p.states.getRawParameterValue(zlstate::monitorSetting::ID)));
 
+
         addAndMakeVisible(monitorPanel);
         addAndMakeVisible(plotPanel);
-        
+
+        openGLContext.setComponentPaintingEnabled(true);
+        openGLContext.attachTo(*this);
+
         setSize(200, 100);
+    }
+
+    void CenterPanel::attachOpenGL(juce::Component &component) {
+        openGLContext.attachTo(component);
     }
 
     CenterPanel::~CenterPanel() {

@@ -22,7 +22,7 @@ namespace zlpanel {
 
     class StatePanel : public juce::Component {
     public:
-        explicit StatePanel(juce::AudioProcessorValueTreeState &parameters, zlinterface::UIBase &base);
+        explicit StatePanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~StatePanel() override;
 

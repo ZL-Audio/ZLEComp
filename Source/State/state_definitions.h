@@ -46,6 +46,16 @@ namespace zlstate {
         }
     };
 
+
+    class programIdx : public IntParameters<programIdx> {
+    public:
+        auto static constexpr ID = "program_idx";
+        auto static constexpr name = "NA";
+        inline static const int minV = 0;
+        inline static const int maxV = preset::presetNUM - 1;
+        inline static const int defaultV = 0;
+    };
+
     template<class T>
     class FloatParameters {
     public:
@@ -60,19 +70,20 @@ namespace zlstate {
         }
     };
 
-    class programIdx : public IntParameters<programIdx> {
-    public:
-        auto static constexpr ID = "program_idx";
-        auto static constexpr name = "NA_Program Idx";
+    class uiStyle : public FloatParameters<uiStyle> {public:
+        auto static constexpr ID = "ui_style";
+        auto static constexpr name = "NA";
         inline static const int minV = 0;
-        inline static const int maxV = preset::presetNUM - 1;
-        inline static const int defaultV = 0;
+        inline static const int maxV = 1;
+        inline static const int defaultV = 1;
+        inline auto static const range =
+                juce::NormalisableRange<float>(minV, maxV, 1.f);
     };
 
     class windowW : public FloatParameters<windowW> {
     public:
         auto static constexpr ID = "window_w";
-        auto static constexpr name = "NA_Window W";
+        auto static constexpr name = "NA";
         inline static const int minV = 476;
         inline static const int maxV = 1428;
         inline static const int defaultV = 476;
@@ -83,7 +94,7 @@ namespace zlstate {
     class windowH : public FloatParameters<windowH> {
     public:
         auto static constexpr ID = "window_h";
-        auto static constexpr name = "NA_Window H";
+        auto static constexpr name = "NA";
         inline static const int minV = 443;
         inline static const int maxV = 1329;
         inline static const int defaultV = 443;
@@ -152,14 +163,13 @@ namespace zlstate {
 
     inline juce::AudioProcessorValueTreeState::ParameterLayout getParameterLayout() {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
-        layout.add(programIdx::get(false),
+        layout.add(programIdx::get(false), uiStyle::get(false),
                    windowW::get(false), windowH::get(false),
                    showComputer::get("Computer", false),
                    showDetector::get("Detector", false),
                    monitorSetting::get("Monitor", false));
         return layout;
     }
-
 }
 
 #endif //ZLECOMP_STATE_DEFINITIONS_H

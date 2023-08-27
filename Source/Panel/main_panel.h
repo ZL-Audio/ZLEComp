@@ -25,6 +25,8 @@ namespace zlpanel {
     public:
         explicit MainPanel(PluginProcessor &p);
 
+        void attachOpenGL(juce::Component &component);
+
         ~MainPanel() override;
 
         void paint(juce::Graphics &g) override;

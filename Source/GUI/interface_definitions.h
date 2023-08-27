@@ -313,7 +313,7 @@ namespace zlinterface {
                                                           float cornerSize,
                                                           const fillRoundedShadowRectangleArgs &args) {
             auto mArgs = args;
-            mArgs.mainColour = getBackgroundColor();
+            mArgs.mainColour = getBackgroundColor().withAlpha(args.mainColour.getAlpha());
             mArgs.darkShadowColor = getDarkShadowColor();
             mArgs.brightShadowColor = getBrightShadowColor();
             return zlinterface::fillRoundedShadowRectangle(g, boxBounds, cornerSize, mArgs);
@@ -324,7 +324,7 @@ namespace zlinterface {
                                                                float cornerSize,
                                                                const fillRoundedShadowRectangleArgs &args) {
             auto mArgs = args;
-            mArgs.mainColour = getBackgroundColor();
+            mArgs.mainColour = getBackgroundColor().withAlpha(args.mainColour.getAlpha());
             mArgs.darkShadowColor = getDarkShadowColor();
             mArgs.brightShadowColor = getBrightShadowColor();
             return zlinterface::fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, mArgs);
@@ -335,7 +335,7 @@ namespace zlinterface {
                                                  float cornerSize,
                                                  const fillShadowEllipseArgs &args) {
             auto mArgs = args;
-            mArgs.mainColour = getBackgroundColor();
+            mArgs.mainColour = getBackgroundColor().withAlpha(args.mainColour.getAlpha());
             mArgs.darkShadowColor = getDarkShadowColor();
             mArgs.brightShadowColor = getBrightShadowColor();
             return zlinterface::drawShadowEllipse(g, boxBounds, cornerSize, mArgs);
@@ -346,7 +346,7 @@ namespace zlinterface {
                                                       float cornerSize,
                                                       const fillShadowEllipseArgs &args) {
             auto mArgs = args;
-            mArgs.mainColour = getBackgroundColor();
+            mArgs.mainColour = getBackgroundColor().withAlpha(args.mainColour.getAlpha());
             mArgs.darkShadowColor = getDarkShadowColor();
             mArgs.brightShadowColor = getBrightShadowColor();
             return zlinterface::drawInnerShadowEllipse(g, boxBounds, cornerSize, mArgs);

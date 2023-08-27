@@ -13,7 +13,7 @@
 namespace zlpanel {
     MainPanel::MainPanel(PluginProcessor &p) :
             uiBase(),
-            statePanel(p.states, uiBase),
+            statePanel(p, uiBase),
             centerPanel(p, uiBase),
             settingPanel(p.parameters, uiBase) {
 //            meterPanel(&p.getMeterIn(), &p.getMeterEnd()) {
@@ -21,6 +21,10 @@ namespace zlpanel {
         addAndMakeVisible(settingPanel);
         addAndMakeVisible(statePanel);
 //        addAndMakeVisible(meterPanel);
+    }
+
+    void MainPanel::attachOpenGL(juce::Component &component) {
+        centerPanel.attachOpenGL(component);
     }
 
     MainPanel::~MainPanel() = default;
@@ -31,6 +35,8 @@ namespace zlpanel {
         float fontSize = bound.getHeight() * 0.0514f * 0.5f;
         bound = uiBase.fillRoundedShadowRectangle(g, bound, fontSize * 0.5f, {});
         uiBase.fillRoundedInnerShadowRectangle(g, bound, fontSize * 0.5f, {.blurRadius=0.45f, .flip=true});
+
+        centerPanel.repaint();
     }
 
     void MainPanel::resized() {

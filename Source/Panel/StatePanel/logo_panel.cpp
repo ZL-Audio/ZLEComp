@@ -11,17 +11,24 @@
 #include "logo_panel.h"
 
 namespace zlpanel {
-    LogoPanel::LogoPanel(zlinterface::UIBase &base) :
+    LogoPanel::LogoPanel(PluginProcessor &p,
+                         zlinterface::UIBase &base) :
             brandDrawable(juce::Drawable::createFromImageData(BinaryData::zlaudio_svg, BinaryData::zlaudio_svgSize)),
             logoDrawable(juce::Drawable::createFromImageData(BinaryData::logo_svg, BinaryData::logo_svgSize)) {
+        processorRef = &p;
         uiBase = &base;
+        uiBase->setStyle(static_cast<size_t>(*p.states.getRawParameterValue(zlstate::uiStyle::ID)));
+        triggerAsyncUpdate();
     }
 
     LogoPanel::~LogoPanel() = default;
 
     void LogoPanel::paint(juce::Graphics &g) {
-        brandDrawable->replaceColour(juce::Colour(87, 96, 110), uiBase->getTextColor());
-        logoDrawable->replaceColour(juce::Colour(87, 96, 110), uiBase->getTextColor());
+        auto tempBrand = brandDrawable->createCopy();
+        auto tempLogo = logoDrawable->createCopy();
+        tempBrand->replaceColour(juce::Colour(87, 96, 110), uiBase->getTextColor());
+        tempLogo->replaceColour(juce::Colour(87, 96, 110), uiBase->getTextColor());
+
         auto bound = getLocalBounds().toFloat();
         auto padding = juce::jmin(bound.getWidth() * 0.1f, bound.getHeight() * 0.1f);
         bound = bound.withSizeKeepingCentre(bound.getWidth() - padding, bound.getHeight() - padding);
@@ -33,12 +40,29 @@ namespace zlpanel {
         auto height = juce::jmin(bound.getHeight(), bound.getWidth() / widthOverHeight);
         bound = bound.withSizeKeepingCentre(width, height);
 
-        brandDrawable->setTransform(
+        tempBrand->setTransform(
                 juce::AffineTransform::scale(bound.getHeight() / static_cast<float>(brandDrawable->getHeight())));
-        brandDrawable->drawAt(g, bound.getX(), bound.getY(), 1.0f);
+        tempBrand->drawAt(g, bound.getX(), bound.getY(), 1.0f);
 
-        logoDrawable->setTransform(
+        tempLogo->setTransform(
                 juce::AffineTransform::scale(bound.getHeight() / static_cast<float>(logoDrawable->getHeight())));
-        logoDrawable->drawAt(g, bound.getX() + bound.getHeight() * (widthOverHeight - logoWOH), bound.getY(), 1.0f);
+        tempLogo->drawAt(g, bound.getX() + bound.getHeight() * (widthOverHeight - logoWOH), bound.getY(), 1.0f);
+    }
+
+    void LogoPanel::mouseDoubleClick(const juce::MouseEvent &event) {
+        juce::ignoreUnused(event);
+        auto styleID = static_cast<size_t>(*processorRef->states.getRawParameterValue(zlstate::uiStyle::ID));
+        styleID = (styleID + 1) % (zlstate::uiStyle::maxV + 1);
+        uiBase->setStyle(styleID);
+        processorRef->states.getParameter(zlstate::uiStyle::ID)->setValueNotifyingHost(
+                zlstate::uiStyle::convertTo01(static_cast<float>(styleID)));
+        triggerAsyncUpdate();
+    }
+
+    void LogoPanel::handleAsyncUpdate() {
+        if (getTopLevelComponent() != nullptr) {
+            auto topComponent = getTopLevelComponent();
+            topComponent->repaint(topComponent->getBounds());
+        }
     }
 }

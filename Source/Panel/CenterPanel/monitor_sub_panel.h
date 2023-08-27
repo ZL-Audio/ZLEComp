@@ -39,8 +39,6 @@ namespace zlpanel {
 
         void resized() override;
 
-        void setFontSize(float fSize);
-
         void setMonitorVisible(bool f);
 
         void setTimeInSecond(float v);

@@ -26,13 +26,13 @@ namespace zlpanel {
     public:
         explicit CenterPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
+        void attachOpenGL(juce::Component &component);
+
         ~CenterPanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
-
-        void setFontSize(float fSize);
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 

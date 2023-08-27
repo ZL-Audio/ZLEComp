@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="uuid-ecbf7a7a-b73f-46a5-9762-69ea44f9cc1c" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 338.811 338.811">
   <g>
-    <line x1="26.4342" y1="102.497" x2="39.9342" y2="102.497" style="fill: none; stroke: #808e9e; stroke-linejoin: round; stroke-width: 27px;"/>
-    <line x1="69.128" y1="102.497" x2="288.0813" y2="102.497" style="fill: none; stroke: #808e9e; stroke-dasharray: 0 0 29.1938 29.1938; stroke-linejoin: round; stroke-width: 27px;"/>
-    <line x1="302.6782" y1="102.497" x2="316.1782" y2="102.497" style="fill: none; stroke: #808e9e; stroke-linejoin: round; stroke-width: 27px;"/>
+    <line x1="26.4342" y1="102.497" x2="39.9342" y2="102.497" style="fill: none; stroke: #57606e; stroke-linejoin: round; stroke-width: 27px;"/>
+    <line x1="69.128" y1="102.497" x2="288.0813" y2="102.497" style="fill: none; stroke: #57606e; stroke-dasharray: 0 0 29.1938 29.1938; stroke-linejoin: round; stroke-width: 27px;"/>
+    <line x1="302.6782" y1="102.497" x2="316.1782" y2="102.497" style="fill: none; stroke: #57606e; stroke-linejoin: round; stroke-width: 27px;"/>
   </g>
   <g>
-    <line x1="26.4342" y1="322.2685" x2="34.4494" y2="311.4054" style="fill: none; stroke: #808e9e; stroke-linejoin: round; stroke-width: 27px;"/>
-    <line x1="50.2877" y1="289.9396" x2="232.4282" y2="43.0826" style="fill: none; stroke: #808e9e; stroke-dasharray: 0 0 26.6765 26.6765; stroke-linejoin: round; stroke-width: 27px;"/>
-    <line x1="240.3474" y1="32.3496" x2="248.3626" y2="21.4866" style="fill: none; stroke: #808e9e; stroke-linejoin: round; stroke-width: 27px;"/>
+    <line x1="26.4342" y1="322.2685" x2="34.4494" y2="311.4054" style="fill: none; stroke: #57606e; stroke-linejoin: round; stroke-width: 27px;"/>
+    <line x1="50.2877" y1="289.9396" x2="232.4282" y2="43.0826" style="fill: none; stroke: #57606e; stroke-dasharray: 0 0 26.6765 26.6765; stroke-linejoin: round; stroke-width: 27px;"/>
+    <line x1="240.3474" y1="32.3496" x2="248.3626" y2="21.4866" style="fill: none; stroke: #57606e; stroke-linejoin: round; stroke-width: 27px;"/>
   </g>
   <path d="M246.6617,251.1265v29.4834h41.5801v8.8564h-50.8682v-82.0801h49.4639v8.8564h-40.1758v26.1357h37.9072v8.748h-37.9072Z" style="fill: #57606e; stroke: #57606e; stroke-linecap: round; stroke-linejoin: round; stroke-width: 12px;"/>
   <path d="M322.9861,75.5299s-97.4138,19.5389-134.0124,43.5887c-36.5986,24.0498-130.231,160.2372-156.3576,194.8165" style="fill: none; stroke: #57606e; stroke-linecap: round; stroke-linejoin: round; stroke-width: 27px;"/>

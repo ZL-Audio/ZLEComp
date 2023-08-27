@@ -11,14 +11,14 @@
 #include "state_panel.h"
 
 namespace zlpanel {
-    StatePanel::StatePanel(juce::AudioProcessorValueTreeState &parameters,
-                           zlinterface::UIBase &base) : logoPanel(base) {
+    StatePanel::StatePanel(PluginProcessor &p,
+                           zlinterface::UIBase &base) : logoPanel(p, base) {
         addAndMakeVisible(logoPanel);
         std::array<std::string, 2> buttonID{zlstate::showComputer::ID, zlstate::showDetector::ID};
-        attachButtons<zlinterface::ButtonComponent, 2>(*this, buttonList, buttonAttachments, buttonID, parameters, base);
+        attachButtons<zlinterface::ButtonComponent, 2>(*this, buttonList, buttonAttachments, buttonID, p.states, base);
 
         std::array<std::string, 1> boxID{zlstate::monitorSetting::ID};
-        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, parameters, base);
+        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, p.states, base);
 
         uiBase = &base;
     }

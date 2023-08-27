@@ -14,19 +14,27 @@
 #include "BinaryData.h"
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "../../GUI/interface_definitions.h"
+#include "../../State/state_definitions.h"
+#include "../../PluginProcessor.h"
 
 namespace zlpanel {
-    class LogoPanel : public juce::Component {
+    class LogoPanel : public juce::Component, private juce::AsyncUpdater {
     public:
-        explicit LogoPanel(zlinterface::UIBase &base);
+        explicit LogoPanel(PluginProcessor &p,
+                           zlinterface::UIBase &base);
 
         ~LogoPanel() override;
 
         void paint(juce::Graphics &g) override;
 
+        void mouseDoubleClick(const juce::MouseEvent &event) override;
+
     private:
         const std::unique_ptr<juce::Drawable> brandDrawable, logoDrawable;
         zlinterface::UIBase *uiBase;
+        PluginProcessor *processorRef;
+
+        void handleAsyncUpdate() override;
     };
 }
 #endif //ZLLMATCH_LOGOPANEL_H
