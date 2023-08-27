@@ -175,8 +175,8 @@ namespace zlmeter {
         juce::dsp::DelayLine<FloatType> delayLine;
 
         template<typename T>
-        T getRMSLevel(juce::dsp::AudioBlock<T> block, unsigned long channel, unsigned long startSample,
-                      unsigned long numSamples) const noexcept {
+        T getRMSLevel(juce::dsp::AudioBlock<T> block, size_t channel, size_t startSample,
+                      size_t numSamples) const noexcept {
             if (numSamples <= 0 || channel >= block.getNumChannels() || block.getNumSamples() == 0)
                 return FloatType(0);
 
@@ -184,15 +184,15 @@ namespace zlmeter {
             double sum = 0.0;
 
             for (size_t i = 0; i < numSamples; ++i) {
-                auto sample = data[i];
+                auto sample = static_cast<double>(data[i]);
                 sum += sample * sample;
             }
-            return static_cast<FloatType> (std::sqrt(sum / static_cast<double>(numSamples)));
+            return static_cast<FloatType>(std::sqrt(sum / static_cast<double>(numSamples)));
         }
 
         template<typename T>
-        T getPeakLevel(juce::dsp::AudioBlock<T> block, unsigned long channel, unsigned long startSample,
-                       unsigned long numSamples) const noexcept {
+        T getPeakLevel(juce::dsp::AudioBlock<T> block, size_t channel, size_t startSample,
+                       size_t numSamples) const noexcept {
             if (numSamples <= 0 || channel >= block.getNumChannels() || block.getNumSamples() == 0)
                 return FloatType(0);
 
@@ -201,7 +201,7 @@ namespace zlmeter {
 
             for (size_t i = 0; i < numSamples; ++i) {
                 if (data[i] > localPeak) {
-                    localPeak = static_cast<FloatType> (data[i]);
+                    localPeak = static_cast<FloatType>(data[i]);
                 }
             }
             return localPeak;
