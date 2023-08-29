@@ -18,7 +18,7 @@ namespace zlinterface {
     class ComboboxLookAndFeel : public juce::LookAndFeel_V4 {
     public:
         // rounded menu box
-        ComboboxLookAndFeel(UIBase &base) {
+        explicit ComboboxLookAndFeel(UIBase &base) {
             uiBase = &base;
             setColour(juce::PopupMenu::backgroundColourId, uiBase->getBackgroundInactiveColor());
         }
@@ -34,11 +34,10 @@ namespace zlinterface {
                 uiBase->fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, {.blurRadius=0.45f, .flip=true});
             } else {
                 auto boxBounds = juce::Rectangle<float>(0, 0,
-                                                        (float) width * 1.0f, (float) height + cornerSize * 3.f);
+                                                        (float) width, (float) height * 2 + cornerSize * 3.f);
                 boxBounds = uiBase->fillRoundedShadowRectangle(g, boxBounds, cornerSize,
-                                                       {.curveBottomLeft=false, .curveBottomRight=false});
+                                                               {.curveBottomLeft=false, .curveBottomRight=false});
                 uiBase->fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, {.blurRadius=0.45f, .flip=true});
-
             }
         }
 
@@ -67,10 +66,10 @@ namespace zlinterface {
 
         void drawPopupMenuBackground(juce::Graphics &g, int width, int height) override {
             auto cornerSize = uiBase->getFontSize() * 0.5f;
-            auto boxBounds = juce::Rectangle<float>(0, -2.f * cornerSize, static_cast<float>(width),
-                                                    static_cast<float>(height) + 2.f * cornerSize);
+            auto boxBounds = juce::Rectangle<float>(0, -3.f * cornerSize, static_cast<float>(width),
+                                                    static_cast<float>(height) + 3.f * cornerSize);
             boxBounds = uiBase->fillRoundedShadowRectangle(g, boxBounds, cornerSize,
-                                                   {.curveTopLeft=false, .curveTopRight=false});
+                                                           {.curveTopLeft=false, .curveTopRight=false});
             uiBase->fillRoundedInnerShadowRectangle(g, boxBounds, cornerSize, {.blurRadius=0.45f, .flip=true});
             g.setColour(uiBase->getTextInactiveColor());
             g.fillRect(boxBounds.getX(), 0.0f, boxBounds.getWidth(), cornerSize * 0.15f);
@@ -121,7 +120,6 @@ namespace zlinterface {
         }
 
     private:
-        constexpr static float scale = 1.0f;
         std::atomic<bool> editable = true;
 
         UIBase *uiBase;
