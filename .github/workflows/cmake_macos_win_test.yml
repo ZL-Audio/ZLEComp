@@ -130,15 +130,14 @@ jobs:
       shell: bash
       run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_TYPE }} --parallel 4
 
-    - name: Pluginval
+    - name: Pluginval setup
       working-directory: ${{ env.BUILD_DIR }}
       shell: bash
       run: |
         curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
         7z x pluginval_${{ matrix.name }}.zip
-        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate "${{ env.VST3_PATH }}"
 
-    - name: Pluginval extra validations
+    - name: Pluginval VST3 validations
       working-directory: ${{ env.BUILD_DIR }}
       shell: bash
       run: |
@@ -147,6 +146,17 @@ jobs:
         ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
         ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
 
+    - name: Pluginval AU validations (macOS)
+      working-directory: ${{ env.BUILD_DIR }}
+      if: ${{ matrix.name == 'macOS' }}
+      shell: bash
+      run: |
+        sudo cp -r "${{ env.AU_PATH }}" "/Library/Audio/Plug-ins/components"
+        sudo killall -9 AudioComponentRegistrar
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "/Library/Audio/Plug-ins/components/${{ env.PRODUCT_NAME }}.component" || exit 1
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "/Library/Audio/Plug-ins/components/${{ env.PRODUCT_NAME }}.component" || exit 1
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "/Library/Audio/Plug-ins/components/${{ env.PRODUCT_NAME }}.component" || exit 1
+        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "/Library/Audio/Plug-ins/components/${{ env.PRODUCT_NAME }}.component" || exit 1
 
     - name: Codesign (macOS)
       working-directory: ${{ env.BUILD_DIR }}
