@@ -233,7 +233,7 @@ namespace zldsp {
     class byPass : public BoolParameters<byPass> {
     public:
         auto static constexpr ID = "byPass";
-        auto static constexpr name = "By Pass";
+        auto static constexpr name = "Bypass";
         auto static constexpr defaultV = false;
     };
 
