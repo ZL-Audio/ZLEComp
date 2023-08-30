@@ -112,12 +112,14 @@ namespace zlcontroller {
             lGain = lDetector.process(lGain);
             rGain = rDetector.process(rGain);
             // apply gain separately
-            lGainDSP.setGainLinear(lGain);
-            rGainDSP.setGainLinear(rGain);
-            auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
-            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
-            auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
-            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+            if (!byPass.load()) {
+                lGainDSP.setGainLinear(lGain);
+                rGainDSP.setGainLinear(rGain);
+                auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
+                lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
+                auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
+                rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+            }
             subBuffer.pushSubBuffer();
         }
         subBuffer.popBlock(overSampledBlock);
@@ -254,6 +256,11 @@ namespace zlcontroller {
     template<typename FloatType>
     void Controller<FloatType>::setExternal(bool f) {
         external.store(f);
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setByPass(bool f) {
+        byPass.store(f);
     }
 
     template<typename FloatType>

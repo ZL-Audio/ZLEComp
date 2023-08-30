@@ -36,6 +36,7 @@ namespace zlinterface {
             label.setText(labelText, juce::dontSendNotification);
             label.setLookAndFeel(&nameLookAndFeel);
             addAndMakeVisible(label);
+            juce::ignoreUnused(uiBase);
         }
 
         ~MeterComponent() override {

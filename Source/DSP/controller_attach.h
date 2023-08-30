@@ -44,14 +44,16 @@ namespace zlcontroller {
                                               zldsp::rms::ID, zldsp::lookahead::ID,
                                               zldsp::segment::ID,
                                               zldsp::audit::ID, zldsp::external::ID,
-                                              zldsp::sideGain::ID, zldsp::link::ID};
+                                              zldsp::sideGain::ID, zldsp::link::ID,
+                                              zldsp::byPass::ID};
 
         constexpr const static std::array defaultVs{zldsp::outGain::defaultV, zldsp::mix::defaultV,
                                                     float(zldsp::overSample::defaultI),
                                                     zldsp::rms::defaultV, zldsp::lookahead::defaultV,
                                                     zldsp::segment::defaultV,
                                                     float(zldsp::audit::defaultV), float(zldsp::external::defaultV),
-                                                    zldsp::sideGain::defaultV, zldsp::link::defaultV};
+                                                    zldsp::sideGain::defaultV, zldsp::link::defaultV,
+                                                    float(zldsp::byPass::defaultV)};
     };
 }
 

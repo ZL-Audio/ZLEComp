@@ -122,6 +122,10 @@ set(SourceFiles
         Source/Panel/StatePanel/state_panel.cpp
         Source/Panel/StatePanel/logo_panel.h
         Source/Panel/StatePanel/logo_panel.cpp
+        Source/Panel/StatePanel/ui_state_panel.h
+        Source/Panel/StatePanel/ui_state_panel.cpp
+        Source/Panel/StatePanel/process_state_panel.h
+        Source/Panel/StatePanel/process_state_panel.cpp
 
         Source/Panel/CenterPanel/center_panel.h
         Source/Panel/CenterPanel/center_panel.cpp

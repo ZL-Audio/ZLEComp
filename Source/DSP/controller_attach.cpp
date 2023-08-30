@@ -68,6 +68,8 @@ namespace zlcontroller {
             controller->setAudit(static_cast<bool>(v));
         } else if (parameterID == zldsp::external::ID) {
             controller->setExternal(static_cast<bool>(v));
+        } else if (parameterID == zldsp::byPass::ID) {
+            controller->setByPass(static_cast<bool>(v));
         } else if (parameterID == zldsp::sideGain::ID) {
             controller->setSideGain(v);
         } else if (parameterID == zldsp::link::ID) {

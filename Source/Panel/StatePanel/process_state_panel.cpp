@@ -8,41 +8,39 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#include "state_panel.h"
+#include "process_state_panel.h"
 
 namespace zlpanel {
-    StatePanel::StatePanel(PluginProcessor &p,
-                           zlinterface::UIBase &base) :
-                           logoPanel(p, base),
-                           processStatePanel(p, base),
-                           uiStatePanel(p, base){
-        addAndMakeVisible(logoPanel);
-        addAndMakeVisible(processStatePanel);
-        addAndMakeVisible(uiStatePanel);
+    ProcessStatePanel::ProcessStatePanel(PluginProcessor &p, zlinterface::UIBase &base) {
+        std::array<std::string, 1> buttonID{zldsp::byPass::ID};
+        attachButtons<zlinterface::ButtonComponent, 1>(*this, buttonList, buttonAttachments, buttonID, p.parameters, base);
+
         uiBase = &base;
     }
 
-    StatePanel::~StatePanel() = default;
+    ProcessStatePanel::~ProcessStatePanel() = default;
 
-    void StatePanel::paint(juce::Graphics &g) {
-        juce::ignoreUnused(g);
+    void ProcessStatePanel::paint(juce::Graphics &g) {
+        auto bound = getLocalBounds().toFloat();
+        uiBase->fillRoundedShadowRectangle(g, bound, 0.5f * uiBase->getFontSize(), {
+                .blurRadius=0.25f, .mainColour=zlinterface::BackgroundColor});
     }
 
-    void StatePanel::resized() {
-        auto bound = getLocalBounds();
+    void ProcessStatePanel::resized() {
+        auto bound = getLocalBounds().toFloat();
+        bound = uiBase->getRoundedShadowRectangleArea(bound, 0.5f * uiBase->getFontSize(), {.blurRadius=0.25f});
+
         juce::Grid grid;
         using Track = juce::Grid::TrackInfo;
         using Fr = juce::Grid::Fr;
 
         grid.templateRows = {Track(Fr(1))};
-        grid.templateColumns = {Track(Fr(20)), Track(Fr(20)), Track(Fr(29))};
+        grid.templateColumns = {Track(Fr(1)), Track(Fr(2)), Track(Fr(1))};
 
-        juce::Array<juce::GridItem> items;
-        items.add(logoPanel);
-        items.add(processStatePanel);
-        items.add(uiStatePanel);
-        grid.items = items;
+        grid.items = {
+                juce::GridItem(*byPassButton).withArea(1, 2, 2, 3)
+        };
 
-        grid.performLayout(bound);
+        grid.performLayout(bound.toNearestInt());
     }
 } // zlpanel

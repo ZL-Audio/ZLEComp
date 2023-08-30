@@ -66,12 +66,14 @@ namespace zlcontroller {
 
         void setExternal(bool f);
 
+        void setByPass(bool f);
+
     private:
         std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, zldsp::overSample::overSampleNUM>
                 overSamplers{};
         std::atomic<size_t> idxSampler;
 
-        std::atomic<bool> audit, external;
+        std::atomic<bool> audit, external, byPass;
         std::atomic<FloatType> link;
         juce::dsp::Gain<FloatType> sideGainDSP, outGainDSP, lGainDSP, rGainDSP;
         juce::dsp::DelayLine<FloatType> mainDelay, dryDelay;

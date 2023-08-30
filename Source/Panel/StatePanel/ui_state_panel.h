@@ -8,38 +8,41 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#ifndef ZLECOMP_STATE_PANEL_H
-#define ZLECOMP_STATE_PANEL_H
+#ifndef ZLECOMP_UI_STATE_PANEL_H
+#define ZLECOMP_UI_STATE_PANEL_H
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../../PluginProcessor.h"
 #include "../../GUI/button_component.h"
 #include "../../GUI/combo_box_component.h"
 #include "../panel_definitions.h"
-#include "logo_panel.h"
-#include "ui_state_panel.h"
-#include "process_state_panel.h"
 
 namespace zlpanel {
 
-    class StatePanel : public juce::Component {
+    class UIStatePanel : public juce::Component {
     public:
-        explicit StatePanel(PluginProcessor &p, zlinterface::UIBase &base);
+        explicit UIStatePanel(PluginProcessor &p, zlinterface::UIBase &base);
 
-        ~StatePanel() override;
+        ~UIStatePanel() override;
 
         void paint(juce::Graphics &g) override;
 
         void resized() override;
 
     private:
-        LogoPanel logoPanel;
-        ProcessStatePanel processStatePanel;
-        UIStatePanel uiStatePanel;
+        std::unique_ptr<zlinterface::ButtonComponent> showCButton, showDButton, showMButton;
+        std::array<std::unique_ptr<zlinterface::ButtonComponent> *, 2> buttonList{&showCButton, &showDButton};
+
+        juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments;
+
+        std::unique_ptr<zlinterface::ComboboxComponent> monitorBox;
+        std::array<std::unique_ptr<zlinterface::ComboboxComponent>*, 1> boxList{&monitorBox};
+
+        juce::OwnedArray<juce::AudioProcessorValueTreeState::ComboBoxAttachment> boxAttachments;
 
         zlinterface::UIBase *uiBase;
     };
 
 } // zlpanel
 
-#endif //ZLECOMP_STATE_PANEL_H
+#endif //ZLECOMP_UI_STATE_PANEL_H

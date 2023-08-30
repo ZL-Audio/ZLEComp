@@ -230,6 +230,13 @@ namespace zldsp {
         auto static constexpr defaultV = false;
     };
 
+    class byPass : public BoolParameters<byPass> {
+    public:
+        auto static constexpr ID = "byPass";
+        auto static constexpr name = "By Pass";
+        auto static constexpr defaultV = false;
+    };
+
     // choice
     template<class T>
     class ChoiceParameters {
@@ -286,7 +293,7 @@ namespace zldsp {
 
                    outGain::get(), mix::get(), segment::get(),
                    rms::get(), lookahead::get(),
-                   overSample::get());
+                   overSample::get(), byPass::get());
         return layout;
     }
 
