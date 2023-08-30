@@ -28,7 +28,12 @@ namespace zlcomputer {
         } else if (x >= threshold + kneeW) {
             return juce::jlimit(x - bound.load(), x + bound.load(), x / ratio + (1 - 1 / ratio) * threshold);
         } else {
-            return juce::jlimit(x - bound.load(), x + bound.load(), cubic->operator()(x));
+            try {
+                return juce::jlimit(x - bound.load(), x + bound.load(), cubic->operator()(x));
+            }
+            catch (std::domain_error &e) {
+                return x;
+            }
         }
     }
 
@@ -49,9 +54,10 @@ namespace zlcomputer {
         std::array initialYX{FloatType(1),
                              kneeS.load() + (FloatType(1) - kneeS.load()) / ratio.load(),
                              FloatType(1) / ratio.load()};
-        cubic = std::make_unique<boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>>>(std::move(initialX),
-                                                                                                      std::move(initialY),
-                                                                                                      std::move(initialYX));
+        cubic = std::make_unique<boost::math::interpolators::cubic_hermite<std::array<FloatType, 3>>>(
+                std::move(initialX),
+                std::move(initialY),
+                std::move(initialYX));
     }
 
     template
