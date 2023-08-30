@@ -132,7 +132,9 @@ namespace zlcontroller {
         meterOut.process(outBlock);
         mixer.mixWetSamples(outBlock);
         // apply out gain
-        outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        if (!byPass.load()) {
+            outGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(outBlock));
+        }
         meterEnd.process(outBlock);
         // check audit mode
         if (audit.load()) {
