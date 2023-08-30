@@ -12,8 +12,10 @@
 
 namespace zlcontroller {
     template<typename FloatType>
-    ComputerAttach<FloatType>::ComputerAttach(Controller<FloatType> &control,
+    ComputerAttach<FloatType>::ComputerAttach(juce::AudioProcessor &processor,
+                                              Controller<FloatType> &control,
                                               juce::AudioProcessorValueTreeState &parameters) {
+        processorRef = &processor;
         c = &control;
         apvts = &parameters;
     }
@@ -43,10 +45,12 @@ namespace zlcontroller {
     void ComputerAttach<FloatType>::parameterChanged(const juce::String &parameterID, float newValue) {
         auto v = static_cast<FloatType>(newValue);
         if (parameterID == zldsp::threshold::ID) {
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
             c->lrComputer.setThreshold(v);
         } else if (parameterID == zldsp::ratio::ID) {
             c->lrComputer.setRatio(v);
         } else if (parameterID == zldsp::kneeW::ID) {
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
             c->lrComputer.setKneeW(zldsp::kneeW::formatV(v));
         } else if (parameterID == zldsp::kneeS::ID) {
             c->lrComputer.setKneeS(v);

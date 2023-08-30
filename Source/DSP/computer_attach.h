@@ -22,7 +22,8 @@ namespace zlcontroller {
     public:
         constexpr const static size_t plotSize = 121;
 
-        explicit ComputerAttach(Controller<FloatType> &control,
+        explicit ComputerAttach(juce::AudioProcessor &processor,
+                                Controller<FloatType> &control,
                                 juce::AudioProcessorValueTreeState &parameters);
 
         ~ComputerAttach() override;
@@ -38,6 +39,7 @@ namespace zlcontroller {
         FloatType getThreshold() { return c->lrComputer.getThreshold(); }
 
     private:
+        juce::AudioProcessor *processorRef;
         Controller<FloatType> *c;
         juce::AudioProcessorValueTreeState *apvts;
         constexpr const static std::array IDs{zldsp::threshold::ID, zldsp::ratio::ID,

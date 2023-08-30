@@ -25,7 +25,7 @@ PluginProcessor::PluginProcessor()
           controller(*this, parameters),
           controllerAttach(*this, controller, parameters, states),
           detectorAttach(controller, parameters),
-          computerAttach(controller, parameters) {
+          computerAttach(*this, controller, parameters) {
     controllerAttach.initDefaultVs();
     controllerAttach.addListeners();
     detectorAttach.initDefaultVs();
