@@ -143,7 +143,12 @@ jobs:
       working-directory: ${{ env.BUILD_DIR }}
       shell: bash
       run: |
-        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "${{ env.VST3_PATH }}" || exit 1
+        ${{ matrix.pluginval-binary }} --verbose --validate "${{ env.VST3_PATH }}"
+      env:
+        STRICTNESS_LEVEL: 10
+        TIMEOUT_MS: 720000
+        REPEAT: 4
+        RANDOM_SEED: 42
 
     - name: Pluginval AU validations (macOS)
       working-directory: ${{ env.BUILD_DIR }}
@@ -152,7 +157,12 @@ jobs:
       run: |
         sudo cp -r "${{ env.AU_PATH }}" "/Library/Audio/Plug-ins/components"
         sudo killall -9 AudioComponentRegistrar
-        ${{ matrix.pluginval-binary }} --strictness-level 10 --verbose --validate-in-process "/Library/Audio/Plug-ins/components/${{ env.PRODUCT_NAME }}.component" || exit 1
+        ${{ matrix.pluginval-binary }} --verbose --validate "/Library/Audio/Plug-ins/components/${{ env.PRODUCT_NAME }}.component"
+      env:
+        STRICTNESS_LEVEL: 10
+        TIMEOUT_MS: 720000
+        REPEAT: 4
+        RANDOM_SEED: 42
 
     - name: Codesign (macOS)
       working-directory: ${{ env.BUILD_DIR }}
