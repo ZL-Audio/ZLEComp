@@ -143,6 +143,12 @@ jobs:
         curl -LO "https://github.com/Tracktion/pluginval/releases/download/v1.0.3/pluginval_${{ matrix.name }}.zip"
         7z x pluginval_${{ matrix.name }}.zip
 
+    - name: Setup Pluginval random seed
+      uses: josStorer/get-current-time@v2
+      id: current-time
+      with:
+        format: YYYYMMDD
+
     - name: Pluginval VST3 validations
       working-directory: ${{ env.BUILD_DIR }}
       shell: bash
@@ -152,7 +158,7 @@ jobs:
         STRICTNESS_LEVEL: 10
         TIMEOUT_MS: 720000
         REPEAT: 4
-        RANDOM_SEED: 42
+        RANDOM_SEED: "${{ steps.current-time.outputs.formattedTime }}"
 
     - name: Pluginval AU validations (macOS)
       working-directory: ${{ env.BUILD_DIR }}
@@ -166,7 +172,7 @@ jobs:
         STRICTNESS_LEVEL: 10
         TIMEOUT_MS: 720000
         REPEAT: 4
-        RANDOM_SEED: 42
+        RANDOM_SEED: "${{ steps.current-time.outputs.formattedTime }}"
 
     - name: Codesign (macOS)
       working-directory: ${{ env.BUILD_DIR }}
