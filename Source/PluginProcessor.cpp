@@ -20,8 +20,10 @@ PluginProcessor::PluginProcessor()
                                              true)
                                  .withInput("Ext", juce::AudioChannelSet::stereo(),
                                             true)),
+          dummyProcessor(),
           parameters(*this, nullptr, juce::Identifier("ZLECompParameters"), zldsp::getParameterLayout()),
-          states(*this, nullptr, juce::Identifier("ZLECompStates"), zlstate::getParameterLayout()),
+          states(dummyProcessor, nullptr, juce::Identifier("ZLECompStates"), zlstate::getParameterLayout()),
+
           controller(*this, parameters),
           controllerAttach(*this, controller, parameters, states),
           detectorAttach(controller, parameters),
