@@ -58,6 +58,7 @@ namespace zlpanel {
 //        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
 //            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
 //        }
+        computerAttach->isPlotReady.removeListener(this);
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.removeParameterListener(isComputerChangedStateID, this);
         }
