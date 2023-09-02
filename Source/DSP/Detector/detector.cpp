@@ -29,11 +29,11 @@ namespace zldetector {
         FloatType distanceS = target - xS;
         FloatType distanceC = (xS - xC) * smooth.load() + (target - xC) * (1 - smooth.load());
         FloatType slopeS = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceS))), std::abs(distanceS));
-        FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), std::abs(distanceC));
+        FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), std::abs(target - xC));
         xS += slopeS * sgn(distanceS);
         xC += slopeC * sgn(distanceC);
-        xS = juce::jmax(xS, FloatType(0.0001));
-        xC = juce::jmax(xC, FloatType(0.0001));
+        xS = juce::jmax(xS, FloatType(0.00001));
+        xC = juce::jmax(xC, FloatType(0.00001));
         return xC;
     }
 
