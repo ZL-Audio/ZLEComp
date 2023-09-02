@@ -44,9 +44,10 @@ namespace zlpanel {
         computerAttach = &p.getComputerAttach();
         uiBase = &base;
         processorRef = &p;
-        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
-            processorRef->parameters.addParameterListener(isComputerChangedParaID, this);
-        }
+        computerAttach->isPlotReady.addListener(this);
+//        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
+//            processorRef->parameters.addParameterListener(isComputerChangedParaID, this);
+//        }
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.addParameterListener(isComputerChangedStateID, this);
         }
@@ -54,9 +55,9 @@ namespace zlpanel {
     }
 
     ComputerPlotPanel::~ComputerPlotPanel() {
-        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
-            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
-        }
+//        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
+//            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
+//        }
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.removeParameterListener(isComputerChangedStateID, this);
         }
@@ -129,6 +130,11 @@ namespace zlpanel {
         if (parameterID == zlstate::showComputer::ID) {
             isComputerVisible.store(static_cast<bool>(newValue));
         }
+        triggerAsyncUpdate();
+    }
+
+    void ComputerPlotPanel::valueChanged(juce::Value &value) {
+        juce::ignoreUnused(value);
         triggerAsyncUpdate();
     }
 

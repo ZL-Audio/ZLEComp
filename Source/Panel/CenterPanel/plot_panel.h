@@ -32,7 +32,7 @@ namespace zlpanel {
                 float thickness, long numToPlots = -1);
 
     class ComputerPlotPanel : public juce::Component, public juce::AudioProcessorValueTreeState::Listener,
-                              private juce::AsyncUpdater {
+                              private juce::AsyncUpdater, public juce::Value::Listener {
     public:
         explicit ComputerPlotPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
@@ -41,6 +41,9 @@ namespace zlpanel {
         void paint(juce::Graphics &g) override;
 
         void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+        void valueChanged(juce::Value &value) override;
+
 
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;

@@ -18,6 +18,7 @@ namespace zlcontroller {
         processorRef = &processor;
         c = &control;
         apvts = &parameters;
+        isPlotReady.setValue(false);
     }
 
     template<typename FloatType>
@@ -59,6 +60,7 @@ namespace zlcontroller {
         } else if (parameterID == zldsp::bound::ID) {
             c->lrComputer.setBound(v);
         }
+        isPlotReady.setValue(true);
     }
 
     template<typename FloatType>
@@ -67,6 +69,7 @@ namespace zlcontroller {
             x.push_back((static_cast<float>(i) - 240.f) * 0.25f);
             y.push_back(static_cast<float>(c->lrComputer.eval(x[i])));
         }
+        isPlotReady.setValue(false);
     }
 
     template

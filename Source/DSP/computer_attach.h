@@ -21,6 +21,7 @@ namespace zlcontroller {
     class ComputerAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
         constexpr const static size_t plotSize = 121;
+        juce::Value isPlotReady;
 
         explicit ComputerAttach(juce::AudioProcessor &processor,
                                 Controller<FloatType> &control,
