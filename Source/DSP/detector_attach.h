@@ -21,6 +21,8 @@ namespace zlcontroller {
     class DetectorAttach : public juce::AudioProcessorValueTreeState::Listener {
     public:
         constexpr const static size_t plotSize = 200;
+        juce::Value isPlotReady;
+
         explicit DetectorAttach(Controller<FloatType> &c,
                                 juce::AudioProcessorValueTreeState &parameters);
 

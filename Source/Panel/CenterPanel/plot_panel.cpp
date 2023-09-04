@@ -145,11 +145,12 @@ namespace zlpanel {
 
     DetectorPlotPanel::DetectorPlotPanel(PluginProcessor &p, zlinterface::UIBase &base) {
         detectorAttach = &p.getDetectorAttach();
+        detectorAttach->isPlotReady.addListener(this);
         processorRef = &p;
         uiBase = &base;
-        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
-            processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
-        }
+//        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
+//            processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
+//        }
         for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.addParameterListener(isDetectorChangedStateID, this);
         }
@@ -157,9 +158,10 @@ namespace zlpanel {
     }
 
     DetectorPlotPanel::~DetectorPlotPanel() {
-        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
-            processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
-        }
+//        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
+//            processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
+//        }
+        detectorAttach->isPlotReady.removeListener(this);
         for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.removeParameterListener(isDetectorChangedStateID, this);
         }
@@ -241,6 +243,11 @@ namespace zlpanel {
         if (parameterID == zlstate::showDetector::ID) {
             isDetectorVisible.store(static_cast<bool>(newValue));
         }
+        triggerAsyncUpdate();
+    }
+
+    void DetectorPlotPanel::valueChanged(juce::Value &value) {
+        juce::ignoreUnused(value);
         triggerAsyncUpdate();
     }
 

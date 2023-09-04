@@ -16,6 +16,7 @@ namespace zlcontroller {
                                               juce::AudioProcessorValueTreeState &parameters) {
         controller = &c;
         apvts = &parameters;
+        isPlotReady.setValue(false);
     }
 
     template<typename FloatType>
@@ -60,6 +61,7 @@ namespace zlcontroller {
             controller->lDetector.setSmooth(v);
             controller->rDetector.setSmooth(v);
         }
+        isPlotReady.setValue(!isPlotReady.getValue());
     }
 
     template<typename FloatType>
