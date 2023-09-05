@@ -44,9 +44,10 @@ namespace zlpanel {
         computerAttach = &p.getComputerAttach();
         uiBase = &base;
         processorRef = &p;
-        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
-            processorRef->parameters.addParameterListener(isComputerChangedParaID, this);
-        }
+        computerAttach->isPlotReady.addListener(this);
+//        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
+//            processorRef->parameters.addParameterListener(isComputerChangedParaID, this);
+//        }
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.addParameterListener(isComputerChangedStateID, this);
         }
@@ -54,9 +55,10 @@ namespace zlpanel {
     }
 
     ComputerPlotPanel::~ComputerPlotPanel() {
-        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
-            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
-        }
+//        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
+//            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
+//        }
+        computerAttach->isPlotReady.removeListener(this);
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.removeParameterListener(isComputerChangedStateID, this);
         }
@@ -132,17 +134,23 @@ namespace zlpanel {
         triggerAsyncUpdate();
     }
 
+    void ComputerPlotPanel::valueChanged(juce::Value &value) {
+        juce::ignoreUnused(value);
+        triggerAsyncUpdate();
+    }
+
     void ComputerPlotPanel::handleAsyncUpdate() {
         repaint();
     }
 
     DetectorPlotPanel::DetectorPlotPanel(PluginProcessor &p, zlinterface::UIBase &base) {
         detectorAttach = &p.getDetectorAttach();
+        detectorAttach->isPlotReady.addListener(this);
         processorRef = &p;
         uiBase = &base;
-        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
-            processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
-        }
+//        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
+//            processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
+//        }
         for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.addParameterListener(isDetectorChangedStateID, this);
         }
@@ -150,9 +158,10 @@ namespace zlpanel {
     }
 
     DetectorPlotPanel::~DetectorPlotPanel() {
-        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
-            processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
-        }
+//        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
+//            processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
+//        }
+        detectorAttach->isPlotReady.removeListener(this);
         for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.removeParameterListener(isDetectorChangedStateID, this);
         }
@@ -234,6 +243,11 @@ namespace zlpanel {
         if (parameterID == zlstate::showDetector::ID) {
             isDetectorVisible.store(static_cast<bool>(newValue));
         }
+        triggerAsyncUpdate();
+    }
+
+    void DetectorPlotPanel::valueChanged(juce::Value &value) {
+        juce::ignoreUnused(value);
         triggerAsyncUpdate();
     }
 

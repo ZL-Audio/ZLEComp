@@ -30,8 +30,9 @@ namespace zlcomputer {
         } else {
             try {
                 return juce::jlimit(x - bound.load(), x + bound.load(), cubic->operator()(x));
-            }
-            catch (std::domain_error &e) {
+            } catch (std::domain_error &e) {
+                return x;
+            } catch (...) {
                 return x;
             }
         }

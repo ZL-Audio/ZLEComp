@@ -32,8 +32,8 @@ namespace zldetector {
         FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), std::abs(target - xC));
         xS += slopeS * sgn(distanceS);
         xC += slopeC * sgn(distanceC);
-        xS = juce::jmax(xS, FloatType(0.00001));
-        xC = juce::jmax(xC, FloatType(0.00001));
+        xS = juce::jmax(xS, FloatType(1e-5));
+        xC = juce::jmax(xC, FloatType(1e-5));
         return xC;
     }
 

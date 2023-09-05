@@ -18,6 +18,7 @@ namespace zlcontroller {
         processorRef = &processor;
         c = &control;
         apvts = &parameters;
+        isPlotReady.setValue(false);
     }
 
     template<typename FloatType>
@@ -59,6 +60,7 @@ namespace zlcontroller {
         } else if (parameterID == zldsp::bound::ID) {
             c->lrComputer.setBound(v);
         }
+        isPlotReady.setValue(!isPlotReady.getValue());
     }
 
     template<typename FloatType>
