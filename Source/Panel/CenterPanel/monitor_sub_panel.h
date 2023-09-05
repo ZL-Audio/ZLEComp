@@ -56,7 +56,7 @@ namespace zlpanel {
         juce::Image image;
         juce::Time previousTime;
         juce::Point<float> lastInEndPoint, lastOutEndPoint, lastDiffEndPoint;
-        juce::CriticalSection lock;
+        juce::CriticalSection processLock, imageLock;
 
         zlinterface::UIBase *uiBase;
     };

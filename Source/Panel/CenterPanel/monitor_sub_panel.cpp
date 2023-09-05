@@ -69,7 +69,6 @@ namespace zlpanel {
     }
 
     void MonitorSubPanel::paint(juce::Graphics &g) {
-
         if (isMonitorVisible.load()) {
             auto thickness = uiBase->getFontSize() * 0.175f;
             // calculate time difference
@@ -80,6 +79,7 @@ namespace zlpanel {
                 return;
             }
             // draw the old part
+            const juce::GenericScopedLock<juce::CriticalSection> imageScopedLock(imageLock);
             auto tempImage = juce::Image(juce::Image::ARGB, image.getWidth(), image.getHeight(), true);
             auto tempG = juce::Graphics(tempImage);
             tempG.setOpacity(1.0f);
@@ -100,7 +100,7 @@ namespace zlpanel {
                         juce::jmax(tempBound.getWidth() - dummySize - totalDeltaX, 0.f));
                 totalDeltaX = 0.f;
                 tempBound = tempBound.withTrimmedRight(dummySize);
-                const juce::GenericScopedLock<juce::CriticalSection> myScopedLock (lock);
+                const juce::GenericScopedLock<juce::CriticalSection> processScopedLock (processLock);
                 tempG.setColour(uiBase->getTextInactiveColor());
                 lastInEndPoint = plotY(tempG, tempBound,
                                        rmsIn,
@@ -134,6 +134,7 @@ namespace zlpanel {
     void MonitorSubPanel::resized() {
         auto bound = getLocalBounds().toFloat();
         bound = bound.withSize(bound.getWidth() * upScaling, bound.getHeight() * upScaling);
+        const juce::GenericScopedLock<juce::CriticalSection> imageScopedLock(imageLock);
         image = image.rescaled(bound.toNearestInt().getWidth() + dummySize,
                                bound.toNearestInt().getHeight());
         lastInEndPoint = bound.getBottomRight();
@@ -155,7 +156,7 @@ namespace zlpanel {
     }
 
     void MonitorSubPanel::timerCallback() {
-        const juce::GenericScopedLock<juce::CriticalSection> myScopedLock (lock);
+        const juce::GenericScopedLock<juce::CriticalSection> processScopedLock (processLock);
         auto num = meterIn->appendHistory(rmsIn);
         meterOut->appendHistory(rmsOut, num);
         meterEnd->appendHistory(rmsEnd, num);
