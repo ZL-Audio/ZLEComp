@@ -21,11 +21,9 @@
 #include <boost/circular_buffer.hpp>
 
 namespace zlpanel {
-    class MonitorPanel : public juce::Component, private juce::Timer, private juce::AsyncUpdater,
+    class MonitorPanel : public juce::Component, private juce::AsyncUpdater,
     public juce::AudioProcessorValueTreeState::Listener {
     public:
-        auto static constexpr callBackHz = 30;
-
         explicit MonitorPanel(PluginProcessor &p, zlinterface::UIBase &base);
 
         ~MonitorPanel() override;
@@ -38,12 +36,12 @@ namespace zlpanel {
 
     private:
         MonitorSubPanel monitorSubPanel;
+        std::unique_ptr<juce::VBlankAttachment> vBlankAttachment;
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         PluginProcessor *processorRef;
         std::atomic<int> monitorSetting = zlstate::monitorSetting::defaultI;
         zlinterface::UIBase *uiBase;
 
-        void timerCallback() override;
         void handleAsyncUpdate() override;
     };
 
