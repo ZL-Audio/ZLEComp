@@ -135,6 +135,7 @@ namespace zlpanel {
         auto bound = getLocalBounds().toFloat();
         bound = bound.withSize(bound.getWidth() * upScaling, bound.getHeight() * upScaling);
         const juce::GenericScopedLock<juce::CriticalSection> imageScopedLock(imageLock);
+        image.clear(image.getBounds());
         image = image.rescaled(bound.toNearestInt().getWidth() + dummySize,
                                bound.toNearestInt().getHeight());
         lastInEndPoint = bound.getBottomRight();

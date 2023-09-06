@@ -24,7 +24,6 @@ namespace zlpanel {
     }
 
     MonitorPanel::~MonitorPanel() {
-        stopTimer();
         processorRef->states.removeParameterListener(zlstate::monitorSetting::ID, this);
     }
 
@@ -103,28 +102,19 @@ namespace zlpanel {
         }
     }
 
-    void MonitorPanel::timerCallback() {
-        monitorSubPanel.repaint();
-    }
-
     void MonitorPanel::handleAsyncUpdate() {
         auto idx = monitorSetting.load();
         if (idx == zlstate::monitorSetting::off) {
             monitorSubPanel.setMonitorVisible(false);
-            stopTimer();
-            repaint();
+            vBlankAttachment.reset();
         } else {
+            vBlankAttachment = std::make_unique<juce::VBlankAttachment>(&monitorSubPanel, [&]{monitorSubPanel.repaint();});
             monitorSubPanel.setMonitorVisible(true);
             repaint();
-            if (idx == zlstate::monitorSetting::hz30m || idx == zlstate::monitorSetting::hz60m) {
+            if (idx == zlstate::monitorSetting::medium) {
                 monitorSubPanel.setTimeInSecond(4.f);
             } else {
-                monitorSubPanel.setTimeInSecond(8.f);
-            }
-            if (idx == zlstate::monitorSetting::hz30m || idx == zlstate::monitorSetting::hz30l) {
-                startTimerHz(30);
-            } else {
-                startTimerHz(60);
+                monitorSubPanel.setTimeInSecond(7.f);
             }
         }
     }
