@@ -98,7 +98,7 @@ namespace zlcontroller {
             // calculate rms value
             lTracker.process(subBuffer.getSubBufferChannels(2, 1));
             rTracker.process(subBuffer.getSubBufferChannels(3, 1));
-            // compute current level
+            // compute current loudness level
             FloatType lGain = lTracker.getMomentaryLoudness();
             FloatType rGain = rTracker.getMomentaryLoudness();
             FloatType lrGain = lGain + rGain;

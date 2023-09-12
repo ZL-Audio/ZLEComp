@@ -16,7 +16,7 @@ namespace zlmeter {
     template<typename FloatType>
     class MeterSource {
     public:
-        auto static constexpr subBufferInSecond = 0.0135;
+        auto static constexpr subBufferInSecond = 0.02;
 
         explicit MeterSource(juce::AudioProcessor &processor) :
                 subBuffer() {
@@ -52,7 +52,8 @@ namespace zlmeter {
                 }
                 historyRMS.push_back(std::accumulate(currentRMS.begin(), currentRMS.end(), FloatType(0)) /
                                      static_cast<FloatType>(currentRMS.size()));
-                historyPeak.push_back(*std::max_element(currentPeak.begin(), currentPeak.end()));
+                historyPeak.push_back(std::accumulate(currentPeak.begin(), currentPeak.end(), FloatType(0)) /
+                                      static_cast<FloatType>(currentPeak.size()));
                 subBuffer.pushSubBuffer();
             }
             subBuffer.popBlock(m_block, false);
