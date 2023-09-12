@@ -47,7 +47,7 @@ namespace zlpanel {
         PluginProcessor *processorRef;
         std::atomic<bool> isMonitorVisible = true;
         zlmeter::MeterSource<float> *meterIn, *meterOut, *meterEnd;
-        boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff, rmsEnd;
+        boost::circular_buffer<float> rmsIn, rmsOut, rmsDiff, peakStart, peakEnd;
         float totalDeltaX = 0.f;
         std::atomic<float> timeInSeconds = 7;
 

@@ -56,11 +56,15 @@ namespace zlpanel {
         rmsIn.set_capacity(10 * 50);
         rmsOut.set_capacity(10 * 50);
         rmsDiff.set_capacity(10 * 50);
-        rmsEnd.set_capacity(10 * 50);
+        peakStart.set_capacity(10 * 50);
+        peakEnd.set_capacity(10 * 50);
+
         rmsIn.push_back(-60);
         rmsOut.push_back(-60);
         rmsDiff.push_back(0);
-        rmsEnd.push_back(-60);
+        peakStart.push_back(-60);
+        peakEnd.push_back(-60);
+
         startTimerHz(callBackHz);
     }
 
@@ -103,13 +107,13 @@ namespace zlpanel {
                 const juce::GenericScopedLock<juce::CriticalSection> processScopedLock (processLock);
                 tempG.setColour(uiBase->getTextInactiveColor());
                 lastInEndPoint = plotY(tempG, tempBound,
-                                       rmsIn,
-                                       rmsIn.size(), -60.f, 0.f,
+                                       peakStart,
+                                       peakStart.size(), -60.f, 0.f,
                                        thickness * upScaling * 0.65f, lastInEndPoint);
                 tempG.setColour(uiBase->getTextColor());
                 lastOutEndPoint = plotY(tempG, tempBound,
-                                        rmsEnd,
-                                        rmsEnd.size(), -60.f, 0.f,
+                                        peakEnd,
+                                        peakEnd.size(), -60.f, 0.f,
                                         thickness * upScaling * 0.65f, lastOutEndPoint);
                 tempG.setColour(uiBase->getLineColor1());
                 lastDiffEndPoint = plotY(tempG, tempBound,
@@ -119,7 +123,8 @@ namespace zlpanel {
                 rmsIn.clear();
                 rmsOut.clear();
                 rmsDiff.clear();
-                rmsEnd.clear();
+                peakStart.clear();
+                peakEnd.clear();
             }
             // update image
             image = tempImage;
@@ -158,11 +163,12 @@ namespace zlpanel {
 
     void MonitorSubPanel::timerCallback() {
         const juce::GenericScopedLock<juce::CriticalSection> processScopedLock (processLock);
-        auto num = meterIn->appendHistory(rmsIn);
-        meterOut->appendHistory(rmsOut, num);
-        meterEnd->appendHistory(rmsEnd, num);
+        auto num = meterIn->appendHistoryRMS(rmsIn);
+        meterOut->appendHistoryRMS(rmsOut, num);
         for (size_t i = rmsIn.size() - num; i < rmsIn.size(); ++i) {
             rmsDiff.push_back(rmsOut[i] - rmsIn[i]);
         }
+        meterIn->appendHistoryPeak(peakStart, num);
+        meterEnd->appendHistoryPeak(peakEnd, num);
     }
 } // zlpanel
