@@ -52,6 +52,8 @@ namespace zlcontroller {
             controller->setMixProportion(zldsp::mix::formatV(v));
         } else if (parameterID == zldsp::overSample::ID) {
             controller->setOversampleID(static_cast<size_t>(v));
+        } else if (parameterID == zldsp::sStyle::ID) {
+            controller->setStructureStyleID(static_cast<size_t>(v));
         } else if (parameterID == zldsp::rms::ID) {
             controller->setRMSSize(zldsp::rms::formatV(v));
         } else if (parameterID == zldsp::lookahead::ID) {

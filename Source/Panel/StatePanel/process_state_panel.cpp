@@ -15,6 +15,9 @@ namespace zlpanel {
         std::array<std::string, 1> buttonID{zldsp::byPass::ID};
         attachButtons<zlinterface::ButtonComponent, 1>(*this, buttonList, buttonAttachments, buttonID, p.parameters, base);
 
+        std::array<std::string, 1> boxID{zldsp::sStyle::ID};
+        attachBoxes<zlinterface::ComboboxComponent, 1>(*this, boxList, boxAttachments, boxID, p.parameters, base);
+
         uiBase = &base;
     }
 
@@ -35,9 +38,10 @@ namespace zlpanel {
         using Fr = juce::Grid::Fr;
 
         grid.templateRows = {Track(Fr(1))};
-        grid.templateColumns = {Track(Fr(1)), Track(Fr(2)), Track(Fr(1))};
+        grid.templateColumns = {Track(Fr(1)), Track(Fr(1))};
 
         grid.items = {
+                juce::GridItem(*structureBox).withArea(1, 1, 2, 2),
                 juce::GridItem(*byPassButton).withArea(1, 2, 2, 3)
         };
 

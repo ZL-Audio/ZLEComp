@@ -16,7 +16,7 @@ namespace zlmeter {
     template<typename FloatType>
     class MeterSource {
     public:
-        auto static constexpr subBufferInSecond = 0.0135;
+        auto static constexpr subBufferInSecond = 0.02;
 
         explicit MeterSource(juce::AudioProcessor &processor) :
                 subBuffer() {
@@ -52,6 +52,8 @@ namespace zlmeter {
                 }
                 historyRMS.push_back(std::accumulate(currentRMS.begin(), currentRMS.end(), FloatType(0)) /
                                      static_cast<FloatType>(currentRMS.size()));
+                historyPeak.push_back(std::accumulate(currentPeak.begin(), currentPeak.end(), FloatType(0)) /
+                                      static_cast<FloatType>(currentPeak.size()));
                 subBuffer.pushSubBuffer();
             }
             subBuffer.popBlock(m_block, false);
@@ -59,6 +61,7 @@ namespace zlmeter {
 
         void prepare(const juce::dsp::ProcessSpec &spec) {
             historyRMS.set_capacity(static_cast<size_t>(spec.sampleRate * subBufferInSecond * 10));
+            historyPeak.set_capacity(static_cast<size_t>(spec.sampleRate * subBufferInSecond * 10));
             for (auto f: {&currentRMS, &currentPeak, &peakMax, &bufferRMS, &bufferPeak, &displayRMS, &displayPeak}) {
                 (*f).resize(spec.numChannels);
             }
@@ -76,7 +79,7 @@ namespace zlmeter {
             delayLine.setMaximumDelayInSamples(static_cast<int>(spec.sampleRate) * 2);
         }
 
-        size_t appendHistory(boost::circular_buffer<FloatType> &buffer,
+        size_t appendHistoryRMS(boost::circular_buffer<FloatType> &buffer,
                              std::optional<size_t> popNum = std::nullopt) {
             const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
             size_t num = 0;
@@ -87,6 +90,21 @@ namespace zlmeter {
                 buffer.push_back(historyRMS.front());
                 num++;
                 historyRMS.pop_front();
+            }
+            return num;
+        }
+
+        size_t appendHistoryPeak(boost::circular_buffer<FloatType> &buffer,
+                                 std::optional<size_t> popNum = std::nullopt) {
+            const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
+            size_t num = 0;
+            if (popNum == std::nullopt) {
+                popNum = historyPeak.size();
+            }
+            while (!historyPeak.empty() && num < popNum) {
+                buffer.push_back(historyPeak.front());
+                num++;
+                historyPeak.pop_front();
             }
             return num;
         }
@@ -150,6 +168,7 @@ namespace zlmeter {
         void resetHistory() {
             const juce::GenericScopedLock<juce::CriticalSection> processLock(processorRef->getCallbackLock());
             historyRMS.clear();
+            historyPeak.clear();
         }
 
         void setDecayRate(float x) {
@@ -166,7 +185,7 @@ namespace zlmeter {
         std::vector<FloatType> currentRMS, currentPeak;
         std::vector<FloatType> bufferRMS, bufferPeak;
         std::vector<FloatType> displayRMS, displayPeak;
-        boost::circular_buffer<FloatType> historyRMS;
+        boost::circular_buffer<FloatType> historyRMS, historyPeak;
         juce::AudioProcessor *processorRef;
         float decayRate = 0.12f;
         bool useSubBuffer = false;

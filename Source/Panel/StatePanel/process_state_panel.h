@@ -32,8 +32,12 @@ namespace zlpanel {
     private:
         std::unique_ptr<zlinterface::ButtonComponent> byPassButton;
         std::array<std::unique_ptr<zlinterface::ButtonComponent> *, 1> buttonList{&byPassButton};
-
         juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments;
+
+        std::unique_ptr<zlinterface::ComboboxComponent> structureBox;
+        std::array<std::unique_ptr<zlinterface::ComboboxComponent>*, 1> boxList{&structureBox};
+        juce::OwnedArray<juce::AudioProcessorValueTreeState::ComboBoxAttachment> boxAttachments;
+
         zlinterface::UIBase *uiBase;
     };
 
