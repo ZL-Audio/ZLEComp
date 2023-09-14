@@ -95,30 +95,13 @@ namespace zlcontroller {
         subBuffer.pushBlock(overSampledBlock);
         while (subBuffer.isSubReady()) {
             subBuffer.popSubBuffer();
-            // calculate rms value
-            lTracker.process(subBuffer.getSubBufferChannels(2, 1));
-            rTracker.process(subBuffer.getSubBufferChannels(3, 1));
-            // compute current loudness level
-            FloatType lGain = lTracker.getMomentaryLoudness();
-            FloatType rGain = rTracker.getMomentaryLoudness();
-            FloatType lrGain = lGain + rGain;
-            // perform stereo link
-            lGain = link.load() * rGain + (1 - link.load()) * lGain;
-            rGain = lrGain - lGain;
-            // compute current gain
-            lGain = lrComputer.process(lGain);
-            rGain = lrComputer.process(rGain);
-            // attack/release current gain
-            lGain = lDetector.process(lGain);
-            rGain = rDetector.process(rGain);
-            // apply gain separately
-            if (!byPass.load()) {
-                lGainDSP.setGainLinear(lGain);
-                rGainDSP.setGainLinear(rGain);
-                auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
-                lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
-                auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
-                rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+            switch (structureStyle.load()) {
+                case zldsp::sStyle::smooth:
+                    smoothStyleProcess();
+                    break;
+                case zldsp::sStyle::clean:
+                    cleanStyleProcess();
+                    break;
             }
             subBuffer.pushSubBuffer();
         }
@@ -281,6 +264,87 @@ namespace zlcontroller {
         }
         dryDelay.setDelay(static_cast<float>(overSamplers[idxSampler.load()]->getLatencyInSamples()) +
                           static_cast<float>(subBuffer.getLatencySamples() / std::pow(2, idxSampler.load())));
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::setStructureStyleID(size_t idx) {
+        const juce::GenericScopedLock<juce::CriticalSection> processLock(m_processor->getCallbackLock());
+        structureStyle.store(idx);
+        lDetector.reset();
+        rDetector.reset();
+        lGainDSP.reset();
+        rGainDSP.reset();
+        if (idx == zldsp::sStyle::smooth) {
+            lDetector.setPhase(zldetector::Detector<FloatType>::gain);
+            rDetector.setPhase(zldetector::Detector<FloatType>::gain);
+        } else {
+            lDetector.setPhase(zldetector::Detector<FloatType>::level);
+            rDetector.setPhase(zldetector::Detector<FloatType>::level);
+        }
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::smoothStyleProcess() {
+        // calculate rms value
+        lTracker.process(subBuffer.getSubBufferChannels(2, 1));
+        rTracker.process(subBuffer.getSubBufferChannels(3, 1));
+        // compute current loudness level
+        FloatType l = lTracker.getMomentaryLoudness();
+        FloatType r = rTracker.getMomentaryLoudness();
+        FloatType lr = l + r;
+        // perform stereo link
+        l = link.load() * r + (1 - link.load()) * l;
+        r = lr - l;
+        // compute current gain
+        l = lrComputer.process(l);
+        r = lrComputer.process(r);
+        // attack/release current gain
+        l = lDetector.process(l);
+        r = rDetector.process(r);
+        // apply gain separately
+        if (!byPass.load()) {
+            lGainDSP.setGainLinear(l);
+            rGainDSP.setGainLinear(r);
+            auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
+            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
+            auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
+            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+        }
+    }
+
+    template<typename FloatType>
+    void Controller<FloatType>::cleanStyleProcess() {
+        // calculate rms value
+        lTracker.process(subBuffer.getSubBufferChannels(2, 1));
+        rTracker.process(subBuffer.getSubBufferChannels(3, 1));
+        // compute current loudness level
+        FloatType l = lTracker.getMomentaryLoudness();
+        FloatType r = rTracker.getMomentaryLoudness();
+        // convert gain to linear domain
+        l = juce::Decibels::decibelsToGain(l);
+        r = juce::Decibels::decibelsToGain(r);
+        // attack/release current gain
+        l = lDetector.process(l);
+        r = rDetector.process(r);
+        // convert gain to db domain
+        l = juce::Decibels::gainToDecibels(l);
+        r = juce::Decibels::gainToDecibels(r);
+        FloatType lr = l + r;
+        // perform stereo link
+        l = link.load() * r + (1 - link.load()) * l;
+        r = lr - l;
+        // compute current gain
+        l = lrComputer.process(l);
+        r = lrComputer.process(r);
+        // apply gain separately
+        if (!byPass.load()) {
+            lGainDSP.setGainLinear(l);
+            rGainDSP.setGainLinear(r);
+            auto lSubBlock = subBuffer.getSubBlockChannels(0, 1);
+            lGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(lSubBlock));
+            auto rSubBlock = subBuffer.getSubBlockChannels(1, 1);
+            rGainDSP.process(juce::dsp::ProcessContextReplacing<FloatType>(rSubBlock));
+        }
     }
 
     template

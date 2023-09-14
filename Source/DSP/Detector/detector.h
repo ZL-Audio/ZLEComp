@@ -21,6 +21,10 @@ namespace zldetector {
     template<typename FloatType>
     class Detector {
     public:
+        enum {
+            gain, level, phaseNUM
+        };
+
         Detector() = default;
 
         Detector(const Detector<FloatType> &d);
@@ -67,8 +71,10 @@ namespace zldetector {
 
         inline FloatType getDeltaT() const { return deltaT.load(); }
 
+        inline void setPhase(size_t idx) { phase.store(idx); }
+
     private:
-        std::atomic<size_t> aStyle, rStyle;
+        std::atomic<size_t> aStyle, rStyle, phase;
         std::atomic<FloatType> attack, release, aPara, rPara, smooth;
         std::atomic<FloatType> deltaT = FloatType(1) / FloatType(44100);
         FloatType xC = 1.0, xS = 1.0;

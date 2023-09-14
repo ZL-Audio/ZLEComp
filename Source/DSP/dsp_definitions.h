@@ -248,11 +248,22 @@ namespace zldsp {
         }
     };
 
+    class sStyle : public ChoiceParameters<sStyle> {
+    public:
+        auto static constexpr ID = "structure_style";
+        auto static constexpr name = "Style";
+        inline auto static const choices = juce::StringArray{"Smooth", "Clean"};
+        int static constexpr defaultI = 0;
+        enum {
+            smooth, clean, structureNUM
+        };
+    };
+
     class aStyle : public ChoiceParameters<aStyle> {
     public:
         auto static constexpr ID = "a_style";
         auto static constexpr name = "Style";
-        inline auto static const choices = juce::StringArray{"Classic", "1", "2", "3", "4"};
+        inline auto static const choices = juce::StringArray{"Typical", "1", "2", "3", "4"};
         int static constexpr defaultI = 0;
         enum {
             classic, style1, style2, style3, style4, styleNUM
@@ -263,7 +274,7 @@ namespace zldsp {
     public:
         auto static constexpr ID = "r_style";
         auto static constexpr name = "Style";
-        inline auto static const choices = juce::StringArray{"Classic", "1", "2", "3", "4"};
+        inline auto static const choices = juce::StringArray{"Typical", "1", "2", "3", "4"};
         int static constexpr defaultI = 0;
         enum {
             classic, style1, style2, style3, style4, styleNUM
@@ -293,7 +304,9 @@ namespace zldsp {
 
                    outGain::get(), mix::get(), segment::get(),
                    rms::get(), lookahead::get(),
-                   overSample::get(), byPass::get());
+                   overSample::get(),
+
+                   byPass::get(), sStyle::get());
         return layout;
     }
 

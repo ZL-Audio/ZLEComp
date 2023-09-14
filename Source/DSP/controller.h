@@ -68,10 +68,12 @@ namespace zlcontroller {
 
         void setByPass(bool f);
 
+        void setStructureStyleID(size_t idx);
+
     private:
         std::array<std::unique_ptr<juce::dsp::Oversampling<FloatType>>, zldsp::overSample::overSampleNUM>
                 overSamplers{};
-        std::atomic<size_t> idxSampler;
+        std::atomic<size_t> idxSampler, structureStyle;
 
         std::atomic<bool> audit, external, byPass;
         std::atomic<FloatType> link;
@@ -91,6 +93,10 @@ namespace zlcontroller {
         juce::AudioBuffer<FloatType> allBuffer, dryBuffer;
 
         void setLatency();
+
+        void smoothStyleProcess();
+
+        void cleanStyleProcess();
     };
 }
 
