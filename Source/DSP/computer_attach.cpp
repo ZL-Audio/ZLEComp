@@ -65,8 +65,8 @@ namespace zlcontroller {
 
     template<typename FloatType>
     void ComputerAttach<FloatType>::getPlotArray(std::vector<float> &x, std::vector<float> &y){
-        for (size_t i = 0; i < 241; ++i) {
-            x.push_back((static_cast<float>(i) - 240.f) * 0.25f);
+        for (size_t i = 0; i < 121; ++i) {
+            x.push_back((static_cast<float>(i) - 120.f) * 0.5f);
             y.push_back(static_cast<float>(c->lrComputer.eval(x[i])));
         }
     }

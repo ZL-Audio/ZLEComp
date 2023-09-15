@@ -94,9 +94,9 @@ namespace zlcontroller {
 
         void setLatency();
 
-        void smoothStyleProcess();
-
         void cleanStyleProcess();
+
+        void gentleStyleProcess();
     };
 }
 

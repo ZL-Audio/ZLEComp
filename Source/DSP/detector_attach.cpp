@@ -70,7 +70,7 @@ namespace zlcontroller {
         auto tempDetector = zldetector::Detector<FloatType>(controller->lDetector);
         auto x0 = FloatType(0), y0 = FloatType(1);
         // calculate attack plot
-        FloatType deltaT = tempDetector.getAttack() / 100;
+        FloatType deltaT = tempDetector.getAttack() / 50;
         tempDetector.setDeltaT(deltaT);
         tempDetector.setAttack(tempDetector.getAttack());
         while (y0 - target >= FloatType(0.0001)) {
@@ -80,7 +80,7 @@ namespace zlcontroller {
             y0 = tempDetector.process(FloatType(target));
         }
         // calculate release plot
-        deltaT = tempDetector.getRelease() / 100;
+        deltaT = tempDetector.getRelease() / 50;
         tempDetector.setDeltaT(deltaT);
         tempDetector.setRelease(tempDetector.getRelease());
         while (1 - y0 >= FloatType(0.0001)) {

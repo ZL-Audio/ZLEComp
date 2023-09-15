@@ -96,11 +96,11 @@ namespace zlcontroller {
         while (subBuffer.isSubReady()) {
             subBuffer.popSubBuffer();
             switch (structureStyle.load()) {
-                case zldsp::sStyle::smooth:
-                    smoothStyleProcess();
-                    break;
                 case zldsp::sStyle::clean:
                     cleanStyleProcess();
+                    break;
+                case zldsp::sStyle::gentle:
+                    gentleStyleProcess();
                     break;
             }
             subBuffer.pushSubBuffer();
@@ -274,7 +274,7 @@ namespace zlcontroller {
         rDetector.reset();
         lGainDSP.reset();
         rGainDSP.reset();
-        if (idx == zldsp::sStyle::smooth) {
+        if (idx == zldsp::sStyle::clean) {
             lDetector.setPhase(zldetector::Detector<FloatType>::gain);
             rDetector.setPhase(zldetector::Detector<FloatType>::gain);
         } else {
@@ -284,7 +284,7 @@ namespace zlcontroller {
     }
 
     template<typename FloatType>
-    void Controller<FloatType>::smoothStyleProcess() {
+    void Controller<FloatType>::cleanStyleProcess() {
         // calculate rms value
         lTracker.process(subBuffer.getSubBufferChannels(2, 1));
         rTracker.process(subBuffer.getSubBufferChannels(3, 1));
@@ -313,7 +313,7 @@ namespace zlcontroller {
     }
 
     template<typename FloatType>
-    void Controller<FloatType>::cleanStyleProcess() {
+    void Controller<FloatType>::gentleStyleProcess() {
         // calculate rms value
         lTracker.process(subBuffer.getSubBufferChannels(2, 1));
         rTracker.process(subBuffer.getSubBufferChannels(3, 1));

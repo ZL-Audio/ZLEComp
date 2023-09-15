@@ -45,9 +45,6 @@ namespace zlpanel {
         uiBase = &base;
         processorRef = &p;
         computerAttach->isPlotReady.addListener(this);
-//        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
-//            processorRef->parameters.addParameterListener(isComputerChangedParaID, this);
-//        }
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.addParameterListener(isComputerChangedStateID, this);
         }
@@ -55,9 +52,6 @@ namespace zlpanel {
     }
 
     ComputerPlotPanel::~ComputerPlotPanel() {
-//        for (const auto &isComputerChangedParaID: isComputerChangedParaIDs) {
-//            processorRef->parameters.removeParameterListener(isComputerChangedParaID, this);
-//        }
         computerAttach->isPlotReady.removeListener(this);
         for (const auto &isComputerChangedStateID: isComputerChangedStateIDs) {
             processorRef->states.removeParameterListener(isComputerChangedStateID, this);
@@ -66,77 +60,98 @@ namespace zlpanel {
 
     void ComputerPlotPanel::paint(juce::Graphics &g) {
         if (isComputerVisible.load()) {
-            std::vector<float> x, y;
-            computerAttach->getPlotArray(x, y);
-            auto bound = getLocalBounds().toFloat();
-
-            g.setColour(uiBase->getTextInactiveColor());
-            g.setFont(uiBase->getFontSize() * zlinterface::FontLarge);
-            g.drawText("0",
-                       juce::Rectangle<float>(
-                               bound.getX(), bound.getY() + smallPadding * uiBase->getFontSize(),
-                               largePadding * 0.9f * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::topRight);
-            g.drawText("-60",
-                       juce::Rectangle<float>(
-                               bound.getX(),
-                               bound.getY() + bound.getHeight() - (1.f + largePadding) * uiBase->getFontSize(),
-                               largePadding * 0.9f * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::bottomRight);
-
-            auto threshold = static_cast<float>(computerAttach->getThreshold());
-            g.drawText(zlinterface::formatFloat(threshold, 0),
-                       juce::Rectangle<float>(
-                               bound.getX(),
-                               bound.getY() + smallPadding * uiBase->getFontSize() +
-                               juce::jlimit(uiBase->getFontSize(), bound.getHeight() -
-                                                                   (largePadding + smallPadding + 1) *
-                                                                   uiBase->getFontSize(),
-                                            (bound.getHeight() -
-                                             (largePadding + smallPadding) * uiBase->getFontSize()) * threshold /
-                                            (-60.f)) - uiBase->getFontSize() * 0.5f,
-                               largePadding * 0.95f * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::centredRight);
-
-            bound = bound.withTrimmedLeft(
-                    uiBase->getFontSize() * largePadding).withTrimmedBottom(
-                    uiBase->getFontSize() * largePadding).withTrimmedRight(
-                    uiBase->getFontSize() * smallPadding).withTrimmedTop(
-                    uiBase->getFontSize() * smallPadding);
-            g.setColour(uiBase->getTextInactiveColor());
-            g.drawRect(bound, uiBase->getFontSize() * 0.1f);
-
-            bound = bound.withSizeKeepingCentre(bound.getWidth() - uiBase->getFontSize() * 0.1f,
-                                                bound.getHeight() - uiBase->getFontSize() * 0.1f);
-
-            float dashLengths[2] = {uiBase->getFontSize() * .5f, uiBase->getFontSize() * .5f};
-            g.setColour(uiBase->getTextInactiveColor());
-            g.drawDashedLine(juce::Line<float>(bound.getX(), bound.getY() + bound.getHeight(),
-                                               bound.getX() + bound.getWidth(), bound.getY()),
-                             dashLengths, 2, uiBase->getFontSize() * 0.1f);
-
-            auto thresholdY = getPointY(bound, static_cast<float>(computerAttach->getThreshold()), -60.f, 0.f);
-            g.drawDashedLine(juce::Line<float>(bound.getX(), thresholdY,
-                                               bound.getX() + bound.getWidth(), thresholdY),
-                             dashLengths, 2, uiBase->getFontSize() * 0.1f);
-
-            g.setColour(uiBase->getTextColor());
-            plotXY(g, bound,
-                   x, y, -60.f, 0.f, -60.f, 0.f,
-                   uiBase->getFontSize() * 0.125f);
+            if (isImageDirty.load()) {
+                updateImage();
+            }
+            g.drawImage(image, getLocalBounds().toFloat());
         }
     }
 
     void ComputerPlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {
         if (parameterID == zlstate::showComputer::ID) {
             isComputerVisible.store(static_cast<bool>(newValue));
+        } else if (parameterID == zlstate::uiStyle::ID) {
+            isImageDirty.store(true);
         }
         triggerAsyncUpdate();
     }
 
     void ComputerPlotPanel::valueChanged(juce::Value &value) {
         juce::ignoreUnused(value);
+        isImageDirty.store(true);
         triggerAsyncUpdate();
+    }
+
+    void ComputerPlotPanel::resized() {
+        isImageDirty.store(true);
+    }
+
+    void ComputerPlotPanel::updateImage() {
+        image = juce::Image(juce::Image::ARGB,
+                            getLocalBounds().getWidth() * 2, getLocalBounds().getHeight() * 2,
+                            true);
+        float fontSize = uiBase->getFontSize() * 2;
+        auto g = juce::Graphics(image);
+
+        std::vector<float> x, y;
+        computerAttach->getPlotArray(x, y);
+        auto bound = image.getBounds().toFloat();
+
+        g.setColour(uiBase->getTextInactiveColor());
+        g.setFont(fontSize * zlinterface::FontLarge);
+        g.drawText("0",
+                   juce::Rectangle<float>(
+                           bound.getX(), bound.getY() + smallPadding * fontSize,
+                           largePadding * 0.9f * fontSize, fontSize),
+                   juce::Justification::topRight);
+        g.drawText("-60",
+                   juce::Rectangle<float>(
+                           bound.getX(),
+                           bound.getY() + bound.getHeight() - (1.f + largePadding) * fontSize,
+                           largePadding * 0.9f * fontSize, fontSize),
+                   juce::Justification::bottomRight);
+
+        auto threshold = static_cast<float>(computerAttach->getThreshold());
+        g.drawText(zlinterface::formatFloat(threshold, 0),
+                   juce::Rectangle<float>(
+                           bound.getX(),
+                           bound.getY() + smallPadding * fontSize +
+                           juce::jlimit(fontSize, bound.getHeight() -
+                                                               (largePadding + smallPadding + 1) *
+                                                                       fontSize,
+                                        (bound.getHeight() -
+                                         (largePadding + smallPadding) * fontSize) * threshold /
+                                        (-60.f)) - fontSize * 0.5f,
+                           largePadding * 0.95f * fontSize, fontSize),
+                   juce::Justification::centredRight);
+
+        bound = bound.withTrimmedLeft(
+                fontSize * largePadding).withTrimmedBottom(
+                fontSize * largePadding).withTrimmedRight(
+                fontSize * smallPadding).withTrimmedTop(
+                fontSize * smallPadding);
+        g.setColour(uiBase->getTextInactiveColor());
+        g.drawRect(bound, fontSize * 0.1f);
+
+        bound = bound.withSizeKeepingCentre(bound.getWidth() - fontSize * 0.1f,
+                                            bound.getHeight() - fontSize * 0.1f);
+
+        float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
+        g.setColour(uiBase->getTextInactiveColor());
+        g.drawDashedLine(juce::Line<float>(bound.getX(), bound.getY() + bound.getHeight(),
+                                           bound.getX() + bound.getWidth(), bound.getY()),
+                         dashLengths, 2, fontSize * 0.1f);
+
+        auto thresholdY = getPointY(bound, static_cast<float>(computerAttach->getThreshold()), -60.f, 0.f);
+        g.drawDashedLine(juce::Line<float>(bound.getX(), thresholdY,
+                                           bound.getX() + bound.getWidth(), thresholdY),
+                         dashLengths, 2, fontSize * 0.1f);
+
+        g.setColour(uiBase->getTextColor());
+        plotXY(g, bound,
+               x, y, -60.f, 0.f, -60.f, 0.f,
+               fontSize * 0.125f);
+        isImageDirty.store(false);
     }
 
     void ComputerPlotPanel::handleAsyncUpdate() {
@@ -148,9 +163,6 @@ namespace zlpanel {
         detectorAttach->isPlotReady.addListener(this);
         processorRef = &p;
         uiBase = &base;
-//        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
-//            processorRef->parameters.addParameterListener(isDetectorChangedParaID, this);
-//        }
         for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.addParameterListener(isDetectorChangedStateID, this);
         }
@@ -158,9 +170,6 @@ namespace zlpanel {
     }
 
     DetectorPlotPanel::~DetectorPlotPanel() {
-//        for (const auto &isDetectorChangedParaID: isDetectorChangedParaIDs) {
-//            processorRef->parameters.removeParameterListener(isDetectorChangedParaID, this);
-//        }
         detectorAttach->isPlotReady.removeListener(this);
         for (const auto &isDetectorChangedStateID: isDetectorChangedStateIDs) {
             processorRef->states.removeParameterListener(isDetectorChangedStateID, this);
@@ -169,90 +178,107 @@ namespace zlpanel {
 
     void DetectorPlotPanel::paint(juce::Graphics &g) {
         if (isDetectorVisible.load()) {
-            std::vector<float> x, y;
-            detectorAttach->getPlotArray(x, y);
-            auto xMax = x.back();
-            auto yMinIndex = static_cast<size_t>(std::distance(std::begin(y),
-                                                               std::min_element(std::begin(y), std::end(y))));
-
-            auto bound = getLocalBounds().toFloat();
-            g.setColour(uiBase->getTextInactiveColor());
-            g.setFont(uiBase->getFontSize() * zlinterface::FontLarge);
-            g.drawText("0",
-                       juce::Rectangle<float>(
-                               bound.getX(), bound.getY() + smallPadding * uiBase->getFontSize(),
-                               largePadding * 0.9f * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::topRight);
-            g.drawText("-20",
-                       juce::Rectangle<float>(
-                               bound.getX(),
-                               bound.getY() + bound.getHeight() - (1.f + largePadding) * uiBase->getFontSize(),
-                               largePadding * 0.95f * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::bottomRight);
-            g.drawText(zlinterface::fixFormatFloat(xMax * 1000, 3),
-                       juce::Rectangle<float>(
-                               bound.getX() + bound.getWidth() -
-                               (largePadding * 2 + smallPadding) * uiBase->getFontSize(),
-                               bound.getY() + bound.getHeight() - largePadding * uiBase->getFontSize(),
-                               largePadding * 2 * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::centredRight);
-            g.drawText(zlinterface::fixFormatFloat(x[yMinIndex] * 1000, 3),
-                       juce::Rectangle<float>(
-                               bound.getX() +
-                               juce::jlimit(largePadding * 0.5f * uiBase->getFontSize(),
-                                            bound.getWidth() -
-                                            (largePadding * 2.5f + smallPadding) * uiBase->getFontSize(),
-                                            (bound.getWidth() - (largePadding + smallPadding) * uiBase->getFontSize()) *
-                                            x[yMinIndex] / xMax),
-                               bound.getY() + bound.getHeight() - largePadding * uiBase->getFontSize(),
-                               largePadding * 2 * uiBase->getFontSize(), uiBase->getFontSize()),
-                       juce::Justification::centred);
-
-            bound = bound.withTrimmedLeft(
-                    uiBase->getFontSize() * largePadding).withTrimmedBottom(
-                    uiBase->getFontSize() * largePadding).withTrimmedRight(
-                    uiBase->getFontSize() * smallPadding).withTrimmedTop(
-                    uiBase->getFontSize() * smallPadding);
-            g.setColour(uiBase->getTextInactiveColor());
-            g.drawRect(bound, uiBase->getFontSize() * 0.1f);
-
-            bound = bound.withSizeKeepingCentre(bound.getWidth() - uiBase->getFontSize() * 0.1f,
-                                                bound.getHeight() - uiBase->getFontSize() * 0.1f);
-
-            float dashLengths[2] = {uiBase->getFontSize() * .5f, uiBase->getFontSize() * .5f};
-            g.setColour(uiBase->getTextInactiveColor());
-            g.drawDashedLine(juce::Line<float>(getPointX(bound, x.front(), 0.f, xMax),
-                                               getPointY(bound, y.front(), 0.1f, 1.f),
-                                               getPointX(bound, x[yMinIndex], 0.f, xMax),
-                                               getPointY(bound, y[yMinIndex], 0.1f, 1.f)),
-                             dashLengths, 2, uiBase->getFontSize() * 0.1f);
-            g.drawDashedLine(juce::Line<float>(
-                                     getPointX(bound, x[yMinIndex], 0.f, xMax),
-                                     getPointY(bound, y[yMinIndex], 0.1f, 1.f),
-                                     getPointX(bound, x.back(), 0.f, xMax),
-                                     getPointY(bound, y.back(), 0.1f, 1.f)),
-                             dashLengths, 2, uiBase->getFontSize() * 0.1f);
-            g.setColour(uiBase->getTextColor());
-            plotXY(g, bound,
-                   x, y, 0.f, xMax, 0.1f, 1.f,
-                   uiBase->getFontSize() * 0.125f);
+            if (isImageDirty.load()) {
+                updateImage();
+            }
+            g.drawImage(image, getLocalBounds().toFloat());
         }
     }
 
     void DetectorPlotPanel::parameterChanged(const juce::String &parameterID, float newValue) {
         if (parameterID == zlstate::showDetector::ID) {
             isDetectorVisible.store(static_cast<bool>(newValue));
+        } else if (parameterID == zlstate::uiStyle::ID) {
+            isImageDirty.store(true);
         }
         triggerAsyncUpdate();
     }
 
     void DetectorPlotPanel::valueChanged(juce::Value &value) {
         juce::ignoreUnused(value);
+        isImageDirty.store(true);
         triggerAsyncUpdate();
     }
 
     void DetectorPlotPanel::handleAsyncUpdate() {
         repaint();
+    }
+
+    void DetectorPlotPanel::updateImage() {
+        image = juce::Image(juce::Image::ARGB,
+                            getLocalBounds().getWidth() * 2, getLocalBounds().getHeight() * 2,
+                            true);
+        float fontSize = uiBase->getFontSize() * 2;
+        auto g = juce::Graphics(image);
+
+        std::vector<float> x, y;
+        detectorAttach->getPlotArray(x, y);
+        auto xMax = x.back();
+        auto yMinIndex = static_cast<size_t>(std::distance(std::begin(y),
+                                                           std::min_element(std::begin(y), std::end(y))));
+
+        auto bound = image.getBounds().toFloat();
+        g.setColour(uiBase->getTextInactiveColor());
+        g.setFont(fontSize * zlinterface::FontLarge);
+        g.drawText("0",
+                   juce::Rectangle<float>(
+                           bound.getX(), bound.getY() + smallPadding * fontSize,
+                           largePadding * 0.9f * fontSize, fontSize),
+                   juce::Justification::topRight);
+        g.drawText("-20",
+                   juce::Rectangle<float>(
+                           bound.getX(),
+                           bound.getY() + bound.getHeight() - (1.f + largePadding) * fontSize,
+                           largePadding * 0.95f * fontSize, fontSize),
+                   juce::Justification::bottomRight);
+        g.drawText(zlinterface::fixFormatFloat(xMax * 1000, 3),
+                   juce::Rectangle<float>(
+                           bound.getX() + bound.getWidth() -
+                           (largePadding * 2 + smallPadding) * fontSize,
+                           bound.getY() + bound.getHeight() - largePadding * fontSize,
+                           largePadding * 2 * fontSize, fontSize),
+                   juce::Justification::centredRight);
+        g.drawText(zlinterface::fixFormatFloat(x[yMinIndex] * 1000, 3),
+                   juce::Rectangle<float>(
+                           bound.getX() +
+                           juce::jlimit(largePadding * 0.5f * fontSize,
+                                        bound.getWidth() -
+                                        (largePadding * 2.5f + smallPadding) * fontSize,
+                                        (bound.getWidth() - (largePadding + smallPadding) * fontSize) *
+                                        x[yMinIndex] / xMax),
+                           bound.getY() + bound.getHeight() - largePadding * fontSize,
+                           largePadding * 2 * fontSize, fontSize),
+                   juce::Justification::centred);
+
+        bound = bound.withTrimmedLeft(
+                fontSize * largePadding).withTrimmedBottom(
+                fontSize * largePadding).withTrimmedRight(
+                fontSize * smallPadding).withTrimmedTop(
+                fontSize * smallPadding);
+        g.setColour(uiBase->getTextInactiveColor());
+        g.drawRect(bound, fontSize * 0.1f);
+
+        bound = bound.withSizeKeepingCentre(bound.getWidth() - fontSize * 0.1f,
+                                            bound.getHeight() - fontSize * 0.1f);
+
+        float dashLengths[2] = {fontSize * .5f, fontSize * .5f};
+        g.setColour(uiBase->getTextInactiveColor());
+        g.drawDashedLine(juce::Line<float>(getPointX(bound, x.front(), 0.f, xMax),
+                                           getPointY(bound, y.front(), 0.1f, 1.f),
+                                           getPointX(bound, x[yMinIndex], 0.f, xMax),
+                                           getPointY(bound, y[yMinIndex], 0.1f, 1.f)),
+                         dashLengths, 2, fontSize * 0.1f);
+        g.drawDashedLine(juce::Line<float>(
+                                 getPointX(bound, x[yMinIndex], 0.f, xMax),
+                                 getPointY(bound, y[yMinIndex], 0.1f, 1.f),
+                                 getPointX(bound, x.back(), 0.f, xMax),
+                                 getPointY(bound, y.back(), 0.1f, 1.f)),
+                         dashLengths, 2, fontSize * 0.1f);
+        g.setColour(uiBase->getTextColor());
+        plotXY(g, bound,
+               x, y, 0.f, xMax, 0.1f, 1.f,
+               fontSize * 0.125f);
+        isImageDirty.store(false);
     }
 
     PlotPanel::PlotPanel(PluginProcessor &p, zlinterface::UIBase &base) :

@@ -44,6 +44,8 @@ namespace zlpanel {
 
         void valueChanged(juce::Value &value) override;
 
+        void resized() override;
+
     private:
         auto static constexpr largePadding = 1.5f, smallPadding = 0.5f;
         zlcontroller::ComputerAttach<float> *computerAttach;
@@ -52,8 +54,12 @@ namespace zlpanel {
         std::array<juce::String, 6> isComputerChangedParaIDs{zldsp::threshold::ID, zldsp::ratio::ID,
                                                              zldsp::kneeW::ID, zldsp::kneeD::ID,
                                                              zldsp::kneeS::ID, zldsp::bound::ID};
-        std::array<juce::String, 1> isComputerChangedStateIDs{zlstate::showComputer::ID};
+        std::array<juce::String, 2> isComputerChangedStateIDs{zlstate::showComputer::ID, zlstate::uiStyle::ID};
         std::atomic<bool> isComputerVisible = zlstate::showComputer::defaultV;
+        std::atomic<bool> isImageDirty = true;
+        juce::Image image;
+
+        void updateImage();
 
         void handleAsyncUpdate() override;
 
@@ -80,9 +86,12 @@ namespace zlpanel {
         std::array<juce::String, 5> isDetectorChangedParaIDs{zldsp::attack::ID, zldsp::release::ID,
                                                              zldsp::aStyle::ID, zldsp::rStyle::ID,
                                                              zldsp::smooth::ID};
-        std::array<juce::String, 1> isDetectorChangedStateIDs{zlstate::showDetector::ID};
+        std::array<juce::String, 2> isDetectorChangedStateIDs{zlstate::showDetector::ID, zlstate::uiStyle::ID};
         std::atomic<bool> isDetectorVisible = zlstate::showDetector::defaultV;
+        std::atomic<bool> isImageDirty = true;
+        juce::Image image;
 
+        void updateImage();
         void handleAsyncUpdate() override;
     };
 

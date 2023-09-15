@@ -252,10 +252,10 @@ namespace zldsp {
     public:
         auto static constexpr ID = "structure_style";
         auto static constexpr name = "Style";
-        inline auto static const choices = juce::StringArray{"Smooth", "Clean"};
+        inline auto static const choices = juce::StringArray{"Clean", "Gentle"};
         int static constexpr defaultI = 0;
         enum {
-            smooth, clean, structureNUM
+            clean, gentle, structureNUM
         };
     };
 

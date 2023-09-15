@@ -28,7 +28,7 @@ namespace zldetector {
         FloatType para = ra ? rPara.load() : aPara.load();
         size_t style = ra ? rStyle.load() : aStyle.load();
         FloatType distanceS = target - xS;
-        FloatType distanceC = (xS - xC) * smooth.load() + (target - xC) * (1 - smooth.load());
+        FloatType distanceC = xS * smooth.load() + target * (1 - smooth.load()) - xC;
         FloatType slopeS = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceS))), std::abs(distanceS));
         FloatType slopeC = juce::jmin(para * std::abs(funcs<FloatType>[style](std::abs(distanceC))), std::abs(target - xC));
         xS += slopeS * sgn(distanceS);
