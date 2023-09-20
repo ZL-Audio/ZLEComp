@@ -161,9 +161,15 @@ namespace zlstate {
         };
     };
 
+    inline juce::AudioProcessorValueTreeState::ParameterLayout getNAParameterLayout() {
+        juce::AudioProcessorValueTreeState::ParameterLayout layout;
+        layout.add(programIdx::get(false));
+        return layout;
+    }
+
     inline juce::AudioProcessorValueTreeState::ParameterLayout getParameterLayout() {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
-        layout.add(programIdx::get(false), uiStyle::get(false),
+        layout.add(uiStyle::get(false),
                    windowW::get(false), windowH::get(false),
                    showComputer::get("Computer", false),
                    showDetector::get("Detector", false),

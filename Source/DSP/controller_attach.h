@@ -36,9 +36,9 @@ namespace zlcontroller {
         void parameterChanged(const juce::String &parameterID, float newValue) override;
 
     private:
-        juce::AudioProcessor *m_processor;
+        juce::AudioProcessor *processorRef;
         Controller<FloatType> *controller;
-        juce::AudioProcessorValueTreeState *apvts, *states;
+        juce::AudioProcessorValueTreeState *apvts, *apvtsNA;
         constexpr const static std::array IDs{zldsp::outGain::ID, zldsp::mix::ID,
                                               zldsp::overSample::ID,
                                               zldsp::rms::ID, zldsp::lookahead::ID,

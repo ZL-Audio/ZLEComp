@@ -29,6 +29,7 @@ class PluginProcessor : public juce::AudioProcessor {
 public:
     DummyProcessor dummyProcessor;
     juce::AudioProcessorValueTreeState parameters;
+    juce::AudioProcessorValueTreeState parametersNA;
     juce::AudioProcessorValueTreeState states;
 
     PluginProcessor();

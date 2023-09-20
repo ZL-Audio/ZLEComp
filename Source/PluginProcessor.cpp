@@ -21,11 +21,17 @@ PluginProcessor::PluginProcessor()
                                  .withInput("Ext", juce::AudioChannelSet::stereo(),
                                             true)),
           dummyProcessor(),
-          parameters(*this, nullptr, juce::Identifier("ZLECompParameters"), zldsp::getParameterLayout()),
-          states(dummyProcessor, nullptr, juce::Identifier("ZLECompStates"), zlstate::getParameterLayout()),
-
+          parameters(*this, nullptr,
+                     juce::Identifier("ZLECompParameters"),
+                     zldsp::getParameterLayout()),
+          parametersNA(dummyProcessor, nullptr,
+                       juce::Identifier("ZLECompParametersNA"),
+                       zlstate::getNAParameterLayout()),
+          states(dummyProcessor, nullptr,
+                 juce::Identifier("ZLECompStates"),
+                 zlstate::getParameterLayout()),
           controller(*this, parameters),
-          controllerAttach(*this, controller, parameters, states),
+          controllerAttach(*this, controller, parameters, parametersNA),
           detectorAttach(controller, parameters),
           computerAttach(*this, controller, parameters) {
     controllerAttach.initDefaultVs();
@@ -81,14 +87,11 @@ int PluginProcessor::getCurrentProgram() {
 
 void PluginProcessor::setCurrentProgram(int index) {
     programIndex.store(index);
-    states.getParameter(zlstate::programIdx::ID)->setValueNotifyingHost(
-            zlstate::programIdx::convertTo01(index));
+    parametersNA.getParameter(zlstate::programIdx::ID)->setValueNotifyingHost(zlstate::programIdx::convertTo01(index));
     if (index < zlstate::preset::presetNUM) {
         juce::XmlDocument xmlDocument{zlstate::preset::xmls[static_cast<size_t>(index)]};
         const auto valueTreeToLoad = juce::ValueTree::fromXml(*xmlDocument.getDocumentElement());
         parameters.replaceState(valueTreeToLoad.getChildWithName("ZLECompParameters"));
-        auto tempIndex = valueTreeToLoad.getChildWithName(states.state.getType()).getProperty(zlstate::programIdx::ID);
-        programIndex.store(static_cast<int>(tempIndex.operator int()));
     }
 }
 
@@ -153,7 +156,7 @@ juce::AudioProcessorEditor *PluginProcessor::createEditor() {
 void PluginProcessor::getStateInformation(juce::MemoryBlock &destData) {
     auto tempTree = juce::ValueTree("ZLECompParaState");
     tempTree.appendChild(parameters.copyState(), nullptr);
-    tempTree.appendChild(states.copyState(), nullptr);
+    tempTree.appendChild(parametersNA.copyState(), nullptr);
     std::unique_ptr<juce::XmlElement> xml(tempTree.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -163,8 +166,8 @@ void PluginProcessor::setStateInformation(const void *data, int sizeInBytes) {
     if (xmlState != nullptr && xmlState->hasTagName("ZLECompParaState")) {
         auto tempTree = juce::ValueTree::fromXml(*xmlState);
         parameters.replaceState(tempTree.getChildWithName(parameters.state.getType()));
-        states.replaceState(tempTree.getChildWithName(states.state.getType()));
-        programIndex.store(static_cast<int>(*states.getRawParameterValue(zlstate::programIdx::ID)));
+        parametersNA.replaceState(tempTree.getChildWithName(parametersNA.state.getType()));
+        programIndex.store(static_cast<int>(parametersNA.getRawParameterValue(zlstate::programIdx::ID)->load()));
     }
 }
 
