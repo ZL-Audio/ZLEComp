@@ -103,6 +103,8 @@ set(SourceFiles
         Source/State/state_definitions.h
         Source/State/dummy_processor.h
         Source/State/dummy_processor.cpp
+        Source/State/property.h
+        Source/State/property.cpp
 
         Source/DSP/dsp_definitions.h
         Source/DSP/controller.h

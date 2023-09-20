@@ -14,7 +14,9 @@
 //==============================================================================
 PluginEditor::PluginEditor(PluginProcessor &p) :
         AudioProcessorEditor(&p), processorRef(p),
+        property(p.states),
         mainPanel(p) {
+
     juce::ignoreUnused(processorRef);
     // set font
     auto sourceCodePro = juce::Typeface::createSystemTypefaceFor(BinaryData::OpenSansSemiBold_ttf,
@@ -36,7 +38,9 @@ PluginEditor::PluginEditor(PluginProcessor &p) :
     lastUIHeight.addListener(this);
 }
 
-PluginEditor::~PluginEditor() = default;
+PluginEditor::~PluginEditor() {
+    property.saveAPVTS(processorRef.states);
+}
 
 //==============================================================================
 void PluginEditor::paint(juce::Graphics &g) {

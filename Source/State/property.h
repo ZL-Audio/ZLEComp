@@ -8,33 +8,28 @@
 // You should have received a copy of the GNU General Public License along with ZLEComp. If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-#pragma once
+#ifndef ZLECOMP_PROPERTY_H
+#define ZLECOMP_PROPERTY_H
 
-#include "PluginProcessor.h"
-#include "Panel/main_panel.h"
-#include "State/state_definitions.h"
-#include "State/property.h"
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_dsp/juce_dsp.h>
 
-//==============================================================================
-class PluginEditor : public juce::AudioProcessorEditor,
-private juce::Value::Listener {
-public:
-    explicit PluginEditor(PluginProcessor &p);
+namespace zlstate {
 
-    ~PluginEditor() override;
+    class Property {
+    public:
+        Property();
 
-    //==============================================================================
-    void paint(juce::Graphics &) override;
+        Property(juce::AudioProcessorValueTreeState &apvts);
 
-    void resized() override;
+        void loadAPVTS(juce::AudioProcessorValueTreeState &apvts);
 
-private:
-    PluginProcessor &processorRef;
-    zlstate::Property property;
-    zlpanel::MainPanel mainPanel;
-    juce::Value lastUIWidth, lastUIHeight;
+        void saveAPVTS(juce::AudioProcessorValueTreeState &apvts);
 
-    void valueChanged (juce::Value&) override;
+    private:
+        std::unique_ptr<juce::PropertiesFile> uiFile;
+    };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
-};
+} // zlstate
+
+#endif //ZLECOMP_PROPERTY_H
