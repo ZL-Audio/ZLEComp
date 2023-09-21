@@ -17,6 +17,10 @@ PluginEditor::PluginEditor(PluginProcessor &p) :
         property(p.states),
         mainPanel(p) {
 
+    for (auto &ID: IDs) {
+        processorRef.states.addParameterListener(ID, this);
+    }
+
     juce::ignoreUnused(processorRef);
     // set font
     auto sourceCodePro = juce::Typeface::createSystemTypefaceFor(BinaryData::OpenSansSemiBold_ttf,
@@ -39,7 +43,9 @@ PluginEditor::PluginEditor(PluginProcessor &p) :
 }
 
 PluginEditor::~PluginEditor() {
-    property.saveAPVTS(processorRef.states);
+    for (auto &ID: IDs) {
+        processorRef.states.removeParameterListener(ID, this);
+    }
 }
 
 //==============================================================================
@@ -60,4 +66,13 @@ void PluginEditor::resized() {
 
 void PluginEditor::valueChanged(juce::Value &) {
     setSize(lastUIWidth.getValue(), lastUIHeight.getValue());
+}
+
+void PluginEditor::parameterChanged(const juce::String &parameterID, float newValue) {
+    juce::ignoreUnused(parameterID, newValue);
+    triggerAsyncUpdate();
+}
+
+void PluginEditor::handleAsyncUpdate() {
+    property.saveAPVTS(processorRef.states);
 }

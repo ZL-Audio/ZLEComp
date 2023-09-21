@@ -149,7 +149,7 @@ namespace zldsp {
         auto static constexpr ID = "segment";
         auto static constexpr name = "Segment (ms)";
         inline auto static const range =
-                juce::NormalisableRange<float>(0.f, 100.f, 1.f);
+                juce::NormalisableRange<float>(0.f, 100.f, .1f, 0.30103f);
         auto static constexpr defaultV = 0.f;
 
         inline static float formatV(float x) { return x * .001f; }

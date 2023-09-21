@@ -17,7 +17,9 @@
 
 //==============================================================================
 class PluginEditor : public juce::AudioProcessorEditor,
-private juce::Value::Listener {
+                     private juce::Value::Listener,
+                     private juce::AudioProcessorValueTreeState::Listener,
+                     private juce::AsyncUpdater {
 public:
     explicit PluginEditor(PluginProcessor &p);
 
@@ -33,8 +35,16 @@ private:
     zlstate::Property property;
     zlpanel::MainPanel mainPanel;
     juce::Value lastUIWidth, lastUIHeight;
+    constexpr const static std::array IDs{zlstate::showComputer::ID, zlstate::showDetector::ID,
+                                          zlstate::monitorSetting::ID,
+                                          zlstate::uiStyle::ID,
+                                          zlstate::windowW::ID, zlstate::windowH::ID};
 
-    void valueChanged (juce::Value&) override;
+    void valueChanged(juce::Value &) override;
+
+    void parameterChanged(const juce::String &parameterID, float newValue) override;
+
+    void handleAsyncUpdate() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };
