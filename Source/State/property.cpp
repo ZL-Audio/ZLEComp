@@ -13,14 +13,10 @@
 namespace zlstate {
 
     Property::Property() {
-        auto path = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getFullPathName();
-        auto uiPath = path + "/Audio/Presets/ZL/ZL E Compressor/ui.xml";
         uiFile = std::make_unique<juce::PropertiesFile>(juce::File(uiPath), juce::PropertiesFile::Options());
     }
 
     Property::Property(juce::AudioProcessorValueTreeState &apvts) {
-        auto path = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getFullPathName();
-        auto uiPath = path + "/Audio/Presets/ZL/ZL E Compressor/ui.xml";
         uiFile = std::make_unique<juce::PropertiesFile>(juce::File(uiPath), juce::PropertiesFile::Options());
         loadAPVTS(apvts);
     }

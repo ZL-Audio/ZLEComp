@@ -20,7 +20,7 @@ namespace zlstate {
     public:
         Property();
 
-        Property(juce::AudioProcessorValueTreeState &apvts);
+        explicit Property(juce::AudioProcessorValueTreeState &apvts);
 
         void loadAPVTS(juce::AudioProcessorValueTreeState &apvts);
 
@@ -28,6 +28,9 @@ namespace zlstate {
 
     private:
         std::unique_ptr<juce::PropertiesFile> uiFile;
+
+        inline auto static const path = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getFullPathName();
+        inline auto static const uiPath = path + "/Audio/Presets/" + JucePlugin_Manufacturer + "/" + JucePlugin_Name + "/ui.xml";
     };
 
 } // zlstate
