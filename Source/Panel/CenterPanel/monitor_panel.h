@@ -12,7 +12,6 @@
 #define ZLECOMP_MONITOR_PANEL_H
 
 #include "juce_audio_processors/juce_audio_processors.h"
-//#include <juce_opengl/juce_opengl.h>
 #include "../../PluginProcessor.h"
 #include "../../GUI/interface_definitions.h"
 #include "../../DSP/Meter/meter.h"

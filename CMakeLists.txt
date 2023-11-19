@@ -32,7 +32,7 @@ set(PROJECT_NAME "ZLEComp")
 
 # Set the plugin formats you'll be building here.
 # Valid formats: AAX Unity VST AU AUv3 Standalone
-set(FORMATS AU VST3)
+set(FORMATS AU VST3 LV2)
 
 # This must be set before the project() call
 # see: https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
@@ -87,6 +87,7 @@ juce_add_plugin("${PROJECT_NAME}"
         PLUGIN_CODE Ecom                            # A unique four-character plugin id with at least one upper-case character
         VST3_CATEGORIES Dynamics
         AU_MAIN_TYPE kAudioUnitType_Effect
+        LV2URI "https://github.com/ZL-Audio/ZLEComp/tree/${VERSION}"
         FORMATS "${FORMATS}"
         PRODUCT_NAME "ZL E Compressor")             # The name of the final executable, which can differ from the target name
 
@@ -94,88 +95,7 @@ juce_add_plugin("${PROJECT_NAME}"
 target_compile_features("${PROJECT_NAME}" PRIVATE cxx_std_20)
 
 # Manually list all .h and .cpp files for the plugin
-set(SourceFiles
-        Source/PluginEditor.h
-        Source/PluginProcessor.h
-        Source/PluginEditor.cpp
-        Source/PluginProcessor.cpp
-
-        Source/State/state_definitions.h
-        Source/State/dummy_processor.h
-        Source/State/dummy_processor.cpp
-        Source/State/property.h
-        Source/State/property.cpp
-
-        Source/DSP/dsp_definitions.h
-        Source/DSP/controller.h
-        Source/DSP/controller.cpp
-        Source/DSP/controller_attach.h
-        Source/DSP/controller_attach.cpp
-        Source/DSP/detector_attach.h
-        Source/DSP/detector_attach.cpp
-        Source/DSP/computer_attach.h
-        Source/DSP/computer_attach.cpp
-        Source/DSP/FixedBuffer/fifo_audio_buffer.h
-        Source/DSP/FixedBuffer/fifo_audio_buffer.cpp
-        Source/DSP/FixedBuffer/fixed_audio_buffer.h
-        Source/DSP/FixedBuffer/fixed_audio_buffer.cpp
-        Source/DSP/Computer/computer.h
-        Source/DSP/Computer/computer.cpp
-        Source/DSP/Detector/iter_funcs.h
-        Source/DSP/Detector/detector.h
-        Source/DSP/Detector/detector.cpp
-        Source/DSP/Detector/tracker.h
-        Source/DSP/Detector/rms_tracker.h
-        Source/DSP/Detector/rms_tracker.cpp
-        Source/DSP/Meter/meter.h
-
-        Source/GUI/interface_definitions.h
-        Source/GUI/linear_slider_look_and_feel.h
-        Source/GUI/linear_slider_component.h
-        Source/GUI/rotary_slider_look_and_feel.h
-        Source/GUI/rotary_slider_component.h
-        Source/GUI/button_look_and_feel.h
-        Source/GUI/button_component.h
-        Source/GUI/combobox_look_and_feel.h
-        Source/GUI/combo_box_component.h
-        Source/GUI/name_look_and_feel.h
-        Source/GUI/meter_look_and_feel.h
-        Source/GUI/meter_component.h
-
-        Source/Panel/panel_definitions.h
-        Source/Panel/main_panel.h
-        Source/Panel/main_panel.cpp
-
-        Source/Panel/StatePanel/state_panel.h
-        Source/Panel/StatePanel/state_panel.cpp
-        Source/Panel/StatePanel/logo_panel.h
-        Source/Panel/StatePanel/logo_panel.cpp
-        Source/Panel/StatePanel/ui_state_panel.h
-        Source/Panel/StatePanel/ui_state_panel.cpp
-        Source/Panel/StatePanel/process_state_panel.h
-        Source/Panel/StatePanel/process_state_panel.cpp
-
-        Source/Panel/CenterPanel/center_panel.h
-        Source/Panel/CenterPanel/center_panel.cpp
-        Source/Panel/CenterPanel/plot_panel.h
-        Source/Panel/CenterPanel/plot_panel.cpp
-        Source/Panel/CenterPanel/monitor_panel.h
-        Source/Panel/CenterPanel/monitor_panel.cpp
-        Source/Panel/CenterPanel/monitor_sub_panel.h
-        Source/Panel/CenterPanel/monitor_sub_panel.cpp
-
-        Source/Panel/SettingPanel/setting_panel.h
-        Source/Panel/SettingPanel/setting_panel.cpp
-        Source/Panel/SettingPanel/global_setting_panel.h
-        Source/Panel/SettingPanel/global_setting_panel.cpp
-        Source/Panel/SettingPanel/detector_setting_panel.h
-        Source/Panel/SettingPanel/detector_setting_panel.cpp
-        Source/Panel/SettingPanel/computer_setting_panel.h
-        Source/Panel/SettingPanel/computer_setting_panel.cpp
-
-        Source/Panel/MeterPanel/meter_panel.h
-        Source/Panel/MeterPanel/meter_panel.cpp
-        )
+file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h")
 target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
 
 # No, we don't want our source buried in extra nested folders
@@ -227,7 +147,9 @@ target_compile_definitions("${PROJECT_NAME}"
         JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
         JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_DISPLAY_SPLASH_SCREEN=0)
+        JUCE_DISPLAY_SPLASH_SCREEN=0
+        JUCE_COREGRAPHICS_RENDER_WITH_MULTIPLE_PAINT_CALLS=1
+        JUCE_SILENCE_XCODE_15_LINKER_WARNING=1)
 
 target_link_libraries("${PROJECT_NAME}"
         PRIVATE
