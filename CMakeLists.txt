@@ -32,7 +32,7 @@ set(PROJECT_NAME "ZLEComp")
 
 # Set the plugin formats you'll be building here.
 # Valid formats: AAX Unity VST AU AUv3 Standalone
-set(FORMATS AU VST3 LV2)
+set(FORMATS AU VST3)
 
 # This must be set before the project() call
 # see: https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
