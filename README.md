@@ -3,6 +3,8 @@
   <img src="Docs/logo.svg" width="7.5%" />
 </p>
 
+**This plugin is deprecated. A new version is here https://github.com/ZL-Audio/ZLCompressor. The new version won't be compatible with this plugin.**
+
 # ZLEComp
 ![pluginval](<https://github.com/ZL-Audio/ZLEComp/workflows/macOS\/Windows Test/badge.svg?branch=main>) 
 
